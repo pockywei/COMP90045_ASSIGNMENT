@@ -1,0 +1,190 @@
+   0  $accept : %entry% $end
+
+   1  start_state : data_structure
+
+   2  data_structure : data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER
+   3                 |
+
+   4  typedef_body : typedef_body IDENTIFIER COLON type_stmts COMMA
+   5               | typedef_body IDENTIFIER COLON type_stmts
+   6               | typedef_body IDENTIFIER COLON recursive_list_value_init
+   7               |
+
+   8  type_stmts : IDENTIFIER
+   9             | INT
+  10             | BOOL
+
+  11  recursive_list_value_init : LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS
+
+  12  %entry% : '\001' start_state
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . start_state  (12)
+	data_structure : .  (3)
+
+	.  reduce 3
+
+	start_state  goto 3
+	data_structure  goto 4
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	%entry% : '\001' start_state .  (12)
+
+	.  reduce 12
+
+
+state 4
+	start_state : data_structure .  (1)
+	data_structure : data_structure . TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER  (2)
+
+	TYPEDEF  shift 5
+	$end  reduce 1
+
+
+state 5
+	data_structure : data_structure TYPEDEF . LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER  (2)
+
+	LEFT_PARENTHESIS  shift 6
+	.  error
+
+
+state 6
+	data_structure : data_structure TYPEDEF LEFT_PARENTHESIS . typedef_body RIGHT_PARENTHESIS IDENTIFIER  (2)
+	typedef_body : .  (7)
+
+	.  reduce 7
+
+	typedef_body  goto 7
+
+
+state 7
+	data_structure : data_structure TYPEDEF LEFT_PARENTHESIS typedef_body . RIGHT_PARENTHESIS IDENTIFIER  (2)
+	typedef_body : typedef_body . IDENTIFIER COLON type_stmts COMMA  (4)
+	typedef_body : typedef_body . IDENTIFIER COLON type_stmts  (5)
+	typedef_body : typedef_body . IDENTIFIER COLON recursive_list_value_init  (6)
+
+	IDENTIFIER  shift 8
+	RIGHT_PARENTHESIS  shift 9
+	.  error
+
+
+state 8
+	typedef_body : typedef_body IDENTIFIER . COLON type_stmts COMMA  (4)
+	typedef_body : typedef_body IDENTIFIER . COLON type_stmts  (5)
+	typedef_body : typedef_body IDENTIFIER . COLON recursive_list_value_init  (6)
+
+	COLON  shift 10
+	.  error
+
+
+state 9
+	data_structure : data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS . IDENTIFIER  (2)
+
+	IDENTIFIER  shift 11
+	.  error
+
+
+state 10
+	typedef_body : typedef_body IDENTIFIER COLON . type_stmts COMMA  (4)
+	typedef_body : typedef_body IDENTIFIER COLON . type_stmts  (5)
+	typedef_body : typedef_body IDENTIFIER COLON . recursive_list_value_init  (6)
+
+	IDENTIFIER  shift 12
+	LEFT_PARENTHESIS  shift 13
+	BOOL  shift 14
+	INT  shift 15
+	.  error
+
+	type_stmts  goto 16
+	recursive_list_value_init  goto 17
+
+
+state 11
+	data_structure : data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER .  (2)
+
+	.  reduce 2
+
+
+state 12
+	type_stmts : IDENTIFIER .  (8)
+
+	.  reduce 8
+
+
+state 13
+	recursive_list_value_init : LEFT_PARENTHESIS . typedef_body RIGHT_PARENTHESIS  (11)
+	typedef_body : .  (7)
+
+	.  reduce 7
+
+	typedef_body  goto 18
+
+
+state 14
+	type_stmts : BOOL .  (10)
+
+	.  reduce 10
+
+
+state 15
+	type_stmts : INT .  (9)
+
+	.  reduce 9
+
+
+state 16
+	typedef_body : typedef_body IDENTIFIER COLON type_stmts . COMMA  (4)
+	typedef_body : typedef_body IDENTIFIER COLON type_stmts .  (5)
+
+	COMMA  shift 19
+	IDENTIFIER  reduce 5
+	RIGHT_PARENTHESIS  reduce 5
+
+
+state 17
+	typedef_body : typedef_body IDENTIFIER COLON recursive_list_value_init .  (6)
+
+	.  reduce 6
+
+
+state 18
+	typedef_body : typedef_body . IDENTIFIER COLON type_stmts COMMA  (4)
+	typedef_body : typedef_body . IDENTIFIER COLON type_stmts  (5)
+	typedef_body : typedef_body . IDENTIFIER COLON recursive_list_value_init  (6)
+	recursive_list_value_init : LEFT_PARENTHESIS typedef_body . RIGHT_PARENTHESIS  (11)
+
+	IDENTIFIER  shift 8
+	RIGHT_PARENTHESIS  shift 20
+	.  error
+
+
+state 19
+	typedef_body : typedef_body IDENTIFIER COLON type_stmts COMMA .  (4)
+
+	.  reduce 4
+
+
+state 20
+	recursive_list_value_init : LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS .  (11)
+
+	.  reduce 11
+
+
+42 terminals, 7 nonterminals
+13 grammar rules, 21 states
