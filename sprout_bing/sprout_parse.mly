@@ -31,9 +31,10 @@ open Sprout_ast
 %token EQ_DOT
 %token PROC
 
-%nonassoc EQ LT
+%nonassoc EQ LT GT
 %left PLUS MINUS
-%left MUL
+%left MUL DIVIDE
+%right ASSIGNMENT
 %nonassoc UMINUS
 
 %type <Sprout_ast.program> start_state
@@ -69,7 +70,7 @@ recursive_list_value_init:
 
 
 function_declaration:
-|function_declaration  function_header END{}
+|function_declaration  function_header function_body END{}
 | {}
 
 
@@ -77,7 +78,7 @@ function_header:
 |PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET {}
 
 param_recursive:
-| val_ref type_temp IDENTIFIER comma_temp {}
+| param_recursive val_ref type_temp IDENTIFIER comma_temp {}
 | {}
 
 val_ref:
@@ -88,6 +89,58 @@ type_temp:
 |INT {}
 |BOOL {}
 |IDENTIFIER {}
+
+function_body:
+| function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON{}
+| function_body type_temp IDENTIFIER SEMICOLON {} 
+| function_body WRITE expr SEMICOLON {}
+| function_body READ IDENTIFIER SEMICOLON{}
+| function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON {}
+| function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON {}
+| function_body WHILE expr DO function_body OD {}
+| function_body IF expr THEN function_body else_stmt FI  {}
+| function_body expr SEMICOLON {}
+| {}
+
+assign_term:
+| expr {}
+| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS {}
+
+dot_term:
+|{}
+|DOT IDENTIFIER {}
+
+
+value_assignment_comma:
+| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS comma_temp{}
+| value_assignment_comma IDENTIFIER EQ expr comma_temp {}
+| {}
+
+
+else_stmt:
+| ELSE function_body {}
+| {}
+
+expr:
+  | BOOL { }
+  | INT {  }
+  | IDENTIFIER {  }
+  | expr PLUS expr { }
+  | expr MINUS expr {  }
+  | expr MUL expr  {  }
+  | expr EQ expr {  }
+  | expr LT expr {  }
+  | expr GT expr  {  }
+  | MINUS expr %prec UMINUS { }
+  | LEFT_BRACKET expr RIGHT_BRACKET { }
+
+
+
+
+
+
+
+
 
 
 /*
