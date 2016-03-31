@@ -67,12 +67,36 @@ recursive_list_value_init:
 | LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS {}
 
 
+
+function_declaration:
+|function_declaration  function_header END{}
+| {}
+
+
+function_header:
+|PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET {}
+
+param_recursive:
+| val_ref type_temp IDENTIFIER comma_temp {}
+| {}
+
+val_ref:
+|VAL {}
+|REF {}
+
+type_temp:
+|INT {}
+|BOOL {}
+|IDENTIFIER {}
+
+
+/*
 function_declaration:
 |function_declaration function_header function_body END {}
 | {}
 
 
-/*abc() or abc(, , ,)*/
+
 function_header:
 | PROC IDENTIFIER LEFT_BRACKET RIGHT_BRACKET {}
 | PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET {}
@@ -137,17 +161,13 @@ expr:
   | BOOL { }
   | INT {  }
   | IDENTIFIER {  }
-  /* Binary operators */
   | expr PLUS expr { }
   | expr MINUS expr {  }
   | expr MUL expr {  }
   | expr EQ expr {  }
   | expr LT expr {  }
   | expr GT expr {  }
-  /*MINUS expr has same presidence as UMINUS*/
   | MINUS expr %prec UMINUS { }
   | LEFT_BRACKET expr RIGHT_BRACKET { }
 
-
-
-
+*/
