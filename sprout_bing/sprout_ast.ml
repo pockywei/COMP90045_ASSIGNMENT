@@ -7,7 +7,10 @@ type beantype =
   | Int
   | IdentType of string 
 
-type typedef = (ident * beantype)
+type typedefStruct =
+  |SingleTypeTerm of (ident * beantype)
+  |ListTypeTerm of (ident * typedefStruct list)
+type typedef = typedefStruct list
 
 type lvalue =
   | LId of ident
@@ -32,7 +35,7 @@ type rvalue =
 
 type decl = (ident * beantype)
 (*
-type stmt = 
+type stmt =  
   | Assign of (lvalue * rvalue)
   | Read of lvalue
   | Write of expr
@@ -48,19 +51,25 @@ type stmt =
 
 
 type program = {
-  decls : typedef list list;
+  typedefs : (typedef*ident) list;
   stmts : stmt list list
 }
  
 type t = program
 
-let print_decls_list ls = List.iter ( fun x -> match x with
-  | (m,n) -> match n with 
-      | Bool -> Printf.printf "(Bool , %s)  " m
-      | Int -> Printf.printf " (Int , %s)  " m ;) ls
 
-let print_stmts ls = List.iter (fun x -> match x with
-  | Assign _  ->  Printf.printf "Assignment "
-  | Read _-> Printf.printf "Read "
-  | Write _-> Printf.printf "Write "
-  | Test -> Printf.printf "test stmts") ls
+let printBeantype beanTypeData = match beanTypeData with
+| Bool -> Printf.printf " Bool "
+| Int -> Printf.printf " Int "
+| IdentType(s) ->  Printf.printf " string => %s" s
+
+let rec printTypedefStruct typedefStructData = match typedefStructData with
+| SingleTypeTerm(id , tp) -> (Printf.printf "id => %s , type => \n" id ; printBeantype tp)
+| ListTypeTerm(id , tps) -> (Printf.printf "Listype name => %s " id;List.iter (printTypedefStruct) tps)
+
+let rec printTypedefs typedefData = match typedefData with
+| [] -> Printf.printf "Empty \n "
+| (hstructList,hid)::t -> ( Printf.printf "typedef name => %s : \n  " hid; List.iter (printTypedefStruct) hstructList ; printTypedefs t )
+
+
+

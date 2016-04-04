@@ -7,7 +7,11 @@ type beantype =
   | Int
   | IdentType of string 
 
-type typedef = (ident * beantype)
+type typedefStruct =
+  |SingleTypeTerm of (string * beantype)
+  |ListTypeTerm of (string * typedefStruct list)
+
+type typedef = typedefStruct list
 
 type lvalue =
   | LId of ident
@@ -47,11 +51,13 @@ type stmt =
   | Method of string
 
 type program = {
-  decls : typedef list list;
+  typedefs : (typedef * string) list;
   stmts : stmt list list
 }
  
 type t = program
 
-val print_decls_list : typedef list -> unit 
-val print_stmts : stmt list-> unit
+val printBeantype : beantype -> unit 
+val printTypedefStruct : typedefStruct -> unit 
+val printTypedefs : (typedefStruct list * ident) list -> unit
+

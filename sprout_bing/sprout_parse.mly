@@ -15,9 +15,9 @@ open Sprout_ast
 %token EOF
 
 %token COLON
-%token IDENTIFIER
+%token <string> IDENTIFIER
 %token LEFT_PARENTHESIS RIGHT_PARENTHESIS
-%token TYPEDEF
+%token <string> TYPEDEF
 %token TYPEDEF_VALUE_INIT
 %token DOT
 %token COMMA
@@ -44,28 +44,28 @@ open Sprout_ast
 
 
 start_state:
-| data_structure function_declaration{{decls =[[("test",Bool)]]; stmts = [[Test]]}}
+| data_structure function_declaration{{typedefs = $1 ; stmts = [[Test]] }}
 
 data_structure:
-| data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {}
-| {}
+| data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {($4,$6)::$1}
+| {[]}
 
 typedef_body:
-| typedef_body IDENTIFIER COLON type_stmts comma_temp {}
-| typedef_body IDENTIFIER COLON recursive_list_value_init {}
-| {}
+| typedef_body IDENTIFIER COLON type_stmts comma_temp { Printf.printf "in yacc %s " $2;SingleTypeTerm(($2,$4))::$1 }
+| typedef_body IDENTIFIER COLON recursive_list_value_init {ListTypeTerm(($2,$4))::$1}
+| {[]}
 
 comma_temp:
 |COMMA {}
 |{}
 
 type_stmts:
-|IDENTIFIER {}
-|INT {}
-|BOOL {}
+|IDENTIFIER { IdentType($1) }
+|INT { Int }
+|BOOL { Bool }
 
 recursive_list_value_init:
-| LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS {}
+| LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS { $2 }
 
 
 
