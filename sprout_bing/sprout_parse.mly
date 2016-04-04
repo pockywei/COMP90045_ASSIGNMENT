@@ -44,7 +44,7 @@ open Sprout_ast
 
 
 start_state:
-| data_structure function_declaration{{decls =[("test",Bool)]; stmts = [Test]}}
+| data_structure function_declaration{{decls =[[("test",Bool)]]; stmts = [[Test]]}}
 
 data_structure:
 | data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {}
@@ -133,94 +133,3 @@ expr:
   | expr GT expr  {  }
   | MINUS expr %prec UMINUS { }
   | LEFT_BRACKET expr RIGHT_BRACKET { }
-
-
-
-
-
-
-
-
-
-
-/*
-function_declaration:
-|function_declaration function_header function_body END {}
-| {}
-
-
-
-function_header:
-| PROC IDENTIFIER LEFT_BRACKET RIGHT_BRACKET {}
-| PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET {}
-
-param_recursive:
-| param_recursive val_ref type_temp IDENTIFIER comma_temp {}
-| {}
-
-comma_temp:
-|COMMA {}
-|{}
-
-val_ref:
-|VAL {}
-|REF {}
-
-type_temp:
-|INT {}
-|BOOL {}
-|IDENTIFIER {}
-
-function_body:
-| function_body value_assignment SEMICOLON {}
-| function_body type_temp IDENTIFIER SEMICOLON {} 
-| function_body WRITE expr SEMICOLON {}
-| function_body READ IDENTIFIER SEMICOLON{}
-| function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON {}
-| function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON {}
-| function_body WHILE expr DO function_body OD {}
-| function_body IF expr THEN function_body else_stmt FI  {}
-| function_body expr SEMICOLON {}
-| {}
-
-value_assignment:
-| IDENTIFIER dot_term EQ_DOT expr {}
-| IDENTIFIER dot_term EQ_DOT expr {}
-| IDENTIFIER dot_term EQ_DOT LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS {}
-| {}
-
-value_assignment_eq:
-| IDENTIFIER EQ expr {}
-| IDENTIFIER EQ LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS {}
-| {}
-
-dot_term:
-|{}
-|DOT IDENTIFIER {}
-
-value_assignment_comma:
-| value_assignment_comma value_assignment_eq comma_temp {}
-| {}
-
-while_normal_stmt:
-|function_body {}
-|{}
-
-else_stmt:
-| ELSE function_body {}
-| {}
-
-expr:
-  | BOOL { }
-  | INT {  }
-  | IDENTIFIER {  }
-  | expr PLUS expr { }
-  | expr MINUS expr {  }
-  | expr MUL expr {  }
-  | expr EQ expr {  }
-  | expr LT expr {  }
-  | expr GT expr {  }
-  | MINUS expr %prec UMINUS { }
-  | LEFT_BRACKET expr RIGHT_BRACKET { }
-
-*/

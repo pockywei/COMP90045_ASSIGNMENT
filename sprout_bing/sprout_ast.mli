@@ -5,6 +5,7 @@ type ident = string
 type beantype =
   | Bool
   | Int
+  | IdentType of string 
 
 type typedef = (ident * beantype)
 
@@ -30,16 +31,24 @@ type rvalue =
   | Rexpr of expr
 
 type decl = (ident * beantype)
+(*
+type stmt = 
+  | Assign of (lvalue * rvalue)
+  | Read of lvalue
+  | Write of expr
+  | Test
+*)
 
 type stmt = 
   | Assign of (lvalue * rvalue)
   | Read of lvalue
   | Write of expr
   | Test
+  | Method of string
 
 type program = {
-  decls : typedef list ;
-  stmts : stmt list
+  decls : typedef list list;
+  stmts : stmt list list
 }
  
 type t = program
