@@ -98,8 +98,8 @@ variable_definition:
 | {}
 
 procedure_body:
-| rec_procedure_body atomic_stmt SEMICOLON {}
-| rec_procedure_body compound_stmt {}
+| atomic_stmt SEMICOLON rec_procedure_body {}
+| compound_stmt rec_procedure_body {}
 
 rec_procedure_body:
 | procedure_body {}
