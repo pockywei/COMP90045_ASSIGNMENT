@@ -138,11 +138,11 @@ expr:
 | unop expr {}
 
 expr_list:
-| rec_expr_list expr {}
+| expr rec_expr_list {}
 | {}
 
 rec_expr_list:
-| expr COMMA {}
+| COMMA expr {}
 | {}
 
 stmt_list:
