@@ -94,7 +94,7 @@ param_passing_indicator:
 | REF {}
 
 variable_definition:
-| variable_definition type_spec IDENTIFIER {}
+| variable_definition type_spec IDENTIFIER SEMICOLON{}
 | {}
 
 procedure_body:
