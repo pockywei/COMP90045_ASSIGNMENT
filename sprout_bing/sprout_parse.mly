@@ -3,8 +3,8 @@
 open Sprout_ast
 %}
 
-%token <bool> BOOL_CONST
-%token <int> INT_CONST
+%token <bool> BOOL_VAL
+%token <int> INT_VAL
 %token <string> IDENT
 %token WRITE READ
 %token ASSIGN
@@ -44,7 +44,7 @@ open Sprout_ast
 
 
 start_state:
-| data_structure function_declaration{{typedefs = $1 ; stmts = [[Test]] }}
+| data_structure function_declaration{{typedefs = List.rev $1 ; funcdefs = [1]}}
 
 data_structure:
 | data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {($4,$6)::$1}
@@ -54,6 +54,8 @@ typedef_body:
 | typedef_body IDENTIFIER COLON type_stmts comma_temp { Printf.printf "in yacc %s " $2;SingleTypeTerm(($2,$4))::$1 }
 | typedef_body IDENTIFIER COLON recursive_list_value_init {ListTypeTerm(($2,$4))::$1}
 | {[]}
+
+
 
 comma_temp:
 |COMMA {}
@@ -70,31 +72,35 @@ recursive_list_value_init:
 
 
 function_declaration:
-|function_declaration  function_header function_body END{}
-| {}
+|function_declaration  function_header function_body END{ ($2,$3)::$1}
+| {[]}
 
 
 function_header:
-|PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET {}
+|PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET {($2,$4)}
 
 param_recursive:
-| param_recursive val_ref type_temp IDENTIFIER comma_temp {}
+| param_recursive val_ref type_stmts IDENTIFIER comma_temp {($2,$3,$4)::$1}
+| {[]}
+
+/*| argus_recursive argus_type comma_temp {($2,$3,$4)::$1}*/
+argus_recursive:
+| argus_recursive argus_type comma_temp  {}
 | {}
 
-val_ref:
-|VAL {}
-|REF {}
+argus_type:
+| IDENTIFIER {}
+| expr {}
 
-type_temp:
-|INT {}
-|BOOL {}
-|IDENTIFIER {}
+val_ref:
+|VAL {Val}
+|REF {Ref}
 
 function_body:
-| function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON{}
-| function_body type_temp IDENTIFIER SEMICOLON {} 
-| function_body WRITE expr SEMICOLON {}
-| function_body READ IDENTIFIER SEMICOLON{}
+| function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON {}
+| function_body type_stmts IDENTIFIER SEMICOLON { } 
+| function_body WRITE expr SEMICOLON {  }
+| function_body READ IDENTIFIER SEMICOLON{  }
 | function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON {}
 | function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON {}
 | function_body WHILE expr DO function_body OD {}
@@ -122,8 +128,8 @@ else_stmt:
 | {}
 
 expr:
-  | BOOL { }
-  | INT {  }
+  | BOOL_VAL {  }
+  | INT_VAL {  }
   | IDENTIFIER {  }
   | expr PLUS expr { }
   | expr MINUS expr {  }
@@ -132,4 +138,18 @@ expr:
   | expr LT expr {  }
   | expr GT expr  {  }
   | MINUS expr %prec UMINUS { }
-  | LEFT_BRACKET expr RIGHT_BRACKET { }
+  | LEFT_BRACKET expr RIGHT_BRACKET {  }
+
+/*
+expr:
+  | BOOL_VAL { Ebool($1) }
+  | INT_VAL { Eint($1) }
+  | IDENTIFIER { Eident($1) }
+  | expr PLUS expr { Ebinop($1,Op_add,$3) }
+  | expr MINUS expr { Ebinop($1,Op_sub,$3) }
+  | expr MUL expr  { Ebinop($1,Op_mul,$3) }
+  | expr EQ expr { Ebinop($1,Op_eq,$3) }
+  | expr LT expr { Ebinop($1,Op_lt,$3) }
+  | expr GT expr  { Ebinop($1,Op_gt,$3) }
+  | MINUS expr %prec UMINUS { Eunop(Op_minus,$2)}
+  | LEFT_BRACKET expr RIGHT_BRACKET { Ebracket(expr) }*/

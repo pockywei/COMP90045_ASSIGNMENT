@@ -15,9 +15,10 @@ type typedef = typedefStruct list
 type lvalue =
   | LId of ident
   | LField of (lvalue * ident)
+  | LvalueNone
 
 type binop =
-  | Op_add | Op_sub | Op_mul | Op_eq | Op_lt
+  | Op_add | Op_sub | Op_mul | Op_eq | Op_lt | Op_gt
 
 type unop =
   | Op_minus
@@ -28,6 +29,8 @@ type expr =
   | Elval of lvalue
   | Ebinop of (expr * binop * expr)
   | Eunop of (unop * expr)
+  | Eident of string
+  | Ebracket of expr
 
 (* Will need to AST elements with additional data.  *)
 type rvalue =
@@ -42,19 +45,35 @@ type stmt =
   | Test
 *)
 
+type valRef = 
+|Val
+|Ref
+
+type paramList = (beantype*string) list
+
+type funcDecParamList = (valRef*beantype*string) list
+
 type stmt = 
-  | Assign of (lvalue * rvalue)
+  | Assign of (lvalue * (lvalue * rvalue ) list)
   | Read of lvalue
   | Write of expr
-  | Test
-  | Method of string
+  | StmtNone
+  | Method of (string * paramList)
+  | VarDec of (beantype*string)
 
+type functionDeclaration = (string*funcDecParamList)
+(*
+type program = {
+  typedefs : (typedef*ident) list;
+  funcdefs : (functionDeclaration*stmt list) list
+}
+*)
 
 type program = {
   typedefs : (typedef*ident) list;
-  stmts : stmt list list
+  funcdefs : int list
 }
- 
+
 type t = program
 
 

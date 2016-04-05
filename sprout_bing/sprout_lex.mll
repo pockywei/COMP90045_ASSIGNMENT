@@ -15,12 +15,12 @@ rule token = parse
     [' ' '\t']    { Printf.printf "meet space or tab \n" ;flush stdout;token lexbuf }     (* skip blanks *)
   | '\n'          {Printf.printf "meet newline \n" ;flush stdout; Lexing.new_line lexbuf ; token lexbuf }
   (*| '-'?['0'-'9']+ as lxm { IPrintf.printf "meet typedef \n" ;flush stdout;NT_CONST(int_of_string lxm) }*)
-  | '-'?['0'-'9']+ {Printf.printf "meet int literal \n" ;flush stdout; INT }
+  | '-'?['0'-'9']+ as lxm{Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
   (* keywords *)
   | ':' { Printf.printf "meet : \n" ;flush stdout;COLON }
   | '{' { Printf.printf "meet { \n" ;flush stdout;LEFT_PARENTHESIS }
   | '}' { Printf.printf "meet } \n" ;flush stdout;RIGHT_PARENTHESIS }
-  | "typedef" {Printf.printf "meet typedef \n" ;flush stdout;TYPEDEF }
+  | "typedef" {Printf.printf "meet typedef \n" ;flush stdout;TYPEDEF("typedef") }
   | "proc" {Printf.printf "meet proc \n ";flush stdout;PROC}
   (*| typedef_value_init  as temp{ Printf.printf "meet typedef_value_init => %s \n" temp;flush stdout;TYPEDEF_VALUE_INIT }*)
   | ',' { Printf.printf "meet , \n" ;flush stdout;COMMA }
@@ -39,10 +39,10 @@ rule token = parse
   | "fi" {Printf.printf "meet fi \n" ;flush stdout;FI} 
   | "bool" { Printf.printf "meet bool \n" ;flush stdout;BOOL }
   | "int" { Printf.printf "meet int \n" ;flush stdout; INT }
-  (*| "true" { Printf.printf "meet typedef \n" ;flush stdout;BOOL_CONST true }*)
-  | "true" {Printf.printf "meet true \n" ;flush stdout;BOOL}
-  (*| "false" { Printf.printf "meet typedef \n" ;flush stdout;BOOL_CONST false }*)
-  | "false" {Printf.printf "meet false \n" ;flush stdout;BOOL}
+  (*| "true" { Printf.printf "meet typedef \n" ;flush stdout;BOOL_VAL true }*)
+  | "true" {Printf.printf "meet true \n" ;flush stdout;BOOL_VAL true}
+  (*| "false" { Printf.printf "meet typedef \n" ;flush stdout;BOOL_VAL false }*)
+  | "false" {Printf.printf "meet false \n" ;flush stdout;BOOL_VAL false}
   | "read" { Printf.printf "meet read \n" ;flush stdout;READ }
   | "write" {Printf.printf "meet write \n" ;flush stdout; WRITE }
   (*| ":=" { Printf.printf "meet typedef \n" ;flush stdout;ASSIGN }*)
@@ -57,5 +57,5 @@ rule token = parse
   | ';' { Printf.printf "meet ; \n" ;flush stdout;SEMICOLON }
   | '>' { Printf.printf "meet > \n" ;flush stdout;GT}
   (*| ident as lxm { IDENT lxm }*)
-  | ident as lxm{ Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER }
+  | ident as lxm{ Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER(lxm) }
   | eof { Printf.printf "end file \n";flush stdout;EOF }
