@@ -5,18 +5,19 @@ open Sprout_ast
 
 %token <bool> BOOL_VAL
 %token <int> INT_VAL
-%token <string> IDENT
+%token <string> STRING_VAL
 %token WRITE READ
 %token ASSIGN
-%token LPAREN RPAREN
-%token EQ LT GT
-%token PLUS MINUS MUL
+%token EQ NEQ LT LTE GT GTE
+%token PLUS MINUS MUL DIV
+%token UMINUS
+%token COLON
 %token SEMICOLON
+%token AND OR NOT
 %token EOF
 
-%token COLON
 %token <string> IDENTIFIER
-%token LEFT_PARENTHESIS RIGHT_PARENTHESIS
+%token LEFT_PAREN RIGHT_PAREN
 %token <string> TYPEDEF
 %token TYPEDEF_VALUE_INIT
 %token DOT
@@ -24,16 +25,18 @@ open Sprout_ast
 %token END
 %token VAL
 %token REF
-%token LEFT_BRACKET RIGHT_BRACKET
+%token LEFT_BRACE RIGHT_BRACE
 %token WHILE DO OD
 %token IF THEN ELSE FI
 %token BOOL INT
-%token EQ_DOT
 %token PROC
 
-%nonassoc EQ LT GT
+%left OR
+%left AND
+%left NOT
+%nonassoc EQ NEQ LT LTE GT GTE
 %left PLUS MINUS
-%left MUL DIVIDE
+%left MUL DIV
 %right ASSIGNMENT
 %nonassoc UMINUS
 
@@ -44,112 +47,129 @@ open Sprout_ast
 
 
 start_state:
-| data_structure function_declaration{{typedefs = List.rev $1 ; funcdefs = [1]}}
+| type_definition procedure_definition {}
 
-data_structure:
-| data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {($4,$6)::$1}
-| {[]}
-
-typedef_body:
-| typedef_body IDENTIFIER COLON type_stmts comma_temp { Printf.printf "in yacc %s " $2;SingleTypeTerm(($2,$4))::$1 }
-| typedef_body IDENTIFIER COLON recursive_list_value_init {ListTypeTerm(($2,$4))::$1}
-| {[]}
-
-
-
-comma_temp:
-|COMMA {}
-|{}
-
-type_stmts:
-|IDENTIFIER { IdentType($1) }
-|INT { Int }
-|BOOL { Bool }
-
-recursive_list_value_init:
-| LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS { $2 }
-
-
-
-function_declaration:
-|function_declaration  function_header function_body END{ ($2,$3)::$1}
-| {[]}
-
-
-function_header:
-|PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET {($2,$4)}
-
-param_recursive:
-| param_recursive val_ref type_stmts IDENTIFIER comma_temp {($2,$3,$4)::$1}
-| {[]}
-
-/*| argus_recursive argus_type comma_temp {($2,$3,$4)::$1}*/
-argus_recursive:
-| argus_recursive argus_type comma_temp  {}
+type_definition:
+| type_definition TYPEDEF type_spec IDENTIFIER {}
 | {}
 
-argus_type:
+type_spec:
+| primitive_type {}
 | IDENTIFIER {}
-| expr {}
+| LEFT_BRACE field_definition RIGHT_BRACE {}
 
-val_ref:
-|VAL {Val}
-|REF {Ref}
+primitive_type:
+| BOOL {}
+| INT {}
 
-function_body:
-| function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON {}
-| function_body type_stmts IDENTIFIER SEMICOLON { } 
-| function_body WRITE expr SEMICOLON {  }
-| function_body READ IDENTIFIER SEMICOLON{  }
-| function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON {}
-| function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON {}
-| function_body WHILE expr DO function_body OD {}
-| function_body IF expr THEN function_body else_stmt FI  {}
-| function_body expr SEMICOLON {}
+field_definition:
+| rec_field_definition IDENTIFIER COLON type_spec {}
+
+rec_field_definition:
+| field_definition COMMA {}
 | {}
 
-assign_term:
-| expr {}
-| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS {}
+/* At least one procedure required */
+procedure_definition:
+| rec_procedure_definition PROC procedure_header variable_definition procedure_body END {}
 
-dot_term:
-|{}
-|DOT IDENTIFIER {}
-
-
-value_assignment_comma:
-| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS comma_temp{}
-| value_assignment_comma IDENTIFIER EQ expr comma_temp {}
+rec_procedure_definition:
+| procedure_definition {}
 | {}
 
+procedure_header:
+| IDENTIFIER LEFT_PAREN param RIGHT_PAREN {}
 
-else_stmt:
-| ELSE function_body {}
+param:
+| rec_param param_passing_indicator type_spec IDENTIFIER {}
+| {}
+
+rec_param:
+| param COMMA {}
+| {}
+
+param_passing_indicator:
+| VAL {}
+| REF {}
+
+variable_definition:
+| variable_definition type_spec IDENTIFIER {}
+| {}
+
+procedure_body:
+| rec_procedure_body atomic_stmt SEMICOLON {}
+| rec_procedure_body compound_stmt {}
+
+rec_procedure_body:
+| procedure_body {}
+| {}
+
+atomic_stmt:
+| lvalue ASSIGN rvalue {}
+| READ lvalue {}
+| WRITE expr {}
+| IDENT LEFT_PAREN expr_list RIGHT_PAREN {}
+
+compound_stmt:
+| IF expr THEN stmt_list else_block FI {}
+| WHILE expr DO stmt_list OD {}
+
+lvalue:
+| IDENTIFIER {}
+| lvalue DOT IDENTIFIER {}
+
+rvalue:
+| expr {}
+| LEFT_BRACE field_init RIGHT_BRACE {}
+
+field_init:
+| rec_field_init IDENTIFIER EQUALS rvalue {}
+
+rec_field_init:
+| field_init COMMA {}
 | {}
 
 expr:
-  | BOOL_VAL {  }
-  | INT_VAL {  }
-  | IDENTIFIER {  }
-  | expr PLUS expr { }
-  | expr MINUS expr {  }
-  | expr MUL expr  {  }
-  | expr EQ expr {  }
-  | expr LT expr {  }
-  | expr GT expr  {  }
-  | MINUS expr %prec UMINUS { }
-  | LEFT_BRACKET expr RIGHT_BRACKET {  }
+| lvalue {}
+| const {}
+| LEFT_PAREN expr RIGHT_PAREN {}
+| expr binop expr {}
+| unop expr {}
 
-/*
-expr:
-  | BOOL_VAL { Ebool($1) }
-  | INT_VAL { Eint($1) }
-  | IDENTIFIER { Eident($1) }
-  | expr PLUS expr { Ebinop($1,Op_add,$3) }
-  | expr MINUS expr { Ebinop($1,Op_sub,$3) }
-  | expr MUL expr  { Ebinop($1,Op_mul,$3) }
-  | expr EQ expr { Ebinop($1,Op_eq,$3) }
-  | expr LT expr { Ebinop($1,Op_lt,$3) }
-  | expr GT expr  { Ebinop($1,Op_gt,$3) }
-  | MINUS expr %prec UMINUS { Eunop(Op_minus,$2)}
-  | LEFT_BRACKET expr RIGHT_BRACKET { Ebracket(expr) }*/
+expr_list:
+| rec_expr_list expr {}
+| {}
+
+rec_expr_list:
+| expr COMMA {}
+| {}
+
+stmt_list:
+| procedure_body {}
+
+else_block:
+| ELSE stmt_list {}
+| {}
+
+binop:
+| PLUS {}
+| MINUS {}
+| MUL {}
+| DIV {}
+| EQ {}
+| NEQ {}
+| LT {}
+| GT {}
+| LTE {}
+| GTE {}
+| AND {}
+| OR {}
+
+unop:
+| NOT {}
+| UMINUS {}
+
+const:
+| BOOL_VAL {}
+| INT_VAL {}
+| STRING_VAL {}
