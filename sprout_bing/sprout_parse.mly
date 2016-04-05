@@ -134,8 +134,20 @@ expr:
 | lvalue {}
 | const {}
 | LEFT_PAREN expr RIGHT_PAREN {}
-| expr binop expr {}
-| unop expr {}
+| expr PLUS expr {}
+| expr MINUS expr {}
+| expr MUL expr {}
+| expr DIV expr {}
+| expr EQ expr {}
+| expr NEQ expr {}
+| expr LT expr {}
+| expr GT expr {}
+| expr LTE expr {}
+| expr GTE expr {}
+| expr AND expr {}
+| expr OR expr {}
+| NOT expr {}
+| UMINUS expr {}
 
 expr_list:
 | expr rec_expr_list {}
@@ -151,24 +163,6 @@ stmt_list:
 else_block:
 | ELSE stmt_list {}
 | {}
-
-binop:
-| PLUS {}
-| MINUS {}
-| MUL {}
-| DIV {}
-| EQ {}
-| NEQ {}
-| LT {}
-| GT {}
-| LTE {}
-| GTE {}
-| AND {}
-| OR {}
-
-unop:
-| NOT {}
-| UMINUS {}
 
 const:
 | BOOL_VAL {}
