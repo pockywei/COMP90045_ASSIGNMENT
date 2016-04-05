@@ -62,18 +62,18 @@ type stmt =
   | VarDec of (beantype*string)
 
 type functionDeclaration = (string*funcDecParamList)
-(*
+
 type program = {
   typedefs : (typedef*ident) list;
   funcdefs : (functionDeclaration*stmt list) list
 }
-*)
 
+(*
 type program = {
   typedefs : (typedef*ident) list;
   funcdefs : int list
 }
-
+*)
 type t = program
 
 
