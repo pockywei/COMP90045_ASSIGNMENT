@@ -18,8 +18,8 @@ rule token = parse
   | '-'?['0'-'9']+ as lxm{Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
   (* keywords *)
   | ':' { Printf.printf "meet : \n" ;flush stdout;COLON }
-  | '{' { Printf.printf "meet { \n" ;flush stdout;LEFT_PARENTHESIS }
-  | '}' { Printf.printf "meet } \n" ;flush stdout;RIGHT_PARENTHESIS }
+  | '{' { Printf.printf "meet { \n" ;flush stdout;LEFT_BRACE }
+  | '}' { Printf.printf "meet } \n" ;flush stdout;RIGHT_BRACE }
   | "typedef" {Printf.printf "meet typedef \n" ;flush stdout;TYPEDEF("typedef") }
   | "proc" {Printf.printf "meet proc \n ";flush stdout;PROC}
   (*| typedef_value_init  as temp{ Printf.printf "meet typedef_value_init => %s \n" temp;flush stdout;TYPEDEF_VALUE_INIT }*)
@@ -28,8 +28,8 @@ rule token = parse
   | "end" {Printf.printf "meet end \n" ;flush stdout; END }
   | "val" {Printf.printf "meet val \n" ;flush stdout; VAL }
   | "ref" { Printf.printf "meet ref \n" ;flush stdout;REF }
-  | '(' { Printf.printf "meet ( \n" ;flush stdout;LEFT_BRACKET }
-  | ')' { Printf.printf "meet ) \n" ;flush stdout;RIGHT_BRACKET }
+  | '(' { Printf.printf "meet ( \n" ;flush stdout;LEFT_PAREN }
+  | ')' { Printf.printf "meet ) \n" ;flush stdout;RIGHT_PAREN }
   | "while" { Printf.printf "meet while \n" ;flush stdout;WHILE }
   | "do" { Printf.printf "meet do \n" ;flush stdout;DO }
   | "od" { Printf.printf "meet od \n" ;flush stdout;OD }
@@ -46,9 +46,12 @@ rule token = parse
   | "read" { Printf.printf "meet read \n" ;flush stdout;READ }
   | "write" {Printf.printf "meet write \n" ;flush stdout; WRITE }
   (*| ":=" { Printf.printf "meet typedef \n" ;flush stdout;ASSIGN }*)
-  | ":=" {Printf.printf "meet := \n" ;flush stdout;EQ_DOT}
+  | ":=" {Printf.printf "meet := \n" ;flush stdout;EQ_COL}
   (*| '(' { LPAREN }*)
   (*| ')' { RPAREN }*)
+  | "!=" { Printf.printf "meet != \n" ;flush stdout;NEQ }
+  | "<="{ Printf.printf "meet <= \n" ;flush stdout;LTE }
+  | ">="{ Printf.printf "meet >= \n" ;flush stdout;GTE }
   | '=' { Printf.printf "meet = \n" ;flush stdout;EQ }
   | '<' { Printf.printf "meet < \n" ;flush stdout;LT }
   | '+' { Printf.printf "meet + \n" ;flush stdout;PLUS }
@@ -56,6 +59,7 @@ rule token = parse
   | '*' { Printf.printf "meet * \n" ;flush stdout;MUL }
   | ';' { Printf.printf "meet ; \n" ;flush stdout;SEMICOLON }
   | '>' { Printf.printf "meet > \n" ;flush stdout;GT}
+  | '"' [^ '"']* '"' as lxm{ Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm)}
   (*| ident as lxm { IDENT lxm }*)
   | ident as lxm{ Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER(lxm) }
   | eof { Printf.printf "end file \n";flush stdout;EOF }

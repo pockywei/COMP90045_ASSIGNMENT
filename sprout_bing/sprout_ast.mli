@@ -68,9 +68,15 @@ type program = {
   funcdefs : (functionDeclaration*stmt list) list
 }
 *)
-
+(*
 type program = {
   typedefs : (typedef*ident) list;
+  funcdefs : int list
+}
+*)
+
+type program = {
+  typedefs : int list;
   funcdefs : int list
 }
 

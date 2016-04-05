@@ -16,6 +16,7 @@ open Sprout_ast
 %token AND OR NOT
 %token EOF
 
+
 %token <string> IDENTIFIER
 %token LEFT_PAREN RIGHT_PAREN
 %token <string> TYPEDEF
@@ -30,14 +31,14 @@ open Sprout_ast
 %token IF THEN ELSE FI
 %token BOOL INT
 %token PROC
-
+%token EQ_COL
 %left OR
 %left AND
 %left NOT
 %nonassoc EQ NEQ LT LTE GT GTE
 %left PLUS MINUS
 %left MUL DIV
-%right ASSIGNMENT
+%right EQ_COL
 %nonassoc UMINUS
 
 %type <Sprout_ast.program> start_state
@@ -47,7 +48,7 @@ open Sprout_ast
 
 
 start_state:
-| type_definition procedure_definition {}
+| type_definition procedure_definition {{typedefs=[1];funcdefs=[2]}}
 
 type_definition:
 | type_definition TYPEDEF type_spec IDENTIFIER {}
@@ -105,10 +106,10 @@ rec_procedure_body:
 | {}
 
 atomic_stmt:
-| lvalue ASSIGN rvalue {}
+| lvalue EQ_COL rvalue {}
 | READ lvalue {}
 | WRITE expr {}
-| IDENT LEFT_PAREN expr_list RIGHT_PAREN {}
+| IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN {}
 
 compound_stmt:
 | IF expr THEN stmt_list else_block FI {}
@@ -123,7 +124,7 @@ rvalue:
 | LEFT_BRACE field_init RIGHT_BRACE {}
 
 field_init:
-| rec_field_init IDENTIFIER EQUALS rvalue {}
+| rec_field_init IDENTIFIER EQ rvalue {}
 
 rec_field_init:
 | field_init COMMA {}
