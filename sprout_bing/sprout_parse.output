@@ -23,25 +23,26 @@
 
   15  function_header : PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET
 
-  16  param_recursive : val_ref type_temp IDENTIFIER comma_temp
+  16  param_recursive : param_recursive val_ref type_stmts IDENTIFIER comma_temp
   17                  |
 
-  18  val_ref : VAL
-  19          | REF
+  18  argus_recursive : argus_recursive argus_type comma_temp
+  19                  |
 
-  20  type_temp : INT
-  21            | BOOL
-  22            | IDENTIFIER
+  20  argus_type : expr
+
+  21  val_ref : VAL
+  22          | REF
 
   23  function_body : function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON
-  24                | function_body type_temp IDENTIFIER SEMICOLON
+  24                | function_body type_stmts IDENTIFIER SEMICOLON
   25                | function_body WRITE expr SEMICOLON
   26                | function_body READ IDENTIFIER SEMICOLON
-  27                | function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON
-  28                | function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON
-  29                | function_body WHILE expr DO function_body OD
-  30                | function_body IF expr THEN function_body else_stmt FI
-  31                | function_body expr SEMICOLON
+  27                | function_body IDENTIFIER LEFT_BRACKET argus_recursive RIGHT_BRACKET SEMICOLON
+  28                | function_body WHILE expr DO function_body OD
+  29                | function_body IF expr THEN function_body else_stmt FI
+  30                | function_body expr SEMICOLON
+  31                |
 
   32  assign_term : expr
   33              | LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS
@@ -53,25 +54,22 @@
   37                         | value_assignment_comma IDENTIFIER EQ expr comma_temp
   38                         |
 
-  39  while_normal_stmt : function_body
-  40                    |
+  39  else_stmt : ELSE function_body
+  40            |
 
-  41  else_stmt : ELSE function_body
-  42            |
+  41  expr : BOOL_VAL
+  42       | INT_VAL
+  43       | IDENTIFIER
+  44       | expr PLUS expr
+  45       | expr MINUS expr
+  46       | expr MUL expr
+  47       | expr EQ expr
+  48       | expr LT expr
+  49       | expr GT expr
+  50       | MINUS expr
+  51       | LEFT_BRACKET expr RIGHT_BRACKET
 
-  43  expr : BOOL
-  44       | INT
-  45       | IDENTIFIER
-  46       | expr PLUS expr
-  47       | expr MINUS expr
-  48       | expr MUL expr
-  49       | expr EQ expr
-  50       | expr LT expr
-  51       | expr GT expr
-  52       | MINUS expr
-  53       | LEFT_BRACKET expr RIGHT_BRACKET
-
-  54  %entry% : '\001' start_state
+  52  %entry% : '\001' start_state
 
 state 0
 	$accept : . %entry% $end  (0)
@@ -83,7 +81,7 @@ state 0
 
 
 state 1
-	%entry% : '\001' . start_state  (54)
+	%entry% : '\001' . start_state  (52)
 	data_structure : .  (3)
 
 	.  reduce 3
@@ -99,9 +97,9 @@ state 2
 
 
 state 3
-	%entry% : '\001' start_state .  (54)
+	%entry% : '\001' start_state .  (52)
 
-	.  reduce 54
+	.  reduce 52
 
 
 state 4
@@ -151,7 +149,9 @@ state 8
 
 state 9
 	function_declaration : function_declaration function_header . function_body END  (13)
+	function_body : .  (31)
 
+	.  reduce 31
 
 	function_body  goto 12
 
@@ -176,43 +176,44 @@ state 11
 state 12
 	function_declaration : function_declaration function_header function_body . END  (13)
 	function_body : function_body . IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON  (23)
-	function_body : function_body . type_temp IDENTIFIER SEMICOLON  (24)
+	function_body : function_body . type_stmts IDENTIFIER SEMICOLON  (24)
 	function_body : function_body . WRITE expr SEMICOLON  (25)
 	function_body : function_body . READ IDENTIFIER SEMICOLON  (26)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON  (27)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON  (28)
-	function_body : function_body . WHILE expr DO function_body OD  (29)
-	function_body : function_body . IF expr THEN function_body else_stmt FI  (30)
-	function_body : function_body . expr SEMICOLON  (31)
+	function_body : function_body . IDENTIFIER LEFT_BRACKET argus_recursive RIGHT_BRACKET SEMICOLON  (27)
+	function_body : function_body . WHILE expr DO function_body OD  (28)
+	function_body : function_body . IF expr THEN function_body else_stmt FI  (29)
+	function_body : function_body . expr SEMICOLON  (30)
 
-	WRITE  shift 16
-	READ  shift 17
-	MINUS  shift 18
-	IDENTIFIER  shift 19
-	END  shift 20
-	LEFT_BRACKET  shift 21
-	WHILE  shift 22
-	IF  shift 23
-	BOOL  shift 24
-	INT  shift 25
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	WRITE  shift 18
+	READ  shift 19
+	MINUS  shift 20
+	IDENTIFIER  shift 21
+	END  shift 22
+	LEFT_BRACKET  shift 23
+	WHILE  shift 24
+	IF  shift 25
+	BOOL  shift 26
+	INT  shift 27
 	.  error
 
-	type_temp  goto 26
-	expr  goto 27
+	type_stmts  goto 28
+	expr  goto 29
 
 
 state 13
 	typedef_body : typedef_body IDENTIFIER . COLON type_stmts comma_temp  (4)
 	typedef_body : typedef_body IDENTIFIER . COLON recursive_list_value_init  (5)
 
-	COLON  shift 28
+	COLON  shift 30
 	.  error
 
 
 state 14
 	data_structure : data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS . IDENTIFIER  (2)
 
-	IDENTIFIER  shift 29
+	IDENTIFIER  shift 31
 	.  error
 
 
@@ -220,119 +221,65 @@ state 15
 	function_header : PROC IDENTIFIER LEFT_BRACKET . param_recursive RIGHT_BRACKET  (15)
 	param_recursive : .  (17)
 
-	VAL  shift 30
-	REF  shift 31
-	RIGHT_BRACKET  reduce 17
+	.  reduce 17
 
 	param_recursive  goto 32
-	val_ref  goto 33
 
 
 state 16
-	function_body : function_body WRITE . expr SEMICOLON  (25)
+	expr : BOOL_VAL .  (41)
 
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 37
+	.  reduce 41
 
 
 state 17
-	function_body : function_body READ . IDENTIFIER SEMICOLON  (26)
+	expr : INT_VAL .  (42)
 
-	IDENTIFIER  shift 38
-	.  error
+	.  reduce 42
 
 
 state 18
-	expr : MINUS . expr  (52)
+	function_body : function_body WRITE . expr SEMICOLON  (25)
 
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
 	.  error
 
-	expr  goto 39
+	expr  goto 34
 
 
 state 19
-	type_temp : IDENTIFIER .  (22)
-	function_body : function_body IDENTIFIER . dot_term EQ_DOT assign_term SEMICOLON  (23)
-	function_body : function_body IDENTIFIER . LEFT_BRACKET RIGHT_BRACKET SEMICOLON  (27)
-	function_body : function_body IDENTIFIER . LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON  (28)
-	expr : IDENTIFIER .  (45)
-	dot_term : .  (34)
+	function_body : function_body READ . IDENTIFIER SEMICOLON  (26)
 
-	DOT  shift 40
-	LEFT_BRACKET  shift 41
-	EQ  reduce 45
-	LT  reduce 45
-	GT  reduce 45
-	PLUS  reduce 45
-	MINUS  reduce 45
-	MUL  reduce 45
-	SEMICOLON  reduce 45
-	IDENTIFIER  reduce 22
-	EQ_DOT  reduce 34
-
-	dot_term  goto 42
+	IDENTIFIER  shift 35
+	.  error
 
 
 state 20
-	function_declaration : function_declaration function_header function_body END .  (13)
+	expr : MINUS . expr  (50)
 
-	.  reduce 13
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 36
 
 
 state 21
-	expr : LEFT_BRACKET . expr RIGHT_BRACKET  (53)
+	type_stmts : IDENTIFIER .  (9)
+	function_body : function_body IDENTIFIER . dot_term EQ_DOT assign_term SEMICOLON  (23)
+	function_body : function_body IDENTIFIER . LEFT_BRACKET argus_recursive RIGHT_BRACKET SEMICOLON  (27)
+	expr : IDENTIFIER .  (43)
+	dot_term : .  (34)
 
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 43
-
-
-state 22
-	function_body : function_body WHILE . expr DO function_body OD  (29)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 44
-
-
-state 23
-	function_body : function_body IF . expr THEN function_body else_stmt FI  (30)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 45
-
-
-state 24
-	type_temp : BOOL .  (21)
-	expr : BOOL .  (43)
-
+	DOT  shift 37
+	LEFT_BRACKET  shift 38
 	EQ  reduce 43
 	LT  reduce 43
 	GT  reduce 43
@@ -340,918 +287,992 @@ state 24
 	MINUS  reduce 43
 	MUL  reduce 43
 	SEMICOLON  reduce 43
-	IDENTIFIER  reduce 21
+	IDENTIFIER  reduce 9
+	EQ_DOT  reduce 34
+
+	dot_term  goto 39
+
+
+state 22
+	function_declaration : function_declaration function_header function_body END .  (13)
+
+	.  reduce 13
+
+
+state 23
+	expr : LEFT_BRACKET . expr RIGHT_BRACKET  (51)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 40
+
+
+state 24
+	function_body : function_body WHILE . expr DO function_body OD  (28)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 41
 
 
 state 25
-	type_temp : INT .  (20)
-	expr : INT .  (44)
+	function_body : function_body IF . expr THEN function_body else_stmt FI  (29)
 
-	EQ  reduce 44
-	LT  reduce 44
-	GT  reduce 44
-	PLUS  reduce 44
-	MINUS  reduce 44
-	MUL  reduce 44
-	SEMICOLON  reduce 44
-	IDENTIFIER  reduce 20
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 42
 
 
 state 26
-	function_body : function_body type_temp . IDENTIFIER SEMICOLON  (24)
-
-	IDENTIFIER  shift 46
-	.  error
-
-
-state 27
-	function_body : function_body expr . SEMICOLON  (31)
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-
-	EQ  shift 47
-	LT  shift 48
-	GT  shift 49
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	SEMICOLON  shift 53
-	.  error
-
-
-state 28
-	typedef_body : typedef_body IDENTIFIER COLON . type_stmts comma_temp  (4)
-	typedef_body : typedef_body IDENTIFIER COLON . recursive_list_value_init  (5)
-
-	IDENTIFIER  shift 54
-	LEFT_PARENTHESIS  shift 55
-	BOOL  shift 56
-	INT  shift 57
-	.  error
-
-	type_stmts  goto 58
-	recursive_list_value_init  goto 59
-
-
-state 29
-	data_structure : data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER .  (2)
-
-	.  reduce 2
-
-
-state 30
-	val_ref : VAL .  (18)
-
-	.  reduce 18
-
-
-state 31
-	val_ref : REF .  (19)
-
-	.  reduce 19
-
-
-state 32
-	function_header : PROC IDENTIFIER LEFT_BRACKET param_recursive . RIGHT_BRACKET  (15)
-
-	RIGHT_BRACKET  shift 60
-	.  error
-
-
-state 33
-	param_recursive : val_ref . type_temp IDENTIFIER comma_temp  (16)
-
-	IDENTIFIER  shift 61
-	BOOL  shift 62
-	INT  shift 63
-	.  error
-
-	type_temp  goto 64
-
-
-state 34
-	expr : IDENTIFIER .  (45)
-
-	.  reduce 45
-
-
-state 35
-	expr : BOOL .  (43)
-
-	.  reduce 43
-
-
-state 36
-	expr : INT .  (44)
-
-	.  reduce 44
-
-
-state 37
-	function_body : function_body WRITE expr . SEMICOLON  (25)
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-
-	EQ  shift 47
-	LT  shift 48
-	GT  shift 49
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	SEMICOLON  shift 65
-	.  error
-
-
-state 38
-	function_body : function_body READ IDENTIFIER . SEMICOLON  (26)
-
-	SEMICOLON  shift 66
-	.  error
-
-
-state 39
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-	expr : MINUS expr .  (52)
-
-	.  reduce 52
-
-
-state 40
-	dot_term : DOT . IDENTIFIER  (35)
-
-	IDENTIFIER  shift 67
-	.  error
-
-
-state 41
-	function_body : function_body IDENTIFIER LEFT_BRACKET . RIGHT_BRACKET SEMICOLON  (27)
-	function_body : function_body IDENTIFIER LEFT_BRACKET . IDENTIFIER RIGHT_BRACKET SEMICOLON  (28)
-
-	IDENTIFIER  shift 68
-	RIGHT_BRACKET  shift 69
-	.  error
-
-
-state 42
-	function_body : function_body IDENTIFIER dot_term . EQ_DOT assign_term SEMICOLON  (23)
-
-	EQ_DOT  shift 70
-	.  error
-
-
-state 43
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-	expr : LEFT_BRACKET expr . RIGHT_BRACKET  (53)
-
-	EQ  shift 47
-	LT  shift 48
-	GT  shift 49
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	RIGHT_BRACKET  shift 71
-	.  error
-
-
-state 44
-	function_body : function_body WHILE expr . DO function_body OD  (29)
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-
-	EQ  shift 47
-	LT  shift 48
-	GT  shift 49
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	DO  shift 72
-	.  error
-
-
-state 45
-	function_body : function_body IF expr . THEN function_body else_stmt FI  (30)
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-
-	EQ  shift 47
-	LT  shift 48
-	GT  shift 49
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	THEN  shift 73
-	.  error
-
-
-state 46
-	function_body : function_body type_temp IDENTIFIER . SEMICOLON  (24)
-
-	SEMICOLON  shift 74
-	.  error
-
-
-state 47
-	expr : expr EQ . expr  (49)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 75
-
-
-state 48
-	expr : expr LT . expr  (50)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 76
-
-
-state 49
-	expr : expr GT . expr  (51)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 77
-
-
-state 50
-	expr : expr PLUS . expr  (46)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 78
-
-
-state 51
-	expr : expr MINUS . expr  (47)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 79
-
-
-state 52
-	expr : expr MUL . expr  (48)
-
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
-	.  error
-
-	expr  goto 80
-
-
-state 53
-	function_body : function_body expr SEMICOLON .  (31)
-
-	.  reduce 31
-
-
-state 54
-	type_stmts : IDENTIFIER .  (9)
-
-	.  reduce 9
-
-
-state 55
-	recursive_list_value_init : LEFT_PARENTHESIS . typedef_body RIGHT_PARENTHESIS  (12)
-	typedef_body : .  (6)
-
-	.  reduce 6
-
-	typedef_body  goto 81
-
-
-state 56
 	type_stmts : BOOL .  (11)
 
 	.  reduce 11
 
 
-state 57
+state 27
 	type_stmts : INT .  (10)
 
 	.  reduce 10
 
 
-state 58
+state 28
+	function_body : function_body type_stmts . IDENTIFIER SEMICOLON  (24)
+
+	IDENTIFIER  shift 43
+	.  error
+
+
+state 29
+	function_body : function_body expr . SEMICOLON  (30)
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	SEMICOLON  shift 50
+	.  error
+
+
+state 30
+	typedef_body : typedef_body IDENTIFIER COLON . type_stmts comma_temp  (4)
+	typedef_body : typedef_body IDENTIFIER COLON . recursive_list_value_init  (5)
+
+	IDENTIFIER  shift 51
+	LEFT_PARENTHESIS  shift 52
+	BOOL  shift 26
+	INT  shift 27
+	.  error
+
+	type_stmts  goto 53
+	recursive_list_value_init  goto 54
+
+
+state 31
+	data_structure : data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER .  (2)
+
+	.  reduce 2
+
+
+state 32
+	function_header : PROC IDENTIFIER LEFT_BRACKET param_recursive . RIGHT_BRACKET  (15)
+	param_recursive : param_recursive . val_ref type_stmts IDENTIFIER comma_temp  (16)
+
+	VAL  shift 55
+	REF  shift 56
+	RIGHT_BRACKET  shift 57
+	.  error
+
+	val_ref  goto 58
+
+
+state 33
+	expr : IDENTIFIER .  (43)
+
+	.  reduce 43
+
+
+state 34
+	function_body : function_body WRITE expr . SEMICOLON  (25)
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	SEMICOLON  shift 59
+	.  error
+
+
+state 35
+	function_body : function_body READ IDENTIFIER . SEMICOLON  (26)
+
+	SEMICOLON  shift 60
+	.  error
+
+
+state 36
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+	expr : MINUS expr .  (50)
+
+	.  reduce 50
+
+
+state 37
+	dot_term : DOT . IDENTIFIER  (35)
+
+	IDENTIFIER  shift 61
+	.  error
+
+
+state 38
+	function_body : function_body IDENTIFIER LEFT_BRACKET . argus_recursive RIGHT_BRACKET SEMICOLON  (27)
+	argus_recursive : .  (19)
+
+	.  reduce 19
+
+	argus_recursive  goto 62
+
+
+state 39
+	function_body : function_body IDENTIFIER dot_term . EQ_DOT assign_term SEMICOLON  (23)
+
+	EQ_DOT  shift 63
+	.  error
+
+
+state 40
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+	expr : LEFT_BRACKET expr . RIGHT_BRACKET  (51)
+
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	RIGHT_BRACKET  shift 64
+	.  error
+
+
+state 41
+	function_body : function_body WHILE expr . DO function_body OD  (28)
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	DO  shift 65
+	.  error
+
+
+state 42
+	function_body : function_body IF expr . THEN function_body else_stmt FI  (29)
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	THEN  shift 66
+	.  error
+
+
+state 43
+	function_body : function_body type_stmts IDENTIFIER . SEMICOLON  (24)
+
+	SEMICOLON  shift 67
+	.  error
+
+
+state 44
+	expr : expr EQ . expr  (47)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 68
+
+
+state 45
+	expr : expr LT . expr  (48)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 69
+
+
+state 46
+	expr : expr GT . expr  (49)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 70
+
+
+state 47
+	expr : expr PLUS . expr  (44)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 71
+
+
+state 48
+	expr : expr MINUS . expr  (45)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 72
+
+
+state 49
+	expr : expr MUL . expr  (46)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	.  error
+
+	expr  goto 73
+
+
+state 50
+	function_body : function_body expr SEMICOLON .  (30)
+
+	.  reduce 30
+
+
+state 51
+	type_stmts : IDENTIFIER .  (9)
+
+	.  reduce 9
+
+
+state 52
+	recursive_list_value_init : LEFT_PARENTHESIS . typedef_body RIGHT_PARENTHESIS  (12)
+	typedef_body : .  (6)
+
+	.  reduce 6
+
+	typedef_body  goto 74
+
+
+state 53
 	typedef_body : typedef_body IDENTIFIER COLON type_stmts . comma_temp  (4)
 	comma_temp : .  (8)
 
-	COMMA  shift 82
+	COMMA  shift 75
 	IDENTIFIER  reduce 8
 	RIGHT_PARENTHESIS  reduce 8
 
-	comma_temp  goto 83
+	comma_temp  goto 76
 
 
-state 59
+state 54
 	typedef_body : typedef_body IDENTIFIER COLON recursive_list_value_init .  (5)
 
 	.  reduce 5
 
 
-state 60
-	function_header : PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET .  (15)
-
-
-
-state 61
-	type_temp : IDENTIFIER .  (22)
-
-	.  reduce 22
-
-
-state 62
-	type_temp : BOOL .  (21)
+state 55
+	val_ref : VAL .  (21)
 
 	.  reduce 21
 
 
-state 63
-	type_temp : INT .  (20)
+state 56
+	val_ref : REF .  (22)
 
-	.  reduce 20
+	.  reduce 22
 
 
-state 64
-	param_recursive : val_ref type_temp . IDENTIFIER comma_temp  (16)
+state 57
+	function_header : PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET .  (15)
 
-	IDENTIFIER  shift 84
+	.  reduce 15
+
+
+state 58
+	param_recursive : param_recursive val_ref . type_stmts IDENTIFIER comma_temp  (16)
+
+	IDENTIFIER  shift 51
+	BOOL  shift 26
+	INT  shift 27
 	.  error
 
+	type_stmts  goto 77
 
-state 65
+
+state 59
 	function_body : function_body WRITE expr SEMICOLON .  (25)
 
 	.  reduce 25
 
 
-state 66
+state 60
 	function_body : function_body READ IDENTIFIER SEMICOLON .  (26)
 
 	.  reduce 26
 
 
-state 67
+state 61
 	dot_term : DOT IDENTIFIER .  (35)
 
 	.  reduce 35
 
 
-state 68
-	function_body : function_body IDENTIFIER LEFT_BRACKET IDENTIFIER . RIGHT_BRACKET SEMICOLON  (28)
+state 62
+	argus_recursive : argus_recursive . argus_type comma_temp  (18)
+	function_body : function_body IDENTIFIER LEFT_BRACKET argus_recursive . RIGHT_BRACKET SEMICOLON  (27)
 
-	RIGHT_BRACKET  shift 85
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
+	RIGHT_BRACKET  shift 78
 	.  error
 
-
-state 69
-	function_body : function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET . SEMICOLON  (27)
-
-	SEMICOLON  shift 86
-	.  error
+	argus_type  goto 79
+	expr  goto 80
 
 
-state 70
+state 63
 	function_body : function_body IDENTIFIER dot_term EQ_DOT . assign_term SEMICOLON  (23)
 
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_PARENTHESIS  shift 87
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_PARENTHESIS  shift 81
+	LEFT_BRACKET  shift 23
 	.  error
 
-	assign_term  goto 88
-	expr  goto 89
+	expr  goto 82
+	assign_term  goto 83
 
 
-state 71
-	expr : LEFT_BRACKET expr RIGHT_BRACKET .  (53)
+state 64
+	expr : LEFT_BRACKET expr RIGHT_BRACKET .  (51)
 
-	.  reduce 53
-
-
-state 72
-	function_body : function_body WHILE expr DO . function_body OD  (29)
+	.  reduce 51
 
 
-	function_body  goto 90
+state 65
+	function_body : function_body WHILE expr DO . function_body OD  (28)
+	function_body : .  (31)
+
+	.  reduce 31
+
+	function_body  goto 84
 
 
-state 73
-	function_body : function_body IF expr THEN . function_body else_stmt FI  (30)
+state 66
+	function_body : function_body IF expr THEN . function_body else_stmt FI  (29)
+	function_body : .  (31)
+
+	.  reduce 31
+
+	function_body  goto 85
 
 
-	function_body  goto 91
-
-
-state 74
-	function_body : function_body type_temp IDENTIFIER SEMICOLON .  (24)
+state 67
+	function_body : function_body type_stmts IDENTIFIER SEMICOLON .  (24)
 
 	.  reduce 24
 
 
-state 75
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr EQ expr .  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
+state 68
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr EQ expr .  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
 
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	SEMICOLON  reduce 49
-	IDENTIFIER  reduce 49
-	RIGHT_PARENTHESIS  reduce 49
-	COMMA  reduce 49
-	RIGHT_BRACKET  reduce 49
-	DO  reduce 49
-	THEN  reduce 49
-
-
-state 76
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr LT expr .  (50)
-	expr : expr . GT expr  (51)
-
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	SEMICOLON  reduce 50
-	IDENTIFIER  reduce 50
-	RIGHT_PARENTHESIS  reduce 50
-	COMMA  reduce 50
-	RIGHT_BRACKET  reduce 50
-	DO  reduce 50
-	THEN  reduce 50
-
-
-state 77
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-	expr : expr GT expr .  (51)
-
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	SEMICOLON  reduce 51
-	IDENTIFIER  reduce 51
-	RIGHT_PARENTHESIS  reduce 51
-	COMMA  reduce 51
-	RIGHT_BRACKET  reduce 51
-	DO  reduce 51
-	THEN  reduce 51
-
-
-state 78
-	expr : expr . PLUS expr  (46)
-	expr : expr PLUS expr .  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-
-	MUL  shift 52
-	EQ  reduce 46
-	LT  reduce 46
-	GT  reduce 46
-	PLUS  reduce 46
-	MINUS  reduce 46
-	SEMICOLON  reduce 46
-	IDENTIFIER  reduce 46
-	RIGHT_PARENTHESIS  reduce 46
-	COMMA  reduce 46
-	RIGHT_BRACKET  reduce 46
-	DO  reduce 46
-	THEN  reduce 46
-
-
-state 79
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr MINUS expr .  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
-
-	MUL  shift 52
-	EQ  reduce 47
-	LT  reduce 47
-	GT  reduce 47
-	PLUS  reduce 47
-	MINUS  reduce 47
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	BOOL_VAL  reduce 47
+	INT_VAL  reduce 47
 	SEMICOLON  reduce 47
 	IDENTIFIER  reduce 47
 	RIGHT_PARENTHESIS  reduce 47
 	COMMA  reduce 47
+	LEFT_BRACKET  reduce 47
 	RIGHT_BRACKET  reduce 47
 	DO  reduce 47
 	THEN  reduce 47
 
 
-state 80
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr MUL expr .  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
+state 69
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr LT expr .  (48)
+	expr : expr . GT expr  (49)
 
-	.  reduce 48
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	BOOL_VAL  reduce 48
+	INT_VAL  reduce 48
+	SEMICOLON  reduce 48
+	IDENTIFIER  reduce 48
+	RIGHT_PARENTHESIS  reduce 48
+	COMMA  reduce 48
+	LEFT_BRACKET  reduce 48
+	RIGHT_BRACKET  reduce 48
+	DO  reduce 48
+	THEN  reduce 48
 
 
-state 81
+state 70
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+	expr : expr GT expr .  (49)
+
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	BOOL_VAL  reduce 49
+	INT_VAL  reduce 49
+	SEMICOLON  reduce 49
+	IDENTIFIER  reduce 49
+	RIGHT_PARENTHESIS  reduce 49
+	COMMA  reduce 49
+	LEFT_BRACKET  reduce 49
+	RIGHT_BRACKET  reduce 49
+	DO  reduce 49
+	THEN  reduce 49
+
+
+state 71
+	expr : expr . PLUS expr  (44)
+	expr : expr PLUS expr .  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	MUL  shift 49
+	BOOL_VAL  reduce 44
+	INT_VAL  reduce 44
+	EQ  reduce 44
+	LT  reduce 44
+	GT  reduce 44
+	PLUS  reduce 44
+	MINUS  reduce 44
+	SEMICOLON  reduce 44
+	IDENTIFIER  reduce 44
+	RIGHT_PARENTHESIS  reduce 44
+	COMMA  reduce 44
+	LEFT_BRACKET  reduce 44
+	RIGHT_BRACKET  reduce 44
+	DO  reduce 44
+	THEN  reduce 44
+
+
+state 72
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr MINUS expr .  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	MUL  shift 49
+	BOOL_VAL  reduce 45
+	INT_VAL  reduce 45
+	EQ  reduce 45
+	LT  reduce 45
+	GT  reduce 45
+	PLUS  reduce 45
+	MINUS  reduce 45
+	SEMICOLON  reduce 45
+	IDENTIFIER  reduce 45
+	RIGHT_PARENTHESIS  reduce 45
+	COMMA  reduce 45
+	LEFT_BRACKET  reduce 45
+	RIGHT_BRACKET  reduce 45
+	DO  reduce 45
+	THEN  reduce 45
+
+
+state 73
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr MUL expr .  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	.  reduce 46
+
+
+state 74
 	typedef_body : typedef_body . IDENTIFIER COLON type_stmts comma_temp  (4)
 	typedef_body : typedef_body . IDENTIFIER COLON recursive_list_value_init  (5)
 	recursive_list_value_init : LEFT_PARENTHESIS typedef_body . RIGHT_PARENTHESIS  (12)
 
 	IDENTIFIER  shift 13
-	RIGHT_PARENTHESIS  shift 92
+	RIGHT_PARENTHESIS  shift 86
 	.  error
 
 
-state 82
+state 75
 	comma_temp : COMMA .  (7)
 
 	.  reduce 7
 
 
-state 83
+state 76
 	typedef_body : typedef_body IDENTIFIER COLON type_stmts comma_temp .  (4)
 
 	.  reduce 4
 
 
-state 84
-	param_recursive : val_ref type_temp IDENTIFIER . comma_temp  (16)
-	comma_temp : .  (8)
+state 77
+	param_recursive : param_recursive val_ref type_stmts . IDENTIFIER comma_temp  (16)
 
-	COMMA  shift 82
-	RIGHT_BRACKET  reduce 8
-
-	comma_temp  goto 93
-
-
-state 85
-	function_body : function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET . SEMICOLON  (28)
-
-	SEMICOLON  shift 94
+	IDENTIFIER  shift 87
 	.  error
 
 
-state 86
-	function_body : function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON .  (27)
+state 78
+	function_body : function_body IDENTIFIER LEFT_BRACKET argus_recursive RIGHT_BRACKET . SEMICOLON  (27)
 
-	.  reduce 27
+	SEMICOLON  shift 88
+	.  error
 
 
-state 87
+state 79
+	argus_recursive : argus_recursive argus_type . comma_temp  (18)
+	comma_temp : .  (8)
+
+	COMMA  shift 75
+	BOOL_VAL  reduce 8
+	INT_VAL  reduce 8
+	MINUS  reduce 8
+	IDENTIFIER  reduce 8
+	LEFT_BRACKET  reduce 8
+	RIGHT_BRACKET  reduce 8
+
+	comma_temp  goto 89
+
+
+80: shift/reduce conflict (shift 48, reduce 20) on MINUS
+state 80
+	argus_type : expr .  (20)
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
+
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	BOOL_VAL  reduce 20
+	INT_VAL  reduce 20
+	IDENTIFIER  reduce 20
+	COMMA  reduce 20
+	LEFT_BRACKET  reduce 20
+	RIGHT_BRACKET  reduce 20
+
+
+state 81
 	assign_term : LEFT_PARENTHESIS . value_assignment_comma RIGHT_PARENTHESIS  (33)
 	value_assignment_comma : .  (38)
 
-	LEFT_PARENTHESIS  shift 95
+	LEFT_PARENTHESIS  shift 90
 	IDENTIFIER  reduce 38
 	RIGHT_PARENTHESIS  reduce 38
 
-	value_assignment_comma  goto 96
+	value_assignment_comma  goto 91
 
 
-state 88
-	function_body : function_body IDENTIFIER dot_term EQ_DOT assign_term . SEMICOLON  (23)
-
-	SEMICOLON  shift 97
-	.  error
-
-
-state 89
+state 82
 	assign_term : expr .  (32)
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
 
-	EQ  shift 47
-	LT  shift 48
-	GT  shift 49
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
 	SEMICOLON  reduce 32
 
 
-state 90
-	function_body : function_body . IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON  (23)
-	function_body : function_body . type_temp IDENTIFIER SEMICOLON  (24)
-	function_body : function_body . WRITE expr SEMICOLON  (25)
-	function_body : function_body . READ IDENTIFIER SEMICOLON  (26)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON  (27)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON  (28)
-	function_body : function_body . WHILE expr DO function_body OD  (29)
-	function_body : function_body WHILE expr DO function_body . OD  (29)
-	function_body : function_body . IF expr THEN function_body else_stmt FI  (30)
-	function_body : function_body . expr SEMICOLON  (31)
+state 83
+	function_body : function_body IDENTIFIER dot_term EQ_DOT assign_term . SEMICOLON  (23)
 
-	WRITE  shift 16
-	READ  shift 17
-	MINUS  shift 18
-	IDENTIFIER  shift 19
-	LEFT_BRACKET  shift 21
-	WHILE  shift 22
-	OD  shift 98
-	IF  shift 23
-	BOOL  shift 24
-	INT  shift 25
+	SEMICOLON  shift 92
 	.  error
 
-	type_temp  goto 26
-	expr  goto 27
 
-
-state 91
+state 84
 	function_body : function_body . IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON  (23)
-	function_body : function_body . type_temp IDENTIFIER SEMICOLON  (24)
+	function_body : function_body . type_stmts IDENTIFIER SEMICOLON  (24)
 	function_body : function_body . WRITE expr SEMICOLON  (25)
 	function_body : function_body . READ IDENTIFIER SEMICOLON  (26)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON  (27)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON  (28)
-	function_body : function_body . WHILE expr DO function_body OD  (29)
-	function_body : function_body . IF expr THEN function_body else_stmt FI  (30)
-	function_body : function_body IF expr THEN function_body . else_stmt FI  (30)
-	function_body : function_body . expr SEMICOLON  (31)
-	else_stmt : .  (42)
+	function_body : function_body . IDENTIFIER LEFT_BRACKET argus_recursive RIGHT_BRACKET SEMICOLON  (27)
+	function_body : function_body . WHILE expr DO function_body OD  (28)
+	function_body : function_body WHILE expr DO function_body . OD  (28)
+	function_body : function_body . IF expr THEN function_body else_stmt FI  (29)
+	function_body : function_body . expr SEMICOLON  (30)
 
-	WRITE  shift 16
-	READ  shift 17
-	MINUS  shift 18
-	IDENTIFIER  shift 19
-	LEFT_BRACKET  shift 21
-	WHILE  shift 22
-	IF  shift 23
-	ELSE  shift 99
-	BOOL  shift 24
-	INT  shift 25
-	FI  reduce 42
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	WRITE  shift 18
+	READ  shift 19
+	MINUS  shift 20
+	IDENTIFIER  shift 21
+	LEFT_BRACKET  shift 23
+	WHILE  shift 24
+	OD  shift 93
+	IF  shift 25
+	BOOL  shift 26
+	INT  shift 27
+	.  error
 
-	type_temp  goto 26
-	expr  goto 27
-	else_stmt  goto 100
+	type_stmts  goto 28
+	expr  goto 29
 
 
-state 92
+state 85
+	function_body : function_body . IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON  (23)
+	function_body : function_body . type_stmts IDENTIFIER SEMICOLON  (24)
+	function_body : function_body . WRITE expr SEMICOLON  (25)
+	function_body : function_body . READ IDENTIFIER SEMICOLON  (26)
+	function_body : function_body . IDENTIFIER LEFT_BRACKET argus_recursive RIGHT_BRACKET SEMICOLON  (27)
+	function_body : function_body . WHILE expr DO function_body OD  (28)
+	function_body : function_body . IF expr THEN function_body else_stmt FI  (29)
+	function_body : function_body IF expr THEN function_body . else_stmt FI  (29)
+	function_body : function_body . expr SEMICOLON  (30)
+	else_stmt : .  (40)
+
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	WRITE  shift 18
+	READ  shift 19
+	MINUS  shift 20
+	IDENTIFIER  shift 21
+	LEFT_BRACKET  shift 23
+	WHILE  shift 24
+	IF  shift 25
+	ELSE  shift 94
+	BOOL  shift 26
+	INT  shift 27
+	FI  reduce 40
+
+	type_stmts  goto 28
+	expr  goto 29
+	else_stmt  goto 95
+
+
+state 86
 	recursive_list_value_init : LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS .  (12)
 
 	.  reduce 12
 
 
-state 93
-	param_recursive : val_ref type_temp IDENTIFIER comma_temp .  (16)
+state 87
+	param_recursive : param_recursive val_ref type_stmts IDENTIFIER . comma_temp  (16)
+	comma_temp : .  (8)
 
-	.  reduce 16
+	COMMA  shift 75
+	VAL  reduce 8
+	REF  reduce 8
+	RIGHT_BRACKET  reduce 8
+
+	comma_temp  goto 96
 
 
-state 94
-	function_body : function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON .  (28)
+state 88
+	function_body : function_body IDENTIFIER LEFT_BRACKET argus_recursive RIGHT_BRACKET SEMICOLON .  (27)
 
-	.  reduce 28
+	.  reduce 27
 
 
-state 95
+state 89
+	argus_recursive : argus_recursive argus_type comma_temp .  (18)
+
+	.  reduce 18
+
+
+state 90
 	value_assignment_comma : LEFT_PARENTHESIS . value_assignment_comma RIGHT_PARENTHESIS comma_temp  (36)
 	value_assignment_comma : .  (38)
 
-	LEFT_PARENTHESIS  shift 95
+	LEFT_PARENTHESIS  shift 90
 	IDENTIFIER  reduce 38
 	RIGHT_PARENTHESIS  reduce 38
 
-	value_assignment_comma  goto 101
+	value_assignment_comma  goto 97
 
 
-state 96
+state 91
 	assign_term : LEFT_PARENTHESIS value_assignment_comma . RIGHT_PARENTHESIS  (33)
 	value_assignment_comma : value_assignment_comma . IDENTIFIER EQ expr comma_temp  (37)
 
-	IDENTIFIER  shift 102
-	RIGHT_PARENTHESIS  shift 103
+	IDENTIFIER  shift 98
+	RIGHT_PARENTHESIS  shift 99
 	.  error
 
 
-state 97
+state 92
 	function_body : function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON .  (23)
 
 	.  reduce 23
 
 
-state 98
-	function_body : function_body WHILE expr DO function_body OD .  (29)
+state 93
+	function_body : function_body WHILE expr DO function_body OD .  (28)
 
-	.  reduce 29
-
-
-state 99
-	else_stmt : ELSE . function_body  (41)
+	.  reduce 28
 
 
-	function_body  goto 104
+state 94
+	else_stmt : ELSE . function_body  (39)
+	function_body : .  (31)
+
+	.  reduce 31
+
+	function_body  goto 100
 
 
-state 100
-	function_body : function_body IF expr THEN function_body else_stmt . FI  (30)
+state 95
+	function_body : function_body IF expr THEN function_body else_stmt . FI  (29)
 
-	FI  shift 105
+	FI  shift 101
 	.  error
 
 
-state 101
+state 96
+	param_recursive : param_recursive val_ref type_stmts IDENTIFIER comma_temp .  (16)
+
+	.  reduce 16
+
+
+state 97
 	value_assignment_comma : LEFT_PARENTHESIS value_assignment_comma . RIGHT_PARENTHESIS comma_temp  (36)
 	value_assignment_comma : value_assignment_comma . IDENTIFIER EQ expr comma_temp  (37)
 
-	IDENTIFIER  shift 102
-	RIGHT_PARENTHESIS  shift 106
+	IDENTIFIER  shift 98
+	RIGHT_PARENTHESIS  shift 102
 	.  error
 
 
-state 102
+state 98
 	value_assignment_comma : value_assignment_comma IDENTIFIER . EQ expr comma_temp  (37)
 
-	EQ  shift 107
+	EQ  shift 103
 	.  error
 
 
-state 103
+state 99
 	assign_term : LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS .  (33)
 
 	.  reduce 33
 
 
-state 104
+state 100
 	function_body : function_body . IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON  (23)
-	function_body : function_body . type_temp IDENTIFIER SEMICOLON  (24)
+	function_body : function_body . type_stmts IDENTIFIER SEMICOLON  (24)
 	function_body : function_body . WRITE expr SEMICOLON  (25)
 	function_body : function_body . READ IDENTIFIER SEMICOLON  (26)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON  (27)
-	function_body : function_body . IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON  (28)
-	function_body : function_body . WHILE expr DO function_body OD  (29)
-	function_body : function_body . IF expr THEN function_body else_stmt FI  (30)
-	function_body : function_body . expr SEMICOLON  (31)
-	else_stmt : ELSE function_body .  (41)
+	function_body : function_body . IDENTIFIER LEFT_BRACKET argus_recursive RIGHT_BRACKET SEMICOLON  (27)
+	function_body : function_body . WHILE expr DO function_body OD  (28)
+	function_body : function_body . IF expr THEN function_body else_stmt FI  (29)
+	function_body : function_body . expr SEMICOLON  (30)
+	else_stmt : ELSE function_body .  (39)
 
-	WRITE  shift 16
-	READ  shift 17
-	MINUS  shift 18
-	IDENTIFIER  shift 19
-	LEFT_BRACKET  shift 21
-	WHILE  shift 22
-	IF  shift 23
-	BOOL  shift 24
-	INT  shift 25
-	FI  reduce 41
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	WRITE  shift 18
+	READ  shift 19
+	MINUS  shift 20
+	IDENTIFIER  shift 21
+	LEFT_BRACKET  shift 23
+	WHILE  shift 24
+	IF  shift 25
+	BOOL  shift 26
+	INT  shift 27
+	FI  reduce 39
 
-	type_temp  goto 26
-	expr  goto 27
-
-
-state 105
-	function_body : function_body IF expr THEN function_body else_stmt FI .  (30)
-
-	.  reduce 30
+	type_stmts  goto 28
+	expr  goto 29
 
 
-state 106
+state 101
+	function_body : function_body IF expr THEN function_body else_stmt FI .  (29)
+
+	.  reduce 29
+
+
+state 102
 	value_assignment_comma : LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS . comma_temp  (36)
 	comma_temp : .  (8)
 
-	COMMA  shift 82
+	COMMA  shift 75
 	IDENTIFIER  reduce 8
 	RIGHT_PARENTHESIS  reduce 8
 
-	comma_temp  goto 108
+	comma_temp  goto 104
 
 
-state 107
+state 103
 	value_assignment_comma : value_assignment_comma IDENTIFIER EQ . expr comma_temp  (37)
 
-	MINUS  shift 18
-	IDENTIFIER  shift 34
-	LEFT_BRACKET  shift 21
-	BOOL  shift 35
-	INT  shift 36
+	BOOL_VAL  shift 16
+	INT_VAL  shift 17
+	MINUS  shift 20
+	IDENTIFIER  shift 33
+	LEFT_BRACKET  shift 23
 	.  error
 
-	expr  goto 109
+	expr  goto 105
 
 
-state 108
+state 104
 	value_assignment_comma : LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS comma_temp .  (36)
 
 	.  reduce 36
 
 
-state 109
+state 105
 	value_assignment_comma : value_assignment_comma IDENTIFIER EQ expr . comma_temp  (37)
-	expr : expr . PLUS expr  (46)
-	expr : expr . MINUS expr  (47)
-	expr : expr . MUL expr  (48)
-	expr : expr . EQ expr  (49)
-	expr : expr . LT expr  (50)
-	expr : expr . GT expr  (51)
+	expr : expr . PLUS expr  (44)
+	expr : expr . MINUS expr  (45)
+	expr : expr . MUL expr  (46)
+	expr : expr . EQ expr  (47)
+	expr : expr . LT expr  (48)
+	expr : expr . GT expr  (49)
 	comma_temp : .  (8)
 
-	EQ  shift 47
-	LT  shift 48
-	GT  shift 49
-	PLUS  shift 50
-	MINUS  shift 51
-	MUL  shift 52
-	COMMA  shift 82
+	EQ  shift 44
+	LT  shift 45
+	GT  shift 46
+	PLUS  shift 47
+	MINUS  shift 48
+	MUL  shift 49
+	COMMA  shift 75
 	IDENTIFIER  reduce 8
 	RIGHT_PARENTHESIS  reduce 8
 
-	comma_temp  goto 110
+	comma_temp  goto 106
 
 
-state 110
+state 106
 	value_assignment_comma : value_assignment_comma IDENTIFIER EQ expr comma_temp .  (37)
 
 	.  reduce 37
 
 
-Rules never reduced:
-	function_header : PROC IDENTIFIER LEFT_BRACKET param_recursive RIGHT_BRACKET  (15)
-	while_normal_stmt : function_body  (39)
-	while_normal_stmt :  (40)
+State 80 contains 1 shift/reduce conflict.
 
 
 46 terminals, 20 nonterminals
-55 grammar rules, 111 states
+53 grammar rules, 107 states

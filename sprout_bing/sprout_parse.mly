@@ -85,11 +85,14 @@ param_recursive:
 
 /*| argus_recursive argus_type comma_temp {($2,$3,$4)::$1}*/
 argus_recursive:
-| argus_recursive argus_type comma_temp  {}
+| argus_recursive argus_type comma_temp_2  {}
 | {}
 
+comma_temp_2:
+|RIGHT_BRACKET {}
+|COMMA {}
+
 argus_type:
-| IDENTIFIER {}
 | expr {}
 
 val_ref:
@@ -101,8 +104,7 @@ function_body:
 | function_body type_stmts IDENTIFIER SEMICOLON { } 
 | function_body WRITE expr SEMICOLON {  }
 | function_body READ IDENTIFIER SEMICOLON{  }
-| function_body IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON {}
-| function_body IDENTIFIER LEFT_BRACKET IDENTIFIER RIGHT_BRACKET SEMICOLON {}
+| function_body IDENTIFIER LEFT_BRACKET argus_recursive SEMICOLON {}
 | function_body WHILE expr DO function_body OD {}
 | function_body IF expr THEN function_body else_stmt FI  {}
 | function_body expr SEMICOLON {}
