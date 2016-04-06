@@ -59,7 +59,7 @@ rule token = parse
   | '*' { Printf.printf "meet * \n" ;flush stdout;MUL }
   | ';' { Printf.printf "meet ; \n" ;flush stdout;SEMICOLON }
   | '>' { Printf.printf "meet > \n" ;flush stdout;GT}
-  | '"' [^ '"']* '"' as lxm{ Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm)}
+  | '"' [^ '"' '\t' '\n' '\r' ]* '"' as lxm{ Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm)}
   (*| ident as lxm { IDENT lxm }*)
   | ident as lxm{ Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER(lxm) }
   | eof { Printf.printf "end file \n";flush stdout;EOF }

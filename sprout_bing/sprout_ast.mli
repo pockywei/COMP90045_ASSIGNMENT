@@ -65,18 +65,16 @@ type stmt =
   | IfDec of (expr * stmt list * stmt list)
 
 type functionDeclaration = (string*funcDecParamList)
-
+(*
 type program = {
   typedefs : (typedef*ident) list;
   funcdefs : (functionDeclaration*stmt list) list
 }
-
-(*
+*)
 type program = {
-  typedefs : (typedef*ident) list;
+  typedefs : int list;
   funcdefs : int list
 }
-*)
 type t = program
 
 val printBeantype : beantype -> unit 

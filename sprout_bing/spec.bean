@@ -22,7 +22,6 @@ i:=6*i + 4; end
 
 proc main ()
 
-test(n2);
 int m;
 int n;
 read n;
