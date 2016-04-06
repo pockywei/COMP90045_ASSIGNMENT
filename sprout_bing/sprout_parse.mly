@@ -44,7 +44,7 @@ open Sprout_ast
 
 
 start_state:
-| data_structure function_declaration{{typedefs = List.rev $1 ; funcdefs = [1]}}
+| data_structure function_declaration{{typedefs = List.rev $1 ; funcdefs = List.rev $2}}
 
 data_structure:
 | data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {($4,$6)::$1}
@@ -85,50 +85,52 @@ param_recursive:
 
 /*| argus_recursive argus_type comma_temp {($2,$3,$4)::$1}*/
 argus_recursive:
-| argus_recursive argus_type comma_temp_2  {}
-| {}
+| argus_recursive argus_type comma_temp_2  {$2::$1}
+| {[]}
 
 comma_temp_2:
 |RIGHT_BRACKET {}
 |COMMA {}
 
 argus_type:
-| expr {}
+| expr {$1}
 
 val_ref:
 |VAL {Val}
 |REF {Ref}
 
 function_body:
-| function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON {}
-| function_body type_stmts IDENTIFIER SEMICOLON { } 
-| function_body WRITE expr SEMICOLON {  }
-| function_body READ IDENTIFIER SEMICOLON{  }
-| function_body IDENTIFIER LEFT_BRACKET argus_recursive SEMICOLON {}
-| function_body WHILE expr DO function_body OD {}
-| function_body IF expr THEN function_body else_stmt FI  {}
-| function_body expr SEMICOLON {}
-| {}
+| function_body IDENTIFIER dot_term EQ_DOT assign_term SEMICOLON { Assign(LId($2),$5)::$1 }
+| function_body type_stmts IDENTIFIER SEMICOLON { VarDec($2,$3)::$1} 
+| function_body WRITE expr SEMICOLON { Write($3)::$1 }
+| function_body READ IDENTIFIER SEMICOLON{ Read(LId($3))::$1 }
+| function_body IDENTIFIER LEFT_BRACKET argus_recursive SEMICOLON { Method($2,$4)::$1 }
+| function_body WHILE expr DO function_body OD {WhileDec($3,$5)::$1}
+| function_body IF expr THEN function_body else_stmt FI  {IfDec($3,$5,$6)::$1}
+| {[]}
+/*| function_body expr SEMICOLON {}*/
+
 
 assign_term:
-| expr {}
-| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS {}
+| expr {[Rval(Rexpr($1))]}
+| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS {$2}
 
 dot_term:
-|{}
-|DOT IDENTIFIER {}
+|{""}
+|DOT IDENTIFIER {"."^$2}
 
 
 value_assignment_comma:
-| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS comma_temp{}
-| value_assignment_comma IDENTIFIER EQ expr comma_temp {}
-| {}
+| LEFT_PARENTHESIS value_assignment_comma RIGHT_PARENTHESIS comma_temp{$2}
+| value_assignment_comma IDENTIFIER EQ expr comma_temp {Assign(LId($2),[Rval(Rexpr($4))])::$1}
+| {[]}
 
 
 else_stmt:
-| ELSE function_body {}
-| {}
+| ELSE function_body {$2}
+| {[]}
 
+/*
 expr:
   | BOOL_VAL {  }
   | INT_VAL {  }
@@ -140,9 +142,9 @@ expr:
   | expr LT expr {  }
   | expr GT expr  {  }
   | MINUS expr %prec UMINUS { }
-  | LEFT_BRACKET expr RIGHT_BRACKET {  }
+  | LEFT_BRACKET expr RIGHT_BRACKET {  }*/
 
-/*
+
 expr:
   | BOOL_VAL { Ebool($1) }
   | INT_VAL { Eint($1) }
@@ -154,4 +156,4 @@ expr:
   | expr LT expr { Ebinop($1,Op_lt,$3) }
   | expr GT expr  { Ebinop($1,Op_gt,$3) }
   | MINUS expr %prec UMINUS { Eunop(Op_minus,$2)}
-  | LEFT_BRACKET expr RIGHT_BRACKET { Ebracket(expr) }*/
+  | LEFT_BRACKET expr RIGHT_BRACKET { Ebracket($2) }

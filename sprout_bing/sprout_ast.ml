@@ -49,17 +49,22 @@ type valRef =
 |Val
 |Ref
 
-type paramList = (beantype*string) list
+(*type paramList = (beantype*string) list*)
+type paramList = expr list
+
 
 type funcDecParamList = (valRef*beantype*string) list
 
 type stmt = 
-  | Assign of (lvalue * (lvalue * rvalue ) list)
+  | Rval of rvalue
+  | Assign of (lvalue * stmt list)
   | Read of lvalue
   | Write of expr
   | StmtNone
   | Method of (string * paramList)
-  | VarDec of (beantype*string)
+  | VarDec of (beantype * string)
+  | WhileDec of (expr * stmt list)
+  | IfDec of (expr * stmt list * stmt list)
 
 type functionDeclaration = (string*funcDecParamList)
 
