@@ -1,6 +1,16 @@
 {
 open Sprout_parse
 let line_num = ref 0
+
+exception LexFail of string
+
+let lex_fail lexbuf =
+  let position = Lexing.lexeme_start_p lexbuf in
+  let error_message =
+    Format.sprintf " \nIncorrect Bean Program: line %d, col %d. "
+      (position.Lexing.pos_lnum)
+      (position.Lexing.pos_cnum - position.Lexing.pos_bol) in
+  raise (LexFail error_message)
 }
 
 let digit = ['0' - '9']
@@ -64,3 +74,4 @@ rule token = parse
   (*| ident as lxm { IDENT lxm }*)
   | ident as lxm{ Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER(lxm) }
   | eof { Printf.printf "end file \n %d \n" !line_num;flush stdout;EOF }
+  | _   { lex_fail lexbuf }
