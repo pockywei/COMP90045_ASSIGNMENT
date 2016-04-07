@@ -1,5 +1,6 @@
 {
 open Sprout_parse
+let line_num = ref 0
 }
 
 let digit = ['0' - '9']
@@ -13,7 +14,7 @@ let function_value_init = ident ident
 
 rule token = parse
     [' ' '\t']    { Printf.printf "meet space or tab \n" ;flush stdout;token lexbuf }     (* skip blanks *)
-  | '\n'          {Printf.printf "meet newline \n" ;flush stdout; Lexing.new_line lexbuf ; token lexbuf }
+  | '\n'          { incr line_num; Printf.printf "meet newline %d\n" !line_num ;flush stdout; Lexing.new_line lexbuf ; token lexbuf }
   (*| '-'?['0'-'9']+ as lxm { IPrintf.printf "meet typedef \n" ;flush stdout;NT_CONST(int_of_string lxm) }*)
   | '-'?['0'-'9']+ as lxm{Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
   (* keywords *)
@@ -62,4 +63,4 @@ rule token = parse
   | '"' [^ '"' '\t' '\n' '\r' ]* '"' as lxm{ Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm)}
   (*| ident as lxm { IDENT lxm }*)
   | ident as lxm{ Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER(lxm) }
-  | eof { Printf.printf "end file \n";flush stdout;EOF }
+  | eof { Printf.printf "end file \n %d \n" !line_num;flush stdout;EOF }
