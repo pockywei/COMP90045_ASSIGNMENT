@@ -13,12 +13,13 @@ let lex_fail lexbuf =
   raise (LexFail error_message)
 }
 
+let apostro = '''
 let digit = ['0' - '9']
 let alpha = ['a' - 'z' 'A' - 'Z']
 let alnum = alpha | digit
 let digits = digit+
 let underscore = '_'
-let ident = (alpha alnum* underscore?)+
+let ident = (alpha|underscore)(alpha|underscore|apostro)*
 let typedef_value_init = (ident ':' ident)
 let function_value_init = ident ident
 
