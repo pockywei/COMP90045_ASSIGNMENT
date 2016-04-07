@@ -122,6 +122,7 @@ lvalue:
 rvalue:
 | expr {}
 | LEFT_BRACE field_init RIGHT_BRACE {}
+| LEFT_BRACE RIGHT_BRACE {}
 
 field_init:
 | rec_field_init IDENTIFIER EQ rvalue {}
