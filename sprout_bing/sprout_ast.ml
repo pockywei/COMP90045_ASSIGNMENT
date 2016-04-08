@@ -8,8 +8,10 @@ type beantype =
   | IdentType of string 
 
 type typedefStruct =
-  |SingleTypeTerm of (ident * beantype)
-  |ListTypeTerm of (ident * typedefStruct list)
+  |SingleTypeTerm of beantype
+  |SingleTypeTermWithIdent of (ident * typedefStruct)
+  |ListTypeTerm of typedefStruct list
+  |TypedefEnd
 type typedef = typedefStruct list
 
 type lvalue =
@@ -18,10 +20,12 @@ type lvalue =
   | LvalueNone
 
 type binop =
-  | Op_add | Op_sub | Op_mul | Op_eq | Op_lt | Op_gt
+  | Op_add | Op_sub | Op_mul | Op_div
+  | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
+  | Op_and | Op_or
 
 type unop =
-  | Op_minus
+  | Op_minus | Op_not
 
 type expr =
   | Ebool of bool
@@ -35,6 +39,27 @@ type expr =
 (* Will need to AST elements with additional data.  *)
 type rvalue =
   | Rexpr of expr
+  | RField of (rvalue * expr)
+  | Rassign of (string * rvalue)
+  | Rstmts of rvalue list 
+  | Rempty
+
+
+type paramList = expr list
+
+type stmt = 
+  | Assign of (lvalue * rvalue)
+  | AssignRvalueList of (lvalue * rvalue list)
+  | Read of lvalue
+  | Write of expr
+  | StmtNone
+  | Method of (string * paramList)
+  | VarDec of (beantype * string)
+  | WhileDec of (expr * stmt list)
+  | IfDec of (expr * stmt list * stmt list)
+
+
+
 
 type decl = (ident * beantype)
 (*
@@ -49,39 +74,24 @@ type valRef =
 |Val
 |Ref
 
-(*type paramList = (beantype*string) list*)
-type paramList = expr list
 
+type funcDecParamList = (valRef*typedefStruct*string) list
 
-type funcDecParamList = (valRef*beantype*string) list
-
-type stmt = 
-  | Rval of rvalue
-  | Assign of (lvalue * stmt list)
-  | Read of lvalue
-  | Write of expr
-  | StmtNone
-  | Method of (string * paramList)
-  | VarDec of (beantype * string)
-  | WhileDec of (expr * stmt list)
-  | IfDec of (expr * stmt list * stmt list)
 
 type functionDeclaration = (string*funcDecParamList)
 (*
 type program = {
   typedefs : (typedef*ident) list;
-  funcdefs : (functionDeclaration*stmt list) list
+  funcdefs : (functionDeclaration*stmst list*stmt list) list
 }
 *)
-
 type program = {
-  typedefs : int list;
-  funcdefs : int list
+  typedefs : (typedefStruct*ident) list;
+  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
 }
-
 type t = program
 
-
+(*
 let printBeantype beanTypeData = match beanTypeData with
 | Bool -> Printf.printf " Bool "
 | Int -> Printf.printf " Int "
@@ -95,5 +105,5 @@ let rec printTypedefs typedefData = match typedefData with
 | [] -> Printf.printf "Empty \n "
 | (hstructList,hid)::t -> ( Printf.printf "typedef name => %s : \n  " hid; List.iter (printTypedefStruct) hstructList ; printTypedefs t )
 
-
+*)
 

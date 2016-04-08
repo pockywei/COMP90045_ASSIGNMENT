@@ -19,7 +19,7 @@ let alpha = ['a' - 'z' 'A' - 'Z']
 let alnum = alpha | digit
 let digits = digit+
 let underscore = '_'
-let ident = (alpha|underscore)(alpha|underscore|apostro)*
+let ident = (alpha|underscore)(alnum|underscore|apostro)*
 let typedef_value_init = (ident ':' ident)
 let function_value_init = ident ident
 
