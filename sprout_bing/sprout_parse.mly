@@ -34,11 +34,12 @@ open Sprout_ast
 %token EQ_COL
 %left OR
 %left AND
+%nonassoc NOT
 %nonassoc EQ NEQ LT LTE GT GTE
 %left PLUS MINUS
 %left MUL DIV
 %right EQ_COL
-%nonassoc NOT UMINUS
+%nonassoc UMINUS
 
 %type <Sprout_ast.program> start_state
 
