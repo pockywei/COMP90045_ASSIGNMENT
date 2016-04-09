@@ -177,7 +177,7 @@ expr:
 | expr AND expr { Ebinop($1,Op_and,$3) }
 | expr OR expr { Ebinop($1,Op_or,$3) }
 | NOT expr { Eunop(Op_not,$2) }
-| UMINUS expr { Eunop(Op_minus,$2) }
+| MINUS expr %prec UMINUS { Eunop(Op_minus,$2) }
 
 /* expr list */
 expr_list:
