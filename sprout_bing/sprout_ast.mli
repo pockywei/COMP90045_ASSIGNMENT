@@ -98,11 +98,13 @@ val printBeanType : beantype -> unit
 val printSingleTypeDef : typedefStruct * ident -> unit
 val printTypedefList : (typedefStruct * ident) list -> unit 
 *)
-
+(*
 val printBeanType : beantype -> unit 
 val printTypedefStruct : typedefStruct -> unit
 val printSingleTypedef : typedefStruct * ident -> unit
 val printTypedefList : (typedefStruct * ident) list -> unit
+*)
+(*
 val printFuncIndicator : valRef -> unit
 val printFuncparams : valRef * typedefStruct * ident -> unit
 val printFuncheader : ident * (valRef * typedefStruct * ident) list -> unit
@@ -115,5 +117,10 @@ val printRvalue : rvalue -> unit
 val printStmt : stmt -> unit
 val printFuncBody : stmt list -> unit
 val printSingleFuncdef : (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit 
-val printFuncdefList : ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit
+val printFuncdefList : ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit*)
 
+
+val printBeanType : Format.formatter -> int * int * beantype -> unit
+val printTypedefStruct : Format.formatter -> int * int * typedefStruct -> unit
+val printSingleTypedef : Format.formatter -> int -> int -> typedefStruct * ident -> unit
+val printTypedefList : Format.formatter -> (typedefStruct * ident) list -> unit
