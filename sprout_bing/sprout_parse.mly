@@ -88,7 +88,7 @@ rec_field_definition:
 /* At least one procedure required */
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 procedure_definition:
-| rec_procedure_definition PROC procedure_header variable_definition procedure_body END {($3,$4,$5)::$1}
+| rec_procedure_definition PROC procedure_header variable_definition procedure_body END {($3,List.rev $4,$5)::$1}
 
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 rec_procedure_definition:
@@ -98,7 +98,7 @@ rec_procedure_definition:
 /*type functionDeclaration = (string*funcDecParamList)*/
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
 procedure_header:
-| IDENTIFIER LEFT_PAREN param RIGHT_PAREN {($1,$3)}
+| IDENTIFIER LEFT_PAREN param RIGHT_PAREN {($1,List.rev $3)}
 
 
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
@@ -155,7 +155,7 @@ lvalue:
 /* rvalue*/
 rvalue:
 | expr { Rexpr($1) }
-| LEFT_BRACE field_init RIGHT_BRACE { Rstmts($2) }
+| LEFT_BRACE field_init RIGHT_BRACE { Rstmts(List.rev $2) }
 | LEFT_BRACE RIGHT_BRACE { Rempty }
 
 /* rvalue list */

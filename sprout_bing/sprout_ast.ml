@@ -115,16 +115,21 @@ let printBeanType btype =  match btype with
 
 let rec printTypedefStruct typedefStructData = match typedefStructData with
 | SingleTypeTerm (btype) -> printBeanType btype
-| SingleTypeTermWithIdent (ident,nestTypedefStructData) -> (Printf.printf "ident : %s ," ident; printTypedefStruct nestTypedefStructData ; Printf.printf "\n")
-| ListTypeTerm (listTypedefStructData) ->
-(Printf.printf "nest: \n" ; List.iter (printTypedefStruct) listTypedefStructData ; Printf.printf "nest end \n")
+| SingleTypeTermWithIdent (ident,nestTypedefStructData) -> (Printf.printf "ident : %s ," ident;
+ printTypedefStruct nestTypedefStructData ; 
+ Printf.printf "\n")
+| ListTypeTerm (listTypedefStructData) ->(Printf.printf "nest: \n" ;
+  List.iter (printTypedefStruct) listTypedefStructData ;
+ Printf.printf "nest end \n")
 | TypedefEnd -> Printf.printf "end with type def \n"
 
 let printSingleTypedef singleTypedefData = match singleTypedefData with
-| (typedefStruct,ident) -> (Printf.printf "Typedef Name : %s \n" ident ; printTypedefStruct typedefStruct;Printf.printf "\n")
+| (typedefStruct,ident) -> (Printf.printf "Typedef Name : %s \n" ident ;
+ printTypedefStruct typedefStruct;Printf.printf "\n")
 
 
-let printTypedefList typedefDataList = (Printf.printf "Start typedef : \n" ; List.iter (printSingleTypedef) typedefDataList)
+let printTypedefList typedefDataList = (Printf.printf "Start typedef : \n" ;
+ List.iter (printSingleTypedef) typedefDataList)
 
 let printFuncIndicator funcIndicator = match funcIndicator with
 | Val -> Printf.printf " func_indicator : Val "
