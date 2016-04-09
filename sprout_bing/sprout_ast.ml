@@ -139,23 +139,27 @@ List.iter (printSingleTypedef fmt initIdent initIdentFactor) typedefDataList
 
 (* Print method delc*)
 
+
+let printFuncIndicator fmt (initIdent,initIdentFactor,funcIndicator) = match funcIndicator with
+| Val -> Format.fprintf fmt "Val "
+| Ref -> Format.fprintf fmt "Ref "
+
+let printFuncparams fmt (initIdent,initIdentFactor,singleFuncparamData) =  match singleFuncparamData with
+| (funcIndicator,typedefStruct,ident) -> Format.fprintf fmt  "@[%a %a %s@]"  printFuncIndicator (initIdent,initIdentFactor,funcIndicator) printTypedefStruct (initIdent,initIdentFactor,typedefStruct) ident
+
+let printFuncheader fmt (initIdent,initIdentFactor,funcheaderData) = match funcheaderData with
+| (funcname,funcparams) -> (Format.fprintf fmt "@[%s(@] " funcname ;
+List.iter (fun x -> if x = List.nth funcparams ((List.length funcparams)-1) 
+    then printFuncparams fmt (initIdent,initIdentFactor,x)
+    else (printFuncparams fmt (initIdent,initIdentFactor,x) ; Format.fprintf fmt ", ")) funcparams;
+    Format.fprintf fmt "@[)@]@. ")
+
 (*
-let printFuncIndicator funcIndicator = match funcIndicator with
-| Val -> Printf.printf " func_indicator : Val "
-| Ref -> Printf.printf " func_indicator : Ref "
-
-let printFuncparams singleFuncparamData =  match singleFuncparamData with
-| (funcIndicator,typedefStruct,ident) -> (Printf.printf "ident : %s " ident ;
-  printFuncIndicator funcIndicator ; printTypedefStruct typedefStruct)
-
-let printFuncheader funcheaderData = match funcheaderData with
-| (funcname,funcparams) -> (Printf.printf "funcname : %s " funcname ;
-List.iter (printFuncparams) funcparams)
-
 let printFuncVardef funcVardefData = (Printf.printf "var dec start : \n";
   List.iter (printTypedefStruct) funcVardefData ;
   Printf.printf "var dec end : \n")
-
+*)
+(*
 let rec printLvalue singleLvalue = match singleLvalue with
 | LId(ident) -> Printf.printf " %s " ident
 | LField(recLvalue,ident) -> (Printf.printf "%s." ident; printLvalue recLvalue)
@@ -240,17 +244,15 @@ let printFuncBody funcBodyData = (Printf.printf "start func body : \n";
 
 
 
+*)
+
+(*
+let printSingleFuncdef fmt initIdent initIdentFactor singleFuncdefData = match singleFuncdefData with
+| (funcheader,funcvardef,funcbody) -> Format.fprintf fmt "@[proc %a @ %a @ @ %a end@]@." printFuncheader (initIdent,initIdentFactor,funcheader) printFuncVardef (initIdent,initIdentFactor,funcvardef)  printFuncBody (initIdent,initIdentFactor,funcbody)
+*)
+let printSingleFuncdef fmt initIdent initIdentFactor singleFuncdefData = match singleFuncdefData with
+| (funcheader,funcvardef,funcbody) -> Format.fprintf fmt "@[proc %a @ a @ @ a end@]@." printFuncheader (initIdent,initIdentFactor,funcheader)
 
 
-
-let printSingleFuncdef singleFuncdefData = match singleFuncdefData with
-| (funcheader,funcvardef,funcbody) -> ( printFuncheader funcheader;
-  printFuncVardef funcvardef ; printFuncBody funcbody )
-
-let printFuncdefList funcdefDataList = (Printf.printf "Start funcdef : \n" ; List.iter (printSingleFuncdef) funcdefDataList)*)
-
-
-
-
-
-
+let printFuncdefList fmt funcdefDataList =  let initIdent = 4
+in let initIdentFactor = 0 in List.iter (printSingleFuncdef fmt initIdent initIdentFactor) funcdefDataList
