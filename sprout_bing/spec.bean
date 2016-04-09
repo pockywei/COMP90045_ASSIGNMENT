@@ -20,12 +20,12 @@ i:=6*i + 4; end
 
 
 
-proc main ()
+proc main_test()
 
 int m;
 int n;
 read n;
-main();
+main(va1,va2,va3);
 
 while n>1 do
 m := n;

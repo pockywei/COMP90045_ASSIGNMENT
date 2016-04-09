@@ -46,8 +46,15 @@ open Sprout_ast
 %%
 
 
+/*
+type program = {
+  typedefs : (typedefStruct*ident) list;
+  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
+}
+*/
+
 start_state:
-| type_definition procedure_definition {{typedefs=$1;funcdefs=$2}}
+| type_definition procedure_definition {{typedefs = List.rev $1;funcdefs = List.rev $2}}
 
 /*typdef ? identifier*/
 type_definition:
@@ -58,7 +65,7 @@ type_spec:
 | primitive_type {$1}
 | IDENTIFIER {SingleTypeTerm((IdentType $1))}
 /*typdef {?} identifier*/
-| LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm($2)}
+| LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm( List.rev $2)}
 
 primitive_type:
 | BOOL {SingleTypeTerm(Bool)}
@@ -113,7 +120,7 @@ param_passing_indicator:
 
 /*typedefStruct*/
 variable_definition:
-| variable_definition type_spec IDENTIFIER SEMICOLON { $2::$1 }
+| variable_definition type_spec IDENTIFIER SEMICOLON { SingleTypeTermWithIdent($3,$2)::$1 }
 | {[]}
 
 /*procedure , stmt list*/
@@ -180,11 +187,11 @@ expr:
 
 /* expr list */
 expr_list:
-| expr rec_expr_list {$1::$2}
+| expr rec_expr_list { $1::$2 }
 | {[]}
 
 rec_expr_list:
-| COMMA expr {[$2]}
+| COMMA expr_list { $2 }
 | {[]}
 
 stmt_list:

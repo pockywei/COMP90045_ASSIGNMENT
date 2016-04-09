@@ -93,4 +93,7 @@ val printBeantype : beantype -> unit
 val printTypedefStruct : typedefStruct -> unit 
 val printTypedefs : (typedefStruct list * ident) list -> unit
 *)
+val printBeanType : beantype -> unit 
+val printSingleTypeDef : typedefStruct * ident -> unit
+val printTypedefList : (typedefStruct * ident) list -> unit 
 

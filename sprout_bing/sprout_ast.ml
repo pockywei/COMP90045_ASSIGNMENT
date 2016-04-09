@@ -107,3 +107,129 @@ let rec printTypedefs typedefData = match typedefData with
 
 *)
 
+let printBeanType btype =  match btype with
+| Bool -> Printf.printf "bean type : Bool " 
+| Int -> Printf.printf "bean type : Int "
+| IdentType(ident) -> Printf.printf "bean type : %s " ident
+
+
+let rec printTypedefStruct typedefStructData = match typedefStructData with
+| SingleTypeTerm (btype) -> printBeanType btype
+| SingleTypeTermWithIdent (ident,nestTypedefStructData) -> (Printf.printf "ident : %s ," ident; printTypedefStruct nestTypedefStructData ; Printf.printf "\n")
+| ListTypeTerm (listTypedefStructData) ->
+(Printf.printf "nest: \n" ; List.iter (printTypedefStruct) listTypedefStructData ; Printf.printf "nest end \n")
+| TypedefEnd -> Printf.printf "end with type def \n"
+
+let printSingleTypedef singleTypedefData = match singleTypedefData with
+| (typedefStruct,ident) -> (Printf.printf "Typedef Name : %s \n" ident ; printTypedefStruct typedefStruct;Printf.printf "\n")
+
+
+let printTypedefList typedefDataList = (Printf.printf "Start typedef : \n" ; List.iter (printSingleTypedef) typedefDataList)
+
+let printFuncIndicator funcIndicator = match funcIndicator with
+| Val -> Printf.printf " func_indicator : Val "
+| Ref -> Printf.printf " func_indicator : Ref "
+
+let printFuncparams singleFuncparamData =  match singleFuncparamData with
+| (funcIndicator,typedefStruct,ident) -> (Printf.printf "ident : %s " ident ;
+  printFuncIndicator funcIndicator ; printTypedefStruct typedefStruct)
+
+let printFuncheader funcheaderData = match funcheaderData with
+| (funcname,funcparams) -> (Printf.printf "funcname : %s " funcname ;
+List.iter (printFuncparams) funcparams)
+
+let printFuncVardef funcVardefData = (Printf.printf "var dec start : \n";
+  List.iter (printTypedefStruct) funcVardefData ; Printf.printf "var dec end : \n"
+
+let printFuncBody funcBodyData = (Printf.printf "start func body : \n";
+  List.iter (printStmt) funcBodyData;
+  Printf.printf "end func body \n")
+
+let rec printLvalue singleLvalue = match singleLvalue with
+| LId(ident) -> Printf.printf " %s " ident ;
+| LField of (recLvalue,ident) -> (Printf.printf "%s."; printLvalue recLvalue)
+| LvalueNone -> Printf.printf "Empty lvalue "
+
+let printBinop singleBinop = match singleBinop with
+| Op_add -> Printf.printf " + "
+| Op_sub -> Printf.printf " - "
+| Op_mul -> Printf.printf " * "
+| Op_div -> Printf.printf " / " 
+| Op_eq -> Printf.printf " = "
+| Op_lt -> Printf.printf " < "
+| Op_gt -> Printf.printf " > "
+| Op_neq -> Printf.printf " != "
+| Op_lte -> Printf.printf " <= "
+| Op_gte -> Printf.printf " >= "
+| Op_and -> Printf.printf " and "
+| Op_or -> Printf.printf " or "
+
+let rec printRvalue singleRvalue = match singleRvalue with
+| Rexpr(expr) -> printExpr expr
+| RField(rvalue,expr) -> (printRvalue rvalue;
+  printExpr expr)
+| Rassign(str,rvalue) -> (Printf.printf "%s "str);
+  printRvalue rvalue)
+| Rstmts(rvalueList) -> List.iter (printRvalue) rvalueList
+| Rempty -> Printf.printf "Empty Rvalue "
+
+let printUnop singleUnop = match singleUnop with
+| Op_minus -> Printf.printf "-"
+| Op_not -> Printf.printf "!"
+
+let rec printExpr singleExpr = match singleExpr with
+| Ebool(bool_val) -> Printf.printf " %B " bool_val
+| Eint(int_val) -> Printf.printf " %d " int_val
+| Elval(lvalue) -> printLvalue lvalue
+| Ebinop(expr_one,binop,expr_two) -> (printExpr expr_one;
+  printBinop binop; printExpr expr_two)
+| Eunop(unop,expr) -> (printUnop unop ; printExpr expr)
+| Eindent(ident) -> Printf.printf "%s " ident
+| Ebracket(expr) -> (Printf.printf " ( " ; Printf.printf expr  ;Printf.printf " ) ")
+
+let printStmt singleStmt = match singleStmt with
+| Assign(lvalue, rvalue) -> (printLvalue lvalue;
+  Printf.printf "=";
+  printRvalue rvalue;
+  Printf.printf " \n")
+| AssignRvalueList(lvalue,rvalueList) ->(printLvalue lvalue;
+  Printf.printf "={";
+  List.iter (printRvalue) rvalueList;
+  Printf.printf "}";
+  Printf.printf " \n")
+| Read(lvalue) -> (Printf.printf "Read ";
+  printLvalue lvalue;
+  Printf.printf " \n")
+| Write(expr) -> (Printf.printf "Write ";
+  printExpr expr;
+  Printf.printf " \n")
+| StmtNone -> (Printf.printf "StmtNone";
+  Printf.printf " \n")
+| Method(methodname, paramList) -> (Printf.printf "%s( " methodname ;
+  List.iter (printExpr) paramList;
+  Printf.printf " ) \n")
+| VarDec(beantype, ident) -> (Printf.printf "%s " ident;
+  printBeantype beantype;
+  Printf.printf " \n")
+| WhileDec(expr, stmtList) ->(Printf.printf "While do ";
+  printExpr expr;
+  List.iter (printStmt) stmtList;
+  Printf.printf "od " ident;)
+| IfDec(expr, thenStmtList,ElseStmtList) -> (Printf.printf "If ";
+  printExpr expr;
+  List.iter (printStmt) thenStmtList;
+  List.iter (printStmt) ElseStmtList;
+  Printf.printf "fi";)
+
+
+let printSingleFuncDef singleFuncdefData = match singleFuncdefData with
+| (funcheader,funcvardef,funcbody) -> ( printFuncheader funcheader;
+  printFuncVardef funcvardef ; printFuncBody funcbody )
+
+let printFuncdefList funcdefDataList = (Printf.printf "Start funcdef : \n" ; List.iter (printSinlgeFuncdef) funcdefDataList)
+
+
+
+
+
+
