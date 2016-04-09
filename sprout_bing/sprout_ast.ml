@@ -139,15 +139,12 @@ let printFuncheader funcheaderData = match funcheaderData with
 List.iter (printFuncparams) funcparams)
 
 let printFuncVardef funcVardefData = (Printf.printf "var dec start : \n";
-  List.iter (printTypedefStruct) funcVardefData ; Printf.printf "var dec end : \n"
-
-let printFuncBody funcBodyData = (Printf.printf "start func body : \n";
-  List.iter (printStmt) funcBodyData;
-  Printf.printf "end func body \n")
+  List.iter (printTypedefStruct) funcVardefData ;
+  Printf.printf "var dec end : \n")
 
 let rec printLvalue singleLvalue = match singleLvalue with
-| LId(ident) -> Printf.printf " %s " ident ;
-| LField of (recLvalue,ident) -> (Printf.printf "%s."; printLvalue recLvalue)
+| LId(ident) -> Printf.printf " %s " ident
+| LField(recLvalue,ident) -> (Printf.printf "%s." ident; printLvalue recLvalue)
 | LvalueNone -> Printf.printf "Empty lvalue "
 
 let printBinop singleBinop = match singleBinop with
@@ -164,15 +161,6 @@ let printBinop singleBinop = match singleBinop with
 | Op_and -> Printf.printf " and "
 | Op_or -> Printf.printf " or "
 
-let rec printRvalue singleRvalue = match singleRvalue with
-| Rexpr(expr) -> printExpr expr
-| RField(rvalue,expr) -> (printRvalue rvalue;
-  printExpr expr)
-| Rassign(str,rvalue) -> (Printf.printf "%s "str);
-  printRvalue rvalue)
-| Rstmts(rvalueList) -> List.iter (printRvalue) rvalueList
-| Rempty -> Printf.printf "Empty Rvalue "
-
 let printUnop singleUnop = match singleUnop with
 | Op_minus -> Printf.printf "-"
 | Op_not -> Printf.printf "!"
@@ -184,10 +172,21 @@ let rec printExpr singleExpr = match singleExpr with
 | Ebinop(expr_one,binop,expr_two) -> (printExpr expr_one;
   printBinop binop; printExpr expr_two)
 | Eunop(unop,expr) -> (printUnop unop ; printExpr expr)
-| Eindent(ident) -> Printf.printf "%s " ident
-| Ebracket(expr) -> (Printf.printf " ( " ; Printf.printf expr  ;Printf.printf " ) ")
+| Eident(ident) -> Printf.printf "%s " ident
+| Ebracket(expr) -> (Printf.printf " ( " ; printExpr expr  ;Printf.printf " ) ")
 
-let printStmt singleStmt = match singleStmt with
+
+let rec printRvalue singleRvalue = match singleRvalue with
+| Rexpr(expr) -> printExpr expr
+| RField(rvalue,expr) -> (printRvalue rvalue;
+  printExpr expr)
+| Rassign(str,rvalue) -> (Printf.printf "%s " str;
+  printRvalue rvalue)
+| Rstmts(rvalueList) -> List.iter (printRvalue) rvalueList
+| Rempty -> Printf.printf "Empty Rvalue "
+
+
+let rec printStmt singleStmt = match singleStmt with
 | Assign(lvalue, rvalue) -> (printLvalue lvalue;
   Printf.printf "=";
   printRvalue rvalue;
@@ -209,24 +208,32 @@ let printStmt singleStmt = match singleStmt with
   List.iter (printExpr) paramList;
   Printf.printf " ) \n")
 | VarDec(beantype, ident) -> (Printf.printf "%s " ident;
-  printBeantype beantype;
+  printBeanType beantype;
   Printf.printf " \n")
 | WhileDec(expr, stmtList) ->(Printf.printf "While do ";
   printExpr expr;
   List.iter (printStmt) stmtList;
-  Printf.printf "od " ident;)
-| IfDec(expr, thenStmtList,ElseStmtList) -> (Printf.printf "If ";
+  Printf.printf "od ";)
+| IfDec(expr, thenStmtList, elseStmtList) -> (Printf.printf "If ";
   printExpr expr;
   List.iter (printStmt) thenStmtList;
-  List.iter (printStmt) ElseStmtList;
-  Printf.printf "fi";)
+  List.iter (printStmt) elseStmtList;
+  Printf.printf "fi")
+
+let printFuncBody funcBodyData = (Printf.printf "start func body : \n";
+  List.iter (printStmt) funcBodyData;
+  Printf.printf "end func body \n")
 
 
-let printSingleFuncDef singleFuncdefData = match singleFuncdefData with
+
+
+
+
+let printSingleFuncdef singleFuncdefData = match singleFuncdefData with
 | (funcheader,funcvardef,funcbody) -> ( printFuncheader funcheader;
   printFuncVardef funcvardef ; printFuncBody funcbody )
 
-let printFuncdefList funcdefDataList = (Printf.printf "Start funcdef : \n" ; List.iter (printSinlgeFuncdef) funcdefDataList)
+let printFuncdefList funcdefDataList = (Printf.printf "Start funcdef : \n" ; List.iter (printSingleFuncdef) funcdefDataList)
 
 
 

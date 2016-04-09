@@ -93,7 +93,27 @@ val printBeantype : beantype -> unit
 val printTypedefStruct : typedefStruct -> unit 
 val printTypedefs : (typedefStruct list * ident) list -> unit
 *)
+(*
 val printBeanType : beantype -> unit 
 val printSingleTypeDef : typedefStruct * ident -> unit
 val printTypedefList : (typedefStruct * ident) list -> unit 
+*)
+
+val printBeanType : beantype -> unit 
+val printTypedefStruct : typedefStruct -> unit
+val printSingleTypedef : typedefStruct * ident -> unit
+val printTypedefList : (typedefStruct * ident) list -> unit
+val printFuncIndicator : valRef -> unit
+val printFuncparams : valRef * typedefStruct * ident -> unit
+val printFuncheader : ident * (valRef * typedefStruct * ident) list -> unit
+val printFuncVardef : typedefStruct list -> unit
+val printLvalue : lvalue -> unit
+val printBinop : binop -> unit
+val printUnop : unop -> unit
+val printExpr : expr -> unit
+val printRvalue : rvalue -> unit
+val printStmt : stmt -> unit
+val printFuncBody : stmt list -> unit
+val printSingleFuncdef : (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit 
+val printFuncdefList : ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit
 
