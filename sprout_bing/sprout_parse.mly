@@ -82,7 +82,7 @@ rec_field_definition:
 /* At least one procedure required */
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 procedure_definition:
-| rec_procedure_definition PROC procedure_header variable_definition procedure_body END {($3,$4,$5)::$1}
+| rec_procedure_definition PROC procedure_header variable_definition stmt_list END {($3,$4,$5)::$1}
 
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 rec_procedure_definition:
@@ -120,12 +120,12 @@ variable_definition:
 /*procedure , stmt list*/
 
 /* stmt list */
-procedure_body:
-| atomic_stmt SEMICOLON rec_procedure_body {$1::$3}
-| compound_stmt rec_procedure_body {$1::$2}
+stmt_list:
+| atomic_stmt SEMICOLON rec_stmt_list {$1::$3}
+| compound_stmt rec_stmt_list {$1::$2}
 
-rec_procedure_body:
-| procedure_body {$1}
+rec_stmt_list:
+| stmt_list {$1}
 | {[]}
 
 /* stmt */
@@ -187,9 +187,6 @@ expr_list:
 rec_expr_list:
 | COMMA expr {[$2]}
 | {[]}
-
-stmt_list:
-| procedure_body {$1}
 
 else_block:
 | ELSE stmt_list {$2}
