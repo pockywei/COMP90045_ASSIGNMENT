@@ -1,7 +1,6 @@
 /* ocamlyacc parser for bean */
 %{
 open Sprout_ast
-let parse_error error_string = Printf.printf "%s\n" error_string
 %}
 
 %token <bool> BOOL_VAL

@@ -2,16 +2,10 @@
 open Sprout_parse
 let line_num = ref 0
 
-exception LexFail of string
+exception LexFail of Lexing.lexbuf
 
 
-let lex_fail lexbuf =
-  let position = Lexing.lexeme_start_p lexbuf in
-  let error_message =
-    Format.sprintf " \nIllegal Character on line %d, col %d. "
-      (position.Lexing.pos_lnum)
-      (position.Lexing.pos_cnum - position.Lexing.pos_bol) in
-  raise (LexFail error_message)
+let lex_fail lexbuf = raise (LexFail lexbuf)
 }
 
 let apostro = '''
