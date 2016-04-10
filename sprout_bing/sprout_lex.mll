@@ -23,12 +23,15 @@ let ident = (alpha|underscore)(alnum|underscore|apostro)*
 let typedef_value_init = (ident ':' ident)
 let function_value_init = ident ident
 
+let comment = '#'[^'\n']*'\n'
+
 rule token = parse
     [' ' '\t']    { Printf.printf "meet space or tab \n" ;flush stdout;token lexbuf }     (* skip blanks *)
   | '\n'          { incr line_num; Printf.printf "meet newline %d\n" !line_num ;flush stdout; Lexing.new_line lexbuf ; token lexbuf }
   (*| '-'?['0'-'9']+ as lxm { IPrintf.printf "meet typedef \n" ;flush stdout;NT_CONST(int_of_string lxm) }*)
   | '-'?['0'-'9']+ as lxm{Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
   (* keywords *)
+  | comment {incr line_num; Printf.printf "Comment \n";flush stdout;token lexbuf }
   | ':' { Printf.printf "meet : \n" ;flush stdout;COLON }
   | '{' { Printf.printf "meet { \n" ;flush stdout;LEFT_BRACE }
   | '}' { Printf.printf "meet } \n" ;flush stdout;RIGHT_BRACE }
