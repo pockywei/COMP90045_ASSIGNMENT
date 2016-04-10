@@ -131,7 +131,7 @@ val printBinop : Format.formatter -> binop -> unit
 val printUnop : Format.formatter -> unop -> unit
 val printExpr : Format.formatter -> expr -> unit
 val printRvalue : Format.formatter -> rvalue -> unit
-val printStmt : Format.formatter -> int * stmt -> unit
+val printStmt : Format.formatter -> int * bool * stmt -> unit
 val printFuncBody : Format.formatter -> stmt list -> unit
 val printSingleFuncdef : Format.formatter -> (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit
 val printFuncdefList : Format.formatter -> ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit

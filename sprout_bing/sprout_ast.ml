@@ -208,26 +208,34 @@ let rec printRvalue fmt singleRvalue = match singleRvalue with
 
 let getIdent identNum = String.make identNum ' '
 
-let rec printStmt fmt (initIdent,singleStmt) = match singleStmt with
+let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
 
 | Assign(lvalue, rvalue) -> (printLvalue fmt lvalue;
   Format.fprintf fmt  " = ";
   printRvalue fmt rvalue;
-  Format.fprintf fmt  " ;@ ")
+  if isLast = true
+  then Format.fprintf fmt  ";"
+  else Format.fprintf fmt  ";@ ")
 
 | AssignRvalueList(lvalue,rvalueList) ->(printLvalue fmt lvalue;
   Format.fprintf fmt  "={";
   List.iter (printRvalue fmt) rvalueList;
   Format.fprintf fmt "}";
-  Format.fprintf fmt  " ;@ ")
+  if isLast = true
+  then Format.fprintf fmt  ";"
+  else Format.fprintf fmt  ";@ ")
 
 | Read(lvalue) -> (Format.fprintf fmt  "Read ";
   printLvalue fmt lvalue;
-  Format.fprintf fmt " ;@ ")
+  if isLast = true
+  then Format.fprintf fmt  ";"
+  else Format.fprintf fmt  ";@ ")
 
 | Write(expr) -> (Format.fprintf fmt  "Write ";
   printExpr fmt expr;
-  Format.fprintf fmt " ;@ ")
+  if isLast = true
+  then Format.fprintf fmt  ";"
+  else Format.fprintf fmt  ";@ ")
 
 | StmtNone -> Format.fprintf fmt "StmtNone"
 
@@ -236,32 +244,48 @@ let rec printStmt fmt (initIdent,singleStmt) = match singleStmt with
   then printExpr fmt x
   else (printExpr fmt x; Format.fprintf fmt ", " )) paramList;
   Format.fprintf fmt " )";
-  Format.fprintf fmt " @ ")
+  if isLast = true
+  then Format.fprintf fmt  ";"
+  else Format.fprintf fmt  ";@ ")
 
 | VarDec(beantype, ident) -> (Format.fprintf fmt "%s " ident;
   printBeanType fmt beantype;
-  Format.fprintf fmt "@ ";)
+  if isLast = true
+  then Format.fprintf fmt  ";"
+  else Format.fprintf fmt  ";@ ")
 
 | WhileDec(expr, stmtList) ->(Format.fprintf fmt "While %a do @ " printExpr expr;
   Format.fprintf fmt "@[<v 4>%s" (getIdent 4);
-  List.iter (fun x -> printStmt fmt (initIdent+1,x)) stmtList;
+  List.iter (fun x -> if x = List.nth stmtList ((List.length stmtList)-1) 
+    then printStmt fmt (initIdent+1,true,x)
+    else printStmt fmt (initIdent+1,false,x)) stmtList;
   Format.fprintf fmt " @]";
-  Format.fprintf fmt" @ od";
-  Format.fprintf fmt " @ ";)
+  Format.fprintf fmt"@ od";
+  if isLast = true
+  then Format.fprintf fmt  " "
+  else Format.fprintf fmt  "@ ")
 
 | IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "If %a then @ " printExpr expr;
-  Format.fprintf fmt "@[<v 4>";
-  List.iter (fun x -> printStmt fmt (initIdent+1,x)) thenStmtList;
+  Format.fprintf fmt "@[<v 4>%s" (getIdent 4);
+  List.iter (fun x -> if x = List.nth thenStmtList ((List.length thenStmtList)-1) 
+    then printStmt fmt (initIdent+1,true,x)
+    else printStmt fmt (initIdent+1,false,x)) thenStmtList;
   Format.fprintf fmt " @]";
   Format.fprintf fmt " @ ";
   Format.fprintf fmt "eles @ ";
-  Format.fprintf fmt "@[<v 4>";
-  List.iter (fun x -> printStmt fmt (initIdent+1,x)) elseStmtList;
+  Format.fprintf fmt "@[<v 4>%s" (getIdent 4);
+  List.iter (fun x -> if x = List.nth elseStmtList ((List.length elseStmtList)-1) 
+    then printStmt fmt (initIdent+1,true,x)
+    else printStmt fmt (initIdent+1,false,x)) elseStmtList;
   Format.fprintf fmt " @]";
-  Format.fprintf fmt  " @ fi";
-  Format.fprintf fmt " @ ";)
+  Format.fprintf fmt  "@ fi";
+  if isLast = true
+  then Format.fprintf fmt  " "
+  else Format.fprintf fmt  "@ ")
 
-let printFuncBody fmt funcBodyData = let initIdentFactor = 1 in List.iter (fun x -> printStmt fmt (initIdentFactor,x)) funcBodyData
+let printFuncBody fmt funcBodyData = let initIdentFactor = 1 in List.iter (fun x -> if x = List.nth funcBodyData ((List.length funcBodyData)-1) 
+    then printStmt fmt (initIdentFactor,true,x)
+    else printStmt fmt (initIdentFactor,false,x)) funcBodyData
 (*
 let printSingleFuncdef fmt initIdent initIdentFactor singleFuncdefData = match singleFuncdefData with
 | (funcheader,funcvardef,funcbody) -> Format.fprintf fmt "@[proc %a @ %a @ @ %a end@]@." printFuncheader (initIdent,initIdentFactor,funcheader) printFuncVardef (initIdent,initIdentFactor,funcvardef)  printFuncBody (initIdent,initIdentFactor,funcbody)
