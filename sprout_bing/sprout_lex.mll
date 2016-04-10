@@ -11,12 +11,12 @@ let lex_fail lexbuf = raise (LexFail lexbuf)
 let apostro = '''
 let digit = ['0' - '9']
 let alpha = ['a' - 'z' 'A' - 'Z']
-let alnum = alpha | digit
-let digits = digit+
+let alnum = alpha | digit (* unused *)
+let digits = digit+ (* unused *)
 let underscore = '_'
-let ident = (alpha|underscore)(alnum|underscore|apostro)*
-let typedef_value_init = (ident ':' ident)
-let function_value_init = ident ident
+let ident = (alpha|underscore)(alnum|underscore|apostro)* (* to be changed to (alpha|underscore)(alpha|underscore|apostro)* *)
+let typedef_value_init = (ident ':' ident) (* unused *)
+let function_value_init = ident ident (* unused *)
 
 let comment = '#'[^'\n']*'\n'
 
