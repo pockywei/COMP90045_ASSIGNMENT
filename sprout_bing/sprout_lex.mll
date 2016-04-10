@@ -4,10 +4,11 @@ let line_num = ref 0
 
 exception LexFail of string
 
+
 let lex_fail lexbuf =
   let position = Lexing.lexeme_start_p lexbuf in
   let error_message =
-    Format.sprintf " \nIncorrect Bean Program: line %d, col %d. "
+    Format.sprintf " \nIllegal Character on line %d, col %d. "
       (position.Lexing.pos_lnum)
       (position.Lexing.pos_cnum - position.Lexing.pos_bol) in
   raise (LexFail error_message)
