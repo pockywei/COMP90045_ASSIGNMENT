@@ -209,57 +209,44 @@ let rec printRvalue fmt singleRvalue = match singleRvalue with
 let getIdent identNum = String.make identNum ' '
 
 let rec printStmt fmt (initIdent,singleStmt) = match singleStmt with
-
-| Assign(lvalue, rvalue) -> (printLvalue fmt lvalue;
-  Format.fprintf fmt  " = ";
-  printRvalue fmt rvalue;
-  Format.fprintf fmt  " ;@ ")
-
-| AssignRvalueList(lvalue,rvalueList) ->(printLvalue fmt lvalue;
+| Assign(lvalue, rvalue) -> (Format.fprintf fmt  "@ ";printLvalue fmt lvalue;
+  Format.fprintf fmt  "=";
+  printRvalue fmt rvalue)
+| AssignRvalueList(lvalue,rvalueList) ->(Format.fprintf fmt  "@ ";printLvalue fmt lvalue;
   Format.fprintf fmt  "={";
   List.iter (printRvalue fmt) rvalueList;
-  Format.fprintf fmt "}";
-  Format.fprintf fmt  " ;@ ")
-
-| Read(lvalue) -> (Format.fprintf fmt  "Read ";
-  printLvalue fmt lvalue;
-  Format.fprintf fmt " ;@ ")
-
-| Write(expr) -> (Format.fprintf fmt  "Write ";
-  printExpr fmt expr;
-  Format.fprintf fmt " ;@ ")
-
+  Format.fprintf fmt "}";)
+| Read(lvalue) -> (Format.fprintf fmt "@ ";
+  Format.fprintf fmt  "Read ";
+  printLvalue fmt lvalue)
+| Write(expr) -> (Format.fprintf fmt "@ ";
+  Format.fprintf fmt  "Write ";
+  printExpr fmt expr)
 | StmtNone -> Format.fprintf fmt "StmtNone"
-
-| Method(methodname, paramList) -> (Format.fprintf fmt "%s( " methodname ;
-  List.iter (fun x -> if x = List.nth paramList ((List.length paramList)-1) 
-  then printExpr fmt x
-  else (printExpr fmt x; Format.fprintf fmt ", " )) paramList;
-  Format.fprintf fmt " )";
-  Format.fprintf fmt " @ ")
-
+| Method(methodname, paramList) -> (Format.fprintf fmt "@ ";
+  Format.fprintf fmt "%s( " methodname ;
+  List.iter (printExpr fmt) paramList;
+  Format.fprintf fmt " )")
 | VarDec(beantype, ident) -> (Format.fprintf fmt "%s " ident;
   printBeanType fmt beantype;
-  Format.fprintf fmt "@ ";)
-
-| WhileDec(expr, stmtList) ->(Format.fprintf fmt "While %a do @ " printExpr expr;
-  Format.fprintf fmt "@[<v 4>%s" (getIdent 4);
+  Format.fprintf fmt " \n")
+| WhileDec(expr, stmtList) ->(Format.fprintf fmt "@ ";
+  Format.fprintf fmt "While %a do @ " printExpr expr;
+  Format.fprintf fmt " @[<v 4>%s" (getIdent (initIdent*4));
   List.iter (fun x -> printStmt fmt (initIdent+1,x)) stmtList;
-  Format.fprintf fmt " @]";
-  Format.fprintf fmt" @ od";
-  Format.fprintf fmt " @ ";)
-
-| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "If %a then @ " printExpr expr;
+  Format.fprintf fmt "@] ";
+  Format.fprintf fmt"@ od ";)
+| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "@ ";
+  Format.fprintf fmt "If %a then @ " printExpr expr;
   Format.fprintf fmt "@[<v 4>";
   List.iter (fun x -> printStmt fmt (initIdent+1,x)) thenStmtList;
-  Format.fprintf fmt " @]";
-  Format.fprintf fmt " @ ";
+  Format.fprintf fmt "@]";
+  Format.fprintf fmt "@ ";
   Format.fprintf fmt "eles @ ";
   Format.fprintf fmt "@[<v 4>";
   List.iter (fun x -> printStmt fmt (initIdent+1,x)) elseStmtList;
-  Format.fprintf fmt " @]";
-  Format.fprintf fmt  " @ fi";
-  Format.fprintf fmt " @ ";)
+  Format.fprintf fmt "@]";
+  Format.fprintf fmt  "@ fi")
 
 let printFuncBody fmt funcBodyData = let initIdentFactor = 1 in List.iter (fun x -> printStmt fmt (initIdentFactor,x)) funcBodyData
 (*
@@ -267,7 +254,7 @@ let printSingleFuncdef fmt initIdent initIdentFactor singleFuncdefData = match s
 | (funcheader,funcvardef,funcbody) -> Format.fprintf fmt "@[proc %a @ %a @ @ %a end@]@." printFuncheader (initIdent,initIdentFactor,funcheader) printFuncVardef (initIdent,initIdentFactor,funcvardef)  printFuncBody (initIdent,initIdentFactor,funcbody)
 *)
 let printSingleFuncdef fmt singleFuncdefData = match singleFuncdefData with
-| (funcheader,funcvardef,funcbody) -> Format.fprintf fmt "proc %a @ @ %a @ @ %a \nend\n\n" printFuncheader funcheader printFuncVardef funcvardef printFuncBody funcbody
+| (funcheader,funcvardef,funcbody) -> Format.fprintf fmt "proc %a\n @ %a\n\n%a\nend\n\n" printFuncheader funcheader printFuncVardef funcvardef printFuncBody funcbody
 
 let printFuncdefList fmt funcdefDataList = let iniIdent = 4 in (Format.fprintf fmt "@[<v %d>" iniIdent ; List.iter (printSingleFuncdef fmt) funcdefDataList ;Format.fprintf fmt "@] " )
 

@@ -118,15 +118,20 @@ val printStmt : stmt -> unit
 val printFuncBody : stmt list -> unit
 val printSingleFuncdef : (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit 
 val printFuncdefList : ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit*)
-
-
-val printBeanType : Format.formatter -> int * int * beantype -> unit
-val printTypedefStruct : Format.formatter -> int * int * typedefStruct -> unit
-val printSingleTypedef : Format.formatter -> int -> int -> typedefStruct * ident -> unit
+val printBeanType : Format.formatter -> beantype -> unit
+val printTypedefStruct : Format.formatter -> typedefStruct -> unit
+val printSingleTypedef : Format.formatter -> typedefStruct * ident -> unit
 val printTypedefList : Format.formatter -> (typedefStruct * ident) list -> unit
-val printFuncIndicator : Format.formatter -> 'a * 'b * valRef -> unit
-val printFuncparams : Format.formatter -> int * int * (valRef * typedefStruct * ident) -> unit
-val printFuncheader : Format.formatter -> int * int * (ident * (valRef * typedefStruct * ident) list) -> unit
-val printFuncVardef : Format.formatter -> int * int * typedefStruct list -> unit
-val printSingleFuncdef : Format.formatter -> int -> int -> (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * 'a -> unit
-val printFuncdefList : Format.formatter -> ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * 'a) list -> unit
+val printFuncIndicator : Format.formatter -> valRef -> unit
+val printFuncparams : Format.formatter -> valRef * typedefStruct * ident -> unit
+val printFuncheader : Format.formatter -> ident * (valRef * typedefStruct * ident) list -> unit
+val printFuncVardef : Format.formatter -> typedefStruct list -> unit
+val printLvalue : Format.formatter -> lvalue -> unit
+val printBinop : Format.formatter -> binop -> unit
+val printUnop : Format.formatter -> unop -> unit
+val printExpr : Format.formatter -> expr -> unit
+val printRvalue : Format.formatter -> rvalue -> unit
+val printStmt : Format.formatter -> int * stmt -> unit
+val printFuncBody : Format.formatter -> stmt list -> unit
+val printSingleFuncdef : Format.formatter -> (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit
+val printFuncdefList : Format.formatter -> ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit
