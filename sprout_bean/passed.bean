@@ -1,0 +1,22 @@
+
+proc main()
+    int x;
+    int y;
+    int z;
+
+    read y;
+    x := y + 1;
+    z := x * x + y * y;
+    write z - 1;
+end
+
+proc main()
+    int x;
+    int y;
+    int z;
+
+    while 42 >= 42 do
+        x := 42;
+    od
+end
+
