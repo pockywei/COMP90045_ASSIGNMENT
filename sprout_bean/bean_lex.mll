@@ -1,9 +1,8 @@
+(* Ocamllex for getting all the tokens and parse it to Ocamlyacc file *)
 {
 open Bean_parse
 
 exception LexFail of Lexing.lexbuf
-
-let line_num = ref 0
 let lex_fail lexbuf = raise (LexFail lexbuf)
 }
 
@@ -20,7 +19,7 @@ rule token = parse
 
   (* Whitespace *)
     [' ' '\t']        { Printf.printf "meet space or tab \n" ;flush stdout;token lexbuf }     (* skip blanks *)
-  | '\r'?'\n'         { incr line_num; Printf.printf "meet newline %d\n" !line_num ;flush stdout; Lexing.new_line lexbuf ; token lexbuf }
+  | '\r'?'\n'         { Printf.printf "meet newline %d\n";flush stdout; Lexing.new_line lexbuf ; token lexbuf }
 
   (* Constants *)
   | int_val as lxm    { Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
@@ -74,6 +73,6 @@ rule token = parse
 
   (* Miscellaneous *)
   | ident as lxm      { Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER(lxm) }
-  | comment           { incr line_num; Printf.printf "Comment \n";flush stdout;token lexbuf }
-  | eof               { Printf.printf "end file \n %d \n" !line_num;flush stdout;EOF }
+  | comment           { Printf.printf "Comment \n";flush stdout;token lexbuf }
+  | eof               { Printf.printf "end file \n";flush stdout;EOF }
   | _                 { lex_fail lexbuf }
