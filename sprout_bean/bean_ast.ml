@@ -183,37 +183,63 @@ let printBinop fmt singleBinop = match singleBinop with
 | Op_and -> Format.fprintf fmt  " and "
 | Op_or -> Format.fprintf fmt  " or "
 
+let rec loopToEndExpr expr = match expr with
+| Ebracket(expr) -> loopToEndExpr expr
+| _ -> expr
+
+
+let highOrderBinoBefore binop expr =  match binop with
+| Op_mul -> (match (loopToEndExpr expr) with 
+  | Ebinop(expr_one,binop,expr_two) -> (match binop with
+    | Op_mul -> false
+    | Op_div -> false
+    | _ -> true)
+  | _ -> true)
+
+| Op_div -> (match (loopToEndExpr expr) with 
+  | Ebinop(expr_one,binop,expr_two) -> (match binop with
+    | Op_mul -> false
+    | Op_div -> false
+    | _ -> true)
+  | _ -> true)
+
+| _ -> false
+
+
 let highOrderBino binop = match binop with
 | Op_mul -> true
-| Op_div -> true
 | _ -> false
+
+let nextBracket expr = match expr with
+| Ebracket(expr) -> true
+| _ ->false
 
 (*false => do print, true => dont*)
 let exprLookHead expr = match expr with 
 | Ebool(bool_val) -> true
 | Eint(int_val) -> true
 | Elval(lvalue) -> true
-| Ebinop(expr_one,binop,expr_two) ->if highOrderBino binop then true else false
+| Ebinop(expr_one,binop,expr_two) ->if highOrderBino binop  then true else false
 | Eunop(unop,expr) ->false
 | Eident(ident) -> true
 | Ebracket(expr) -> true
 
 let printUnop fmt singleUnop = match singleUnop with
 | Op_minus -> Format.fprintf fmt "-"
-| Op_not -> Format.fprintf fmt "!"
+| Op_not -> Format.fprintf fmt " not "
 
 let rec printExpr fmt (unNesBracket,singleExpr) = match singleExpr with
 | Ebool(bool_val) -> Format.fprintf fmt "%B" bool_val
 | Eint(int_val) -> Format.fprintf fmt "%d" int_val
 | Elval(lvalue) -> printLvalue fmt lvalue
-| Ebinop(expr_one,binop,expr_two) ->if highOrderBino binop 
-then (printExpr fmt (true,expr_one);printBinop fmt binop; printExpr fmt (true,expr_two))
-else (printExpr fmt (true,expr_one);printBinop fmt binop; printExpr fmt (true,expr_two))
+| Ebinop(expr_one,binop,expr_two) ->(printExpr fmt (highOrderBinoBefore binop expr_one,expr_one);
+  printBinop fmt binop;
+  printExpr fmt (true,expr_two))
 
 | Eunop(unop,expr) -> (printUnop fmt unop ; printExpr fmt (true,expr))
 | Eident(ident) -> Format.fprintf fmt "%s" ident
 | Ebracket(expr) -> (if unNesBracket && not (exprLookHead expr)
-  then Format.fprintf fmt "(%a)" printExpr (true,expr)
+  then Format.fprintf fmt "(%a)" printExpr (not (nextBracket expr),expr)
   else Format.fprintf fmt "%a" printExpr (true,expr))
 
 

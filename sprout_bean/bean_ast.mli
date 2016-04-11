@@ -118,6 +118,7 @@ val printStmt : stmt -> unit
 val printFuncBody : stmt list -> unit
 val printSingleFuncdef : (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit 
 val printFuncdefList : ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit*)
+val highOrderBinoBefore : binop -> expr -> bool
 val printBeanType : Format.formatter -> beantype * ident -> unit
 val printTypedefStruct : Format.formatter -> int * typedefStruct -> unit
 val printSingleTypedef : Format.formatter -> typedefStruct * ident -> unit

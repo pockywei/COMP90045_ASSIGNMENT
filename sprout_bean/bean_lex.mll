@@ -59,6 +59,9 @@ rule token = parse
   | ":=" {Printf.printf "meet := \n" ;flush stdout;EQ_COL}
   (*| '(' { LPAREN }*)
   (*| ')' { RPAREN }*)
+  | "and" { Printf.printf "meet and \n" ;flush stdout;AND }
+  | "or" { Printf.printf "meet or \n" ;flush stdout;OR }
+  | "not" { Printf.printf "meet not \n" ;flush stdout;NOT }
   | "!=" { Printf.printf "meet != \n" ;flush stdout;NEQ }
   | "<="{ Printf.printf "meet <= \n" ;flush stdout;LTE }
   | ">="{ Printf.printf "meet >= \n" ;flush stdout;GTE }
@@ -67,6 +70,7 @@ rule token = parse
   | '+' { Printf.printf "meet + \n" ;flush stdout;PLUS }
   | '-' { Printf.printf "meet - \n" ;flush stdout;MINUS }
   | '*' { Printf.printf "meet * \n" ;flush stdout;MUL }
+  | '/' { Printf.printf "meet * \n" ;flush stdout;DIV }
   | ';' { Printf.printf "meet ; \n" ;flush stdout;SEMICOLON }
   | '>' { Printf.printf "meet > \n" ;flush stdout;GT}
   | '"' [^ '"' '\t' '\n' '\r' ]* '"' as lxm{ Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm)}
