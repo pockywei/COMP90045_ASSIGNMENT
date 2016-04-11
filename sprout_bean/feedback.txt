@@ -1,0 +1,1286 @@
+============================================
+vis/bingfengl.out
+21:31:50_Monday_11_April_2016
+============================================
+COMP90045 project - Test of parser and pretty-printer
+User:  bingfengl
+
+--- Makefile found ---
+--- Running Makefile ---
+ocamlc  -c bean_ast.mli
+ocamlopt  -g -c bean_ast.ml
+ocamlyacc bean_parse.mly
+ocamlc  -c bean_parse.mli
+ocamlopt  -g -c bean_parse.ml
+ocamllex bean_lex.mll
+99 states, 5826 transitions, table size 23898 bytes
+ocamlopt  -g -c bean_lex.ml
+ocamlc  -c bean_pprint.mli
+ocamlopt  -g -c bean_pprint.ml
+ocamlopt  -g -c bean.ml
+ocamlopt -g -o bean bean_ast.cmx bean_lex.cmx bean_parse.cmx bean_pprint.cmx bean.cmx
+
+--- Succeeded ---
+
+******************************************   Parsing lex01.bean:
+
+Okay
+
+******************************************   Parsing lex02.bean:
+
+Okay
+
+******************************************   Parsing lex03.bean:
+
+Okay
+
+******************************************   Parsing lex04.bean:
+
+Okay
+
+******************************************   Parsing syn01.bean:
+
+Okay
+
+******************************************   Parsing syn02.bean:
+
+Okay
+
+******************************************   Parsing prpr1.bean:
+
+Okay
+
+******************************************   Parsing prpr2.bean:
+
+Okay
+
+******************************************   Parsing prpr3.bean:
+
+Okay
+
+******************************************   Parsing prpr4.bean:
+
+Okay
+
+******************************************   Parsing prpr5.bean:
+
+Okay
+
+******************************************   Parsing prpr6.bean:
+
+Okay
+
+******************************************   Parsing bell.bean:
+
+Okay
+
+******************************************   Parsing fib.bean:
+
+Okay
+
+******************************************   Parsing gcd.bean:
+
+Okay
+
+******************************************   Parsing hail.bean:
+
+Okay
+
+******************************************   Parsing power.bean:
+
+Okay
+
+******************************************   Parsing stddev.bean:
+
+Okay
+
+******************************************   Parsing strange.bean:
+
+Okay
+
+******************************************   Parsing lex11.bad.bean:
+proc main()
+int x;
+  x := @ ;
+end
+Result:
+Illegal Character on line 3, col 7.
+
+******************************************   Parsing lex12.bad.bean:
+proc main()
+int x;
+int xyz_ab$;
+bool z;
+    x := 3;
+    z := true;
+    write z;
+end
+Result:
+Illegal Character on line 3, col 10.
+
+******************************************   Parsing lex13.bad.bean:
+proc main()
+    int int; int := 0;
+end
+Result:
+Syntax error on line 2.
+
+******************************************   Parsing syn12.bad.bean:
+proc main ()
+    bool test; 
+end
+
+proc fib(int val n, ref int ref out)
+    int f1;
+    int f2;
+
+    out := n;
+}
+
+Result:
+Syntax error on line 3.
+
+******************************************   Parsing syn13.bad.bean:
+proc main()
+int x;
+int y;
+# Sequence of statements cannot be empty
+end
+
+Result:
+Syntax error on line 4.
+
+******************************************   Parsing syn14.bad.bean:
+proc main()
+int m;
+int n;
+    read n;
+    while n>1 do
+        m := ( n;
+        while m := m do
+            if then
+                n := n - 1;
+                m := m - 1
+                if true then m := m - 1; else n := 6*n + 4;
+                fi
+             fi
+        od
+    od
+end
+Result:
+Syntax error on line 6.
+
+******************************************   Parsing syn15.bad.bean:
+proc main()
+    int x; x := 0; x := 1
+end
+Result:
+Syntax error on line 3.
+
+******************************************   Parsing syn16.bad.bean:
+proc main()
+typedef {b: int} t
+
+t a;
+    t.b := 0;
+end
+Result:
+Syntax error on line 2.
+
+******************************************   Parsing syn17.bad.bean:
+proc main()
+int n;
+    n := 0;
+end
+    n := 1;
+Result:
+Syntax error on line 5.
+
+******************************************   Parsing syn18.bad.bean:
+proc main()
+int m;
+int n;
+    read m;
+    write if m=n then
+end
+Result:
+Syntax error on line 5.
+
+******************************************   Parsing syn19.bad.bean:
+proc main(val int a, ref)
+int m; read m;
+end
+Result:
+Syntax error on line 1.
+
+
+--- End of testing for bingfengl ---\n
+
+============================================
+src/bean_ast.mli
+21:31:47_Monday_11_April_2016
+============================================
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+
+
+(* Specification of an AST for bean *)
+type ident = string
+ 
+(* Keep aliases intact for pretty printing. *)
+type beantype =
+  | Bool
+  | Int
+  | IdentType of string 
+
+(* store type and var declaration*)
+type typedefStruct =
+  |SingleTypeTerm of beantype
+  |SingleTypeTermWithIdent of (ident * typedefStruct)
+  |ListTypeTerm of typedefStruct list
+  |TypedefEnd
+type typedef = typedefStruct list
+
+(* lvalue type *)
+type lvalue =
+  | LId of ident
+  | LField of (lvalue * ident) (* recursively lvalue e.g. var.var1.var2*)
+  | LvalueNone
+
+(* binop represent binary operator e.g. +, *, etc *)
+type binop =
+  | Op_add | Op_sub | Op_mul | Op_div
+  | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
+  | Op_and | Op_or
+
+(* unop => unary operator *)
+type unop =
+  | Op_minus | Op_not
+
+(* expression type *)
+type expr =
+  | Ebool of bool
+  | Eint of int
+  | Elval of lvalue
+  | Ebinop of (expr * binop * expr)
+  | Eunop of (unop * expr)
+  | Eident of string
+  | Ebracket of expr
+
+(* store different form of rvalue *)
+type rvalue =
+  | Rexpr of expr
+  | RField of (rvalue * expr)
+  | Rassign of (string * rvalue)
+  | Rstmts of rvalue list 
+  | Rempty
+
+(* represent the data return from yacc for lis of arguments *)
+type paramList = expr list
+
+(* represent different method procedures  *)
+type stmt = 
+  | Assign of (lvalue * rvalue)
+  | AssignRvalueList of (lvalue * rvalue list)
+  | Read of lvalue
+  | Write of expr
+  | StmtNone
+  | Method of (string * paramList)
+  | VarDec of (beantype * string)
+  | WhileDec of (expr * stmt list)
+  | IfDec of (expr * stmt list * stmt list)
+
+
+type decl = (ident * beantype)
+
+(* represent parameter indicator either ref or val *)
+type valRef = 
+|Val
+|Ref
+
+(* represent the parameters declaration for method header *)
+type funcDecParamList = (valRef*typedefStruct*string) list
+
+(* represent function name and its parameters *)
+type functionDeclaration = (string*funcDecParamList)
+
+(* the whole bean language tokens is stored in here*)
+type program = {
+  typedefs : (typedefStruct*ident) list;
+  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
+}
+
+(* type used by pretty print *)
+type t = program
+
+(* foresee  what is before this current expr, to decide printing parenthesis*)
+val highOrderBinoBefore : binop -> expr -> bool
+(* print bean type *)
+val printBeanType : Format.formatter -> beantype * ident -> unit
+(* print corresponding data in typedefStruct *)
+val printTypedefStruct : Format.formatter -> int * typedefStruct -> unit
+(* print typedef data *)
+val printSingleTypedef : Format.formatter -> typedefStruct * ident -> unit
+(* print typedef list *)
+val printTypedefList : Format.formatter -> (typedefStruct * ident) list -> unit
+(* print function indicator *)
+val printFuncIndicator : Format.formatter -> valRef -> unit
+(* print function parameters with its indicator and type *)
+val printFuncparams : Format.formatter -> valRef * typedefStruct * ident -> unit
+(* print function header *)
+val printFuncheader : Format.formatter -> ident * (valRef * typedefStruct * ident) list -> unit
+(* print function variable declaration  *)
+val printFuncVardef : Format.formatter -> typedefStruct list -> unit
+(* print lvalue *)
+val printLvalue : Format.formatter -> lvalue -> unit
+(* print binary operator *)
+val printBinop : Format.formatter -> binop -> unit
+(* print unary operator *)
+val printUnop : Format.formatter -> unop -> unit
+(* print expression *)
+val printExpr : Format.formatter -> bool * expr -> unit
+(* print rvalue *)
+val printRvalue : Format.formatter -> rvalue -> unit
+(* fill spaces to avoid nested vertical boxes newline issue *)
+val getIdent : int -> ident
+(* print statements end without @ *)
+val printEndStmt : Format.formatter -> bool -> ident -> unit
+(* print statements *)
+val printStmt : Format.formatter -> int * bool * stmt -> unit
+(* print function body *)
+val printFuncBody : Format.formatter -> stmt list -> unit
+(* print function definition *)
+val printSingleFuncdef : Format.formatter -> (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit
+(* print list of function definitions *)
+val printFuncdefList : Format.formatter -> ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit
+(* to find next expr apart from Ebracket *)
+val loopToEndExpr : expr -> expr
+(* to see if next Ebracket *)
+val nextBracket : expr -> bool============================================
+src/Makefile.depend
+21:31:47_Monday_11_April_2016
+============================================
+bean.cmo :
+bean.cmx :
+bean_ast.cmi :
+bean_parse.cmi : bean_ast.cmi
+bean_pprint.cmi :
+bean_ast.cmo : bean_ast.cmi
+bean_ast.cmx : bean_ast.cmi
+bean_lex.cmo : bean_parse.cmi
+bean_lex.cmx : bean_parse.cmx
+bean_parse.cmo : bean_ast.cmi bean_parse.cmi
+bean_parse.cmx : bean_ast.cmx bean_parse.cmi
+bean_pprint.cmo : bean_pprint.cmi
+bean_pprint.cmx : bean_pprint.cmi
+bean.cmo :
+bean.cmx :
+============================================
+src/bean.ml
+21:31:47_Monday_11_April_2016
+============================================
+(** The is the file contains our main method to run the whole program
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ * Note that this file is provided as the skeleton code in this subject
+ *)
+
+
+open Bean_lex
+open Lexing
+module P = Bean_parse
+
+(* Argument parsing code *)
+let infile_name = ref None
+
+type compiler_mode = PrettyPrint | Compile
+let mode = ref Compile
+
+(* --------------------------------------------- *)
+(*  Specification for command-line options       *)
+(* --------------------------------------------- *)
+let (speclist:(Arg.key * Arg.spec * Arg.doc) list) =
+  ["-p",
+     Arg.Unit(fun () -> mode := PrettyPrint),
+     " Run the compiler in pretty-printer mode"
+  ]
+
+let main () =
+    (* Parse the command-line arguments *)
+    Arg.parse speclist
+        (begin fun fname -> infile_name := Some fname end)
+        "bean [-p] [bean source]" ;
+        (* Open the input file *)
+        let infile = match !infile_name with
+        | None -> stdin
+        | Some fname -> open_in fname  in
+        (* Initialize lexing buffer *)
+        let lexbuf = Lexing.from_channel infile in
+        try
+            (* Call the parser *)
+            let prog = Bean_parse.start_state Bean_lex.token lexbuf in
+            match !mode with
+            | PrettyPrint ->
+              Bean_pprint.print_program Format.std_formatter prog 
+            | Compile -> Printf.eprintf "Sorry, cannot compile yet.\n"
+        with
+            (* Handle suitable message for parsing and lexing error *)
+            | Parsing.Parse_error -> Printf.eprintf "Syntax error on line %d.\n" (lexeme_start_p lexbuf).pos_lnum
+            | LexFail lexbuf -> let position = lexeme_start_p lexbuf in
+              Printf.eprintf "Illegal Character on line %d, col %d.\n" position.pos_lnum
+              (position.pos_cnum - position.pos_bol)
+
+let _ = main ()
+============================================
+src/bean_pprint.ml
+21:31:47_Monday_11_April_2016
+============================================
+(** The is the file contains our pretty print method to nicely print out the 
+ * bean language.
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ *it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+
+open Bean_ast
+open Format
+
+let print_program fmt prog = (
+	(*set max indent, other wise the indentation might be limited*)
+	Format.set_max_indent 100; 
+	(*start print typedef part*)
+	printTypedefList fmt prog.typedefs;
+	(*start print method declaration part*)
+	printFuncdefList fmt prog.funcdefs
+)
+============================================
+src/bean_pprint.mli
+21:31:47_Monday_11_April_2016
+============================================
+val print_program : Format.formatter -> Bean_ast.t -> unit
+============================================
+src/bean_ast.ml
+21:31:47_Monday_11_April_2016
+============================================
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+(* see the data type comments in bean_ast.mli*)
+
+type ident = string
+ 
+type beantype =
+  | Bool
+  | Int
+  | IdentType of string 
+
+type typedefStruct =
+  |SingleTypeTerm of beantype
+  |SingleTypeTermWithIdent of (ident * typedefStruct)
+  |ListTypeTerm of typedefStruct list
+  |TypedefEnd
+
+type typedef = typedefStruct list
+
+type lvalue =
+  | LId of ident
+  | LField of (lvalue * ident)
+  | LvalueNone
+
+type binop =
+  | Op_add | Op_sub | Op_mul | Op_div
+  | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
+  | Op_and | Op_or
+
+type unop =
+  | Op_minus | Op_not
+
+type expr =
+  | Ebool of bool
+  | Eint of int
+  | Elval of lvalue
+  | Ebinop of (expr * binop * expr)
+  | Eunop of (unop * expr)
+  | Eident of string
+  | Ebracket of expr
+
+type rvalue =
+  | Rexpr of expr
+  | RField of (rvalue * expr)
+  | Rassign of (string * rvalue)
+  | Rstmts of rvalue list 
+  | Rempty
+
+
+type paramList = expr list
+
+type stmt = 
+  | Assign of (lvalue * rvalue)
+  | AssignRvalueList of (lvalue * rvalue list)
+  | Read of lvalue
+  | Write of expr
+  | StmtNone
+  | Method of (string * paramList)
+  | VarDec of (beantype * string)
+  | WhileDec of (expr * stmt list)
+  | IfDec of (expr * stmt list * stmt list)
+
+type decl = (ident * beantype)
+
+type valRef = 
+|Val
+|Ref
+
+type funcDecParamList = (valRef*typedefStruct*string) list
+
+type functionDeclaration = (string*funcDecParamList)
+
+type program = {
+  typedefs : (typedefStruct*ident) list;
+  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
+}
+type t = program
+
+let printBeanType fmt (btype,suffix) =  match btype with
+(* type def cool be followed by column or space *)
+| Bool -> Format.fprintf fmt "bool%s" suffix 
+| Int ->  Format.fprintf fmt "int%s" suffix  
+| IdentType(ident) -> Format.fprintf fmt "%s%s" ident suffix
+
+let rec printTypedefStruct fmt (arrangeMode,typedefStructData) = match typedefStructData with
+| SingleTypeTerm (btype) -> 
+  (* if mode = 1 will print space after type *)
+  if arrangeMode = 1 
+  then printBeanType fmt (btype,"") 
+  else printBeanType fmt (btype," ")
+
+| SingleTypeTermWithIdent (ident,nestTypedefStructData) ->
+  if arrangeMode = 1 
+  then Format.fprintf fmt "%s : %a" ident printTypedefStruct (arrangeMode,nestTypedefStructData)
+  else Format.fprintf fmt "%a%s" printTypedefStruct (arrangeMode,nestTypedefStructData) ident
+
+| ListTypeTerm (listTypedefStructData) ->(Format.fprintf fmt "{"  ;
+  List.iter (fun x -> 
+    (* if it is the last type term should print } other wise , *)
+    if x = List.nth listTypedefStructData ((List.length listTypedefStructData)-1) 
+      && x == List.nth listTypedefStructData ((List.length listTypedefStructData)-1)
+    then printTypedefStruct fmt (arrangeMode,x)
+    else (printTypedefStruct fmt (arrangeMode,x) ; Format.fprintf fmt ", ")) listTypedefStructData;
+  Format.fprintf fmt "}" )
+| TypedefEnd -> Format.fprintf fmt "end with type def \n"
+
+(* mode 1 will follow type by :  *)
+let printSingleTypedef fmt singleTypedefData = let arrangeMode = 1 
+in match singleTypedefData with
+| (typedefStruct,ident) -> Format.fprintf fmt "typedef %a %s\n" printTypedefStruct (arrangeMode,typedefStruct) ident 
+ 
+(* start print typedefs by openning a format box *)
+let printTypedefList fmt typedefDataList = (Format.fprintf fmt "@[";
+  List.iter (printSingleTypedef fmt) typedefDataList;
+  Format.fprintf fmt "@]@.")
+
+let printFuncIndicator fmt funcIndicator = match funcIndicator with
+| Val -> Format.fprintf fmt "val "
+| Ref -> Format.fprintf fmt "ref "
+
+let printFuncparams fmt singleFuncparamData =  let arrangeMode = 1 
+in match singleFuncparamData with
+| (funcIndicator,typedefStruct,ident) -> Format.fprintf fmt  "%a%a %s"  printFuncIndicator funcIndicator printTypedefStruct (arrangeMode,typedefStruct) ident
+
+let printFuncheader fmt funcheaderData = match funcheaderData with
+| (funcname,funcparams) -> (Format.fprintf fmt "%s(" funcname ;
+List.iter (fun x -> 
+  if x = List.nth funcparams ((List.length funcparams)-1) 
+    && x == List.nth funcparams ((List.length funcparams)-1)
+  then printFuncparams fmt x
+  else (printFuncparams fmt x ; Format.fprintf fmt ", ")) funcparams;
+    Format.fprintf fmt ")")
+
+
+let printFuncVardef fmt funcVardefData = let arrangeMode = 2 in List.iter (fun x -> 
+   if x = List.nth funcVardefData ((List.length funcVardefData)-1) 
+    && x == List.nth funcVardefData ((List.length funcVardefData)-1)
+   then (printTypedefStruct fmt (arrangeMode,x); Format.fprintf fmt ";")
+   else (printTypedefStruct fmt (arrangeMode,x); Format.fprintf fmt ";@ "))
+  funcVardefData
+
+
+let rec printLvalue fmt singleLvalue = match singleLvalue with
+| LId(ident) -> Format.fprintf fmt "%s" ident
+| LField(recLvalue,ident) -> (printLvalue fmt recLvalue;Format.fprintf fmt ".";
+  Format.fprintf fmt "%s" ident)
+| LvalueNone -> Format.fprintf fmt "Empty lvalue"
+
+let printBinop fmt singleBinop = match singleBinop with
+| Op_add -> Format.fprintf fmt  " + "
+| Op_sub -> Format.fprintf fmt  " - "
+| Op_mul -> Format.fprintf fmt  " * "
+| Op_div -> Format.fprintf fmt " / " 
+| Op_eq -> Format.fprintf fmt  " = "
+| Op_lt -> Format.fprintf fmt  " < "
+| Op_gt -> Format.fprintf fmt  " > "
+| Op_neq -> Format.fprintf fmt  " != "
+| Op_lte -> Format.fprintf fmt  " <= "
+| Op_gte -> Format.fprintf fmt  " >= "
+| Op_and -> Format.fprintf fmt  " and "
+| Op_or -> Format.fprintf fmt  " or "
+
+
+let rec loopToEndExpr expr = match expr with
+| Ebracket(expr) -> loopToEndExpr expr
+| _ -> expr
+
+
+let highOrderBinoBefore binop expr =  match binop with
+| Op_mul -> (match (loopToEndExpr expr) with 
+  | Ebinop(expr_one,binop,expr_two) -> (match binop with
+    | Op_mul -> false
+    | Op_div -> false
+    | _ -> true)
+  | _ -> true)
+
+| Op_div -> (match (loopToEndExpr expr) with 
+  | Ebinop(expr_one,binop,expr_two) -> (match binop with
+    | Op_mul -> false
+    | Op_div -> false
+    | _ -> true)
+  | _ -> true)
+
+| _ -> false
+
+
+let highOrderBino binop = match binop with
+| Op_mul -> true
+| _ -> false
+
+let nextBracket expr = match expr with
+| Ebracket(expr) -> true
+| _ ->false
+
+(*false => do print, true => dont*)
+let exprLookHead expr = match expr with 
+| Ebool(bool_val) -> true
+| Eint(int_val) -> true
+| Elval(lvalue) -> true
+| Ebinop(expr_one,binop,expr_two) ->if highOrderBino binop  then true else false
+| Eunop(unop,expr) ->false
+| Eident(ident) -> true
+| Ebracket(expr) -> true
+
+let printUnop fmt singleUnop = match singleUnop with
+| Op_minus -> Format.fprintf fmt "-"
+| Op_not -> Format.fprintf fmt "not "
+
+let rec printExpr fmt (unNesBracket,singleExpr) = match singleExpr with
+| Ebool(bool_val) -> Format.fprintf fmt "%B" bool_val
+| Eint(int_val) -> Format.fprintf fmt "%d" int_val
+| Elval(lvalue) -> printLvalue fmt lvalue
+| Ebinop(expr_one,binop,expr_two) ->(printExpr fmt (highOrderBinoBefore binop expr_one,expr_one);
+  printBinop fmt binop;
+  printExpr fmt (true,expr_two))
+
+| Eunop(unop,expr) -> (printUnop fmt unop ; printExpr fmt (true,expr))
+| Eident(ident) -> Format.fprintf fmt "%s" ident
+| Ebracket(expr) -> (
+  (* unNesBracket is a predictio of printing parenthesis or not
+   * and exprLookHead look he next expr to decide unnesBracket is true or not
+   *)
+  if unNesBracket && not (exprLookHead expr)
+  (* if next one is still a bracket ignore it *)
+  then Format.fprintf fmt "(%a)" printExpr (not (nextBracket expr),expr)
+  else Format.fprintf fmt "%a" printExpr (true,expr))
+
+
+let rec printRvalue fmt singleRvalue = match singleRvalue with
+| Rexpr(expr) -> printExpr fmt (true,expr)
+| RField(rvalue,expr) -> (printRvalue fmt rvalue;
+  printExpr fmt (true,expr))
+| Rassign(str,rvalue) -> (Format.fprintf fmt "%s = " str;
+  printRvalue fmt rvalue)
+| Rstmts(rvalueList) -> (Format.fprintf fmt "{";
+  List.iter (fun x ->( 
+  if x = List.nth rvalueList ((List.length rvalueList)-1) 
+    && x == List.nth rvalueList ((List.length rvalueList)-1)
+  then printRvalue fmt x
+  else (printRvalue fmt x ;Format.fprintf fmt ", ") )) rvalueList;
+  Format.fprintf fmt "}")
+| Rempty -> Format.fprintf fmt "Empty Rvalue "
+
+let getIdent identNum = String.make identNum ' '
+
+let printEndStmt fmt isLast lastStr = match isLast with
+| true -> Format.fprintf fmt  "%s" lastStr
+| false -> Format.fprintf fmt  "%s@ " lastStr
+
+let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
+
+| Assign(lvalue, rvalue) -> (printLvalue fmt lvalue;
+  Format.fprintf fmt  " := ";
+  printRvalue fmt rvalue;
+  printEndStmt fmt isLast ";")
+
+| AssignRvalueList(lvalue,rvalueList) ->(printLvalue fmt lvalue;
+  Format.fprintf fmt  "={";
+  List.iter (printRvalue fmt) rvalueList;
+  Format.fprintf fmt "}";
+  printEndStmt fmt isLast ";")
+
+| Read(lvalue) -> (Format.fprintf fmt  "read ";
+  printLvalue fmt lvalue;
+  printEndStmt fmt isLast ";")
+
+| Write(expr) -> (Format.fprintf fmt  "write ";
+  printExpr fmt (false,expr);
+  printEndStmt fmt isLast ";")
+
+| StmtNone -> Format.fprintf fmt "StmtNone"
+
+| Method(methodname, paramList) -> (Format.fprintf fmt "%s(" methodname ;
+  List.iter (fun x -> if x = List.nth paramList ((List.length paramList)-1) && x == List.nth paramList ((List.length paramList)-1) 
+  then printExpr fmt (false,x)
+  else (printExpr fmt (false,x); Format.fprintf fmt ", " )) paramList;
+  Format.fprintf fmt ")";
+  printEndStmt fmt isLast ";")
+
+| VarDec(beantype, ident) -> (printBeanType fmt (beantype,"");
+  Format.fprintf fmt "%s " ident;
+  printEndStmt fmt isLast ";")
+
+| WhileDec(expr, stmtList) ->(Format.fprintf fmt "while %a do @ " printExpr (false,expr);
+  (* start new vertical box for while body
+  * full fill it with 4 indents for avoid start with @ to give a new line
+  *)
+  Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
+  List.iter (fun x -> 
+    if x = List.nth stmtList ((List.length stmtList)-1) 
+      && x == List.nth stmtList ((List.length stmtList)-1) 
+    then printStmt fmt (initIdent,true,x)
+    else printStmt fmt (initIdent,false,x)) stmtList;
+  Format.fprintf fmt " @]";
+  Format.fprintf fmt"@ od";
+  printEndStmt fmt isLast "")
+
+| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "if %a then @ " printExpr (false,expr);
+  Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
+  List.iter (fun x -> 
+    if x = List.nth thenStmtList ((List.length thenStmtList)-1) 
+      && x == List.nth thenStmtList ((List.length thenStmtList)-1) 
+    then printStmt fmt (initIdent,true,x)
+    else printStmt fmt (initIdent,false,x)) thenStmtList;
+  Format.fprintf fmt " @]";
+  (* if else has statements them do print them other wise dont*)
+  if (List.length elseStmtList) != 0 
+  then (Format.fprintf fmt " @ ";Format.fprintf fmt "else @ ");
+  Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
+  List.iter (fun x -> if x = List.nth elseStmtList ((List.length elseStmtList)-1) && x == List.nth elseStmtList ((List.length elseStmtList)-1)
+    then printStmt fmt (initIdent,true,x)
+    else printStmt fmt (initIdent,false,x)) elseStmtList;
+  Format.fprintf fmt " @]";
+  Format.fprintf fmt  "@ fi";
+  printEndStmt fmt isLast "")
+
+let printFuncBody fmt funcBodyData = let initIdentFactor = 4 in List.iter (fun x -> 
+  if x = List.nth funcBodyData ((List.length funcBodyData)-1) 
+    && x == List.nth funcBodyData ((List.length funcBodyData)-1)
+  then printStmt fmt (initIdentFactor,true,x)
+  else printStmt fmt (initIdentFactor,false,x)) funcBodyData
+
+let printSingleFuncdef fmt singleFuncdefData = match singleFuncdefData with
+| (funcheader,funcvardef,funcbody) ->(Format.fprintf fmt "proc %a" printFuncheader funcheader;
+  (* if have function variable declaration then print them*)
+  if (List.length funcvardef) !=0 
+  then Format.fprintf fmt " @ %a " printFuncVardef funcvardef;
+  (* if have function procedures declaration then print them*)
+  if (List.length funcbody) != 0 
+  then Format.fprintf fmt " @ @ %a " printFuncBody funcbody
+  )
+
+let printFuncdefList fmt funcdefDataList = let iniIdent = 4 
+in (Format.fprintf fmt "@[<v %d>" iniIdent ; 
+  List.iter ( fun x-> 
+    if x = List.nth funcdefDataList ((List.length funcdefDataList)-1) 
+      && x == List.nth funcdefDataList ((List.length funcdefDataList)-1)
+    then (printSingleFuncdef fmt x ;Format.fprintf fmt "\nend\n")
+    else (printSingleFuncdef fmt x ;Format.fprintf fmt "\nend\n\n")
+   ) funcdefDataList ;
+  Format.fprintf fmt "@] " )
+
+
+
+
+
+
+
+
+
+============================================
+src/Makefile
+21:31:47_Monday_11_April_2016
+============================================
+TARGETS = bean
+TARGETS_BYTE=$(TARGETS:%=%.byte)
+
+MODULES = bean_ast bean_lex bean_parse bean_pprint
+MLFILES = $(addsuffix .ml, $(MODULES))
+CMOFILES = $(addsuffix .cmo, $(MODULES))
+CMXFILES = $(addsuffix .cmx, $(MODULES))
+
+ALLMODULES = $(MODULES) bean
+
+OCAMLLEX = ocamllex
+OCAMLYACC = ocamlyacc
+OCAMLDEP = ocamldep
+
+OCAMLFLAGS =
+
+all : opt byte
+byte: $(TARGETS_BYTE)
+opt: $(TARGETS)
+
+%.cmi: %.mli
+	ocamlc $(OCAMLFLAGS) -c $<
+
+%.cmo: %.ml
+	ocamlc $(OCAMLFLAGS) -g -c $<
+
+%.cmx: %.ml
+	ocamlopt $(OCAMLOPTFLAGS) -g -c $<
+
+%.ml: %.mll
+	$(OCAMLLEX) $^
+
+%.ml %.mli: %.mly
+	$(OCAMLYACC) $^
+
+bean.byte : $(CMOFILES) bean.cmo
+	ocamlc -g -o $@ $^
+
+bean : $(CMXFILES) bean.cmx
+	ocamlopt -g -o $@ $^
+
+clean :
+	rm -f *.cmo *.cmi *.cmx *.o ./bean *.byte
+	rm -f bean_lex.ml bean_parse.ml bean_parse.mli
+
+clobber : clean
+	rm -f $(TARGETS) $(TARGETS_BYTE)
+
+.PHONY : clean clobber depend
+
+# include depend
+depend: bean_lex.ml bean_parse.ml
+	$(OCAMLDEP) bean.ml bean.mli $(ALLMODULES:%=%.mli) $(ALLMODULES:%=%.ml) >Makefile.depend
+
+-include Makefile.depend
+============================================
+src/bean_parse.mly
+21:31:47_Monday_11_April_2016
+============================================
+/*
+ * The is the file contains our yacc or context free grammar to build the syntax
+ * tree in order to check input file meets the syntax of the bean language.
+ *
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *
+*/
+
+
+/* ocamlyacc parser for bean */
+%{
+open Bean_ast
+%}
+
+/* Constants */
+%token <bool> BOOL_VAL
+%token <int> INT_VAL
+%token <string> STRING_VAL
+/* Keywords */
+%token WRITE READ
+%token ASSIGN
+%token WHILE DO OD
+%token IF THEN ELSE FI
+%token BOOL INT
+%token PROC
+%token END
+%token VAL
+%token REF
+%token <string> TYPEDEF
+/* Operators */
+%token EQ NEQ LT LTE GT GTE
+%token PLUS MINUS MUL DIV
+%token UMINUS
+%token AND OR NOT
+%token EQ_COL
+/* Punctuation */
+%token COLON
+%token SEMICOLON
+%token DOT
+%token COMMA
+%token LEFT_PAREN RIGHT_PAREN
+%token LEFT_BRACE RIGHT_BRACE
+/* Miscellaneous */
+%token EOF
+%token <string> IDENTIFIER
+
+/* Precedence */
+%left OR
+%left AND
+%nonassoc NOT
+%nonassoc EQ NEQ LT LTE GT GTE
+%left PLUS MINUS
+%left MUL DIV
+%right EQ_COL
+%nonassoc UMINUS
+
+%type <Bean_ast.program> start_state
+
+%start start_state
+%%
+
+
+/*
+
+The type used for this production rule:
+
+type program = {
+  typedefs : (typedefStruct*ident) list;
+  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
+}
+
+*/
+
+start_state:
+| type_definition procedure_definition {{typedefs = List.rev $1;funcdefs = List.rev $2}}
+
+/*
+
+The data type used for this production rule :
+
+(typedefStruct*ident) list;
+
+This production will check the type declaration for typedef
+
+typedef ? identifier
+
+
+*/
+
+type_definition:
+| type_definition TYPEDEF type_spec IDENTIFIER {($3,$4)::$1}
+| {[]}
+
+/*
+
+the typedef data type declaraction will be stored in data structure :
+
+typedefStruct
+
+this production rule is checking the syntax of type declaration
+
+typedef {?} identifier
+
+*/
+
+type_spec:
+| primitive_type {$1}
+| IDENTIFIER {SingleTypeTerm((IdentType $1))}
+| LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm( List.rev $2)}
+
+/*
+
+the typedef data type declaraction will be stored in data structure :
+
+typedefStruct
+
+This production rule will return the primitive type of the bean language
+
+*/
+
+
+primitive_type:
+| BOOL {SingleTypeTerm(Bool)}
+| INT {SingleTypeTerm(Int)}
+
+
+
+field_definition:
+| rec_field_definition IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($2,$4)::$1}
+
+/* Commas only present between entries */
+rec_field_definition:
+| field_definition COMMA {$1}
+| {[]}
+
+/* At least one procedure required */
+/* (functionDeclaration * typedefStruct  * stmt list) list */
+procedure_definition:
+| rec_procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,$5)::$1}
+
+rec_procedure_definition:
+| procedure_definition {$1}
+| {[]}
+
+/*type functionDeclaration = (string*funcDecParamList)*/
+/*type funcDecParamList = (valRef*typedefStruct*string) list*/
+/*this production rule will check the method declaration, its method name 
+  followed by parameters.
+*/
+procedure_header:
+| IDENTIFIER LEFT_PAREN param RIGHT_PAREN {($1,List.rev $3)}
+
+/*type funcDecParamList = (valRef*typedefStruct*string) list*/
+/* checking the parameters in right format */
+param:
+| rec_param param_passing_indicator type_spec IDENTIFIER {($2,$3,$4)::$1}
+| {[]}
+
+/* Commas only present between entries */
+rec_param:
+| param COMMA {$1}
+| {[]}
+
+/* Pass by value or reference */
+param_passing_indicator:
+| VAL {Val}
+| REF {Ref}
+
+/*typedefStruct list*/
+/* parse the variable declaration in the method body */
+variable_definition:
+| variable_definition type_spec IDENTIFIER SEMICOLON { SingleTypeTermWithIdent($3,$2)::$1 }
+| {[]}
+
+/*procedure , stmt list*/
+
+/* Right recursion to avoid shift/reduce conflicts */
+/* checking/parsing the method procedures */
+stmt_list:
+| atomic_stmt SEMICOLON rec_stmt_list {$1::$3}
+| compound_stmt rec_stmt_list {$1::$2}
+
+/* Exists since stmt_list must be non-empty */
+rec_stmt_list:
+| stmt_list {$1}
+| {[]}
+
+/* stmt */
+/* check different types of method procedures like assignment, read ,write */
+atomic_stmt:
+| lvalue EQ_COL rvalue { Assign($1,$3)}
+| READ lvalue { Read($2) }
+| WRITE expr { Write($2) }
+| IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,$3) }
+| IDENTIFIER LEFT_PAREN RIGHT_PAREN { Method($1,[]) }
+
+/* stmt */
+/* check compound statements such as 'while' and 'if' */
+compound_stmt:
+| IF expr THEN stmt_list else_block FI {IfDec($2,$4,$5)}
+| WHILE expr DO stmt_list OD {WhileDec($2,$4)}
+
+
+/* varName.optionalField*/
+lvalue:
+| IDENTIFIER { LId($1) }
+| lvalue DOT IDENTIFIER { LField($1,$3) }
+
+/* rvalue*/
+rvalue:
+| expr { Rexpr($1) }
+| LEFT_BRACE field_init RIGHT_BRACE { Rstmts(List.rev $2) }
+| LEFT_BRACE RIGHT_BRACE { Rempty }
+
+/* rvalue list */
+field_init:
+| rec_field_init IDENTIFIER EQ rvalue {Rassign($2,$4)::$1}
+
+rec_field_init:
+| field_init COMMA {$1}
+| {[]}
+
+/* check expression */
+expr:
+| lvalue { Elval($1) }
+| const { $1 }
+| LEFT_PAREN expr RIGHT_PAREN { Ebracket($2) }
+| expr PLUS expr { Ebinop($1,Op_add,$3) }
+| expr MINUS expr { Ebinop($1,Op_sub,$3) }
+| expr MUL expr { Ebinop($1,Op_mul,$3) }
+| expr DIV expr { Ebinop($1,Op_div,$3) }
+| expr EQ expr { Ebinop($1,Op_eq,$3) }
+| expr NEQ expr { Ebinop($1,Op_neq,$3) }
+| expr LT expr { Ebinop($1,Op_lt,$3) }
+| expr GT expr { Ebinop($1,Op_gt,$3) }
+| expr LTE expr { Ebinop($1,Op_lte,$3) }
+| expr GTE expr { Ebinop($1,Op_gte,$3) }
+| expr AND expr { Ebinop($1,Op_and,$3) }
+| expr OR expr { Ebinop($1,Op_or,$3) }
+| NOT expr { Eunop(Op_not,$2) }
+| MINUS expr %prec UMINUS { Eunop(Op_minus,$2) } /* Precedence for unary minus */
+
+/* Right recursion to avoid shift/reduce conflicts */
+expr_list:
+| expr rec_expr_list { $1::$2 }
+
+/* Commas only present between entries */
+rec_expr_list:
+| COMMA expr_list { $2 }
+| {[]}
+
+/* check statments under else */
+else_block:
+| ELSE stmt_list {$2}
+| {[]}
+
+/* check literals*/
+const:
+| BOOL_VAL { Ebool($1) }
+| INT_VAL { Eint($1) }
+| STRING_VAL { Eident($1) }
+============================================
+src/bean_lex.mll
+21:31:47_Monday_11_April_2016
+============================================
+(** The is our lex file it is used to extract tokens for yacc to use
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+(* Ocamllex for getting all the tokens and parse it to Ocamlyacc file *)
+{
+open Bean_parse
+
+exception LexFail of Lexing.lexbuf
+let lex_fail lexbuf = raise (LexFail lexbuf)
+}
+
+let apostro = '''
+let digit = ['0' - '9']
+let alpha = ['a' - 'z' 'A' - 'Z']
+let underscore = '_'
+let ident = (alpha|underscore)(alpha|underscore|apostro)*
+let comment = '#'[^'\n']*'\n'
+let string = '"' [^ '"' '\t' '\n' '\r' ]* '"'
+let int_val = '-'? digit+
+
+rule token = parse
+
+  (* Whitespace *)
+    [' ' '\t']        { token lexbuf }     (* skip blanks *)
+  | '\r'?'\n'         { Lexing.new_line lexbuf ; token lexbuf }
+
+  (* Constants *)
+  | int_val as lxm    { INT_VAL(int_of_string(lxm)) }
+  | string as lxm     { STRING_VAL(lxm) }
+  | "true"            { BOOL_VAL true }
+  | "false"           { BOOL_VAL false }
+
+  (* Keywords *)
+  | "typedef"         { TYPEDEF("typedef") }
+  | "proc"            { PROC }
+  | "end"             { END }
+  | "val"             { VAL }
+  | "ref"             { REF }
+  | "while"           { WHILE }
+  | "do"              { DO }
+  | "od"              { OD }
+  | "if"              { IF }
+  | "then"            { THEN }
+  | "else"            { ELSE }
+  | "fi"              { FI } 
+  | "bool"            { BOOL }
+  | "int"             { INT }
+  | "read"            { READ }
+  | "write"           { WRITE }
+  | "and"             { AND }
+  | "or"              { OR }
+  | "not"             { NOT }
+
+  (* Punctuation *)
+  | ':'               { COLON }
+  | '{'               { LEFT_BRACE }
+  | '}'               { RIGHT_BRACE }
+  | ','               { COMMA }
+  | '.'               { DOT }
+  | '('               { LEFT_PAREN }
+  | ')'               { RIGHT_PAREN }
+  | ';'               { SEMICOLON }
+
+  (* Symbol Operators *)
+  | ":="              { EQ_COL }
+  | "!="              { NEQ }
+  | '<'               { LT }
+  | "<="              { LTE }
+  | '>'               { GT }
+  | ">="              { GTE }
+  | '='               { EQ }
+  | '+'               { PLUS }
+  | '-'               { MINUS }
+  | '*'               { MUL }
+  | '/'               { DIV }
+
+  (* Miscellaneous *)
+  | ident as lxm      { IDENTIFIER(lxm) }
+  | comment           { token lexbuf }
+  | eof               { EOF }
+  | _                 { lex_fail lexbuf }

@@ -1,5 +1,5 @@
-open Sprout_lex
-module P = Sprout_parse
+open Bean_lex
+module P = Bean_parse
 
 (* Argument parsing code *)
 let infile_name = ref None
@@ -29,10 +29,10 @@ let main () =
       (* Initialize lexing buffer *)
       let lexbuf = Lexing.from_channel infile in
       (* Call the parser *)
-      let prog = Sprout_parse.start_state Sprout_lex.token lexbuf in
+      let prog = Bean_parse.start_state Bean_lex.token lexbuf in
       match !mode with
       | PrettyPrint ->
-        Sprout_pprint.print_program Format.std_formatter prog 
+        Bean_pprint.print_program Format.std_formatter prog 
       | Compile -> Printf.eprintf "Sorry, cannot compile yet."
   with
       | Parsing.Parse_error -> Printf.eprintf "Syntax error\n"

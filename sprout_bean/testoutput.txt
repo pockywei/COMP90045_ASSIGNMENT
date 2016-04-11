@@ -1,0 +1,648 @@
+fname => official_test.bean 
+meet typedef 
+meet space or tab 
+meet { 
+meet ident => a
+meet space or tab 
+meet : 
+meet space or tab 
+meet int 
+meet , 
+meet space or tab 
+meet ident => b
+meet space or tab 
+meet : 
+meet space or tab 
+meet int 
+meet , 
+meet space or tab 
+meet ident => c
+meet space or tab 
+meet : 
+meet space or tab 
+meet bool 
+meet } 
+meet space or tab 
+meet ident => record
+meet newline 1
+meet typedef 
+meet space or tab 
+meet { 
+meet ident => fA
+meet space or tab 
+meet : 
+meet space or tab 
+meet int 
+meet , 
+meet space or tab 
+meet ident => fB
+meet space or tab 
+meet : 
+meet space or tab 
+meet { 
+meet ident => gA
+meet space or tab 
+meet : 
+meet space or tab 
+meet bool 
+meet , 
+meet space or tab 
+meet ident => fB
+meet space or tab 
+meet : 
+meet space or tab 
+meet bool 
+meet } 
+meet } 
+meet space or tab 
+meet ident => a_record
+meet newline 2
+meet typedef 
+meet space or tab 
+meet { 
+meet ident => used
+meet space or tab 
+meet : 
+meet space or tab 
+meet bool 
+meet , 
+meet space or tab 
+meet ident => rec
+meet space or tab 
+meet : 
+meet space or tab 
+meet ident => a_record
+meet } 
+meet space or tab 
+meet ident => b_record
+meet newline 3
+meet typedef 
+meet space or tab 
+meet int 
+meet space or tab 
+meet ident => float
+meet newline 4
+meet newline 5
+meet newline 6
+meet newline 7
+meet proc 
+ meet space or tab 
+meet ident => main
+meet ( 
+meet ) 
+meet newline 8
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet int 
+meet space or tab 
+meet ident => m
+meet ; 
+meet newline 9
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet int 
+meet space or tab 
+meet ident => n
+meet ; 
+meet newline 10
+meet newline 11
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet read 
+meet space or tab 
+meet ident => n
+meet ; 
+meet newline 12
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => x
+meet space or tab 
+meet := 
+meet space or tab 
+meet ( 
+meet ( 
+meet ( 
+meet int literal 
+meet + 
+meet int literal 
+meet ) 
+meet * 
+meet int literal 
+meet ) 
+meet ) 
+meet ; 
+meet newline 13
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet write 
+meet space or tab 
+meet ( 
+meet space or tab 
+meet ( 
+meet space or tab 
+meet ( 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet * 
+meet space or tab 
+meet ( 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet ) 
+meet space or tab 
+meet space or tab 
+meet + 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet ) 
+meet space or tab 
+meet space or tab 
+meet ) 
+meet space or tab 
+meet space or tab 
+meet ) 
+meet space or tab 
+meet space or tab 
+meet * 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet * 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 14
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => x
+meet space or tab 
+meet := 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet + 
+meet space or tab 
+meet ( 
+meet space or tab 
+meet ( 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet * 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet ) 
+meet space or tab 
+meet space or tab 
+meet ) 
+meet space or tab 
+meet space or tab 
+meet + 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet * 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 15
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => x
+meet space or tab 
+meet := 
+meet space or tab 
+meet ( 
+meet int literal 
+meet space or tab 
+meet + 
+meet space or tab 
+meet int literal 
+meet ) 
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet * 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 16
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => x
+meet space or tab 
+meet := 
+meet space or tab 
+meet ( 
+meet ident => x
+meet space or tab 
+meet - 
+meet space or tab 
+meet ident => y
+meet ) 
+meet space or tab 
+meet + 
+meet space or tab 
+meet ident => z
+meet ; 
+meet newline 17
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => x
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => x
+meet space or tab 
+meet - 
+meet space or tab 
+meet ( 
+meet ident => y
+meet space or tab 
+meet + 
+meet space or tab 
+meet ident => z
+meet ) 
+meet ; 
+meet newline 18
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet while 
+meet space or tab 
+meet not 
+meet space or tab 
+meet ident => done
+meet space or tab 
+meet do 
+meet newline 19
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => n
+meet ; 
+meet newline 20
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet while 
+meet space or tab 
+meet int literal 
+meet * 
+meet ( 
+meet ident => n
+meet space or tab 
+meet / 
+meet space or tab 
+meet int literal 
+meet ) 
+meet space or tab 
+meet space or tab 
+meet = 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet do 
+meet newline 21
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet if 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet / 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet * 
+meet int literal 
+meet space or tab 
+meet space or tab 
+meet = 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet then 
+meet newline 22
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 23
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 24
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet if 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet = 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet then 
+meet newline 25
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => p
+meet ( 
+meet ident => n
+meet , 
+meet int literal 
+meet , 
+meet int literal 
+meet ) 
+meet ; 
+meet newline 26
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet fi 
+meet newline 27
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet else 
+meet newline 28
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet - 
+meet space or tab 
+meet ident => m
+meet ; 
+meet newline 29
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 30
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet fi 
+meet newline 31
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet od 
+meet newline 32
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet space or tab 
+meet od 
+meet newline 33
+meet end 
+end file 
+ 33 
+ 
+what is in side => 
+typedef {a : int, b : int, c : bool} record
+typedef {fA : int, fB : {gA : bool, fB : bool}} a_record
+typedef {used : bool, rec : a_record} b_record
+typedef int float
+
+proc main() 
+    int m;
+    int n;  
+    
+    read n;
+    x := (1 + 1) * 1;
+    write (1 * (2 - 3) + 4 - 3) * 2 * -1;
+    x := 6 + 3 * 2 + 4 * 5;
+    x := 2 + 1 - 1 * 5;
+    x := x - y + z;
+    x := x - (y + z);
+    while  not done do 
+        m := n;
+        while 2 * (n / 2) = n do 
+            if n / 2 * 2 = n then 
+                n := n - 1;
+                m := m - 1;
+                if m = 0 then 
+                    p(n, 2, 3);      
+                fi  
+            else 
+                m := n - m;
+                m := m - 1; 
+            fi 
+        od 
+    od 
+end
+
+ 

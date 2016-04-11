@@ -1,0 +1,12 @@
+typedef { f1:int,f2:int,f3:{f4:int,f5:int} } a_record
+proc q(val bool x,ref b_record k)
+	int n;
+	bool y;
+	a_record z;
+	z.f1 := {g2=true};
+	while n>1 do while n>1 do od od
+
+	if m>0 then if m>0 then n:=n - 1; fi else m:=n+1;  fi
+
+
+end

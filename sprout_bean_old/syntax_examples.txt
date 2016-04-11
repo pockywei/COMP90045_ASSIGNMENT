@@ -1,0 +1,144 @@
+Program:
+Zero or more type definitions followed by one or more procedure definitions.
+Allow
+proc main () write "Hello World!"; end
+
+Int Literal:
+Digits possibly preceded by minus sign, with no white space.
+Allow
+  -1
+  0
+  10
+Disallow
+  - 1
+
+Boolean Constant:
+Allow
+  true
+  false
+Disallow
+  False
+  True
+  
+String Constant:
+Sequence of characters between double quotes that do not contain tabs, newlines or double quote characters.
+Allow
+  "foo  bar"
+  " foo \n bar \n"
+  ""
+Disallow
+  "foo  bar"
+  "foo
+  "
+  "foo""
+
+Identifier:
+A non-empty sequence of letters, underscore or apostrophe. Cannot start with an apostrophe.
+Allow
+  foo
+  FoO_
+  _foo
+  _
+  fo'o
+Disallow
+  'foo
+  123
+  f00
+
+Field Definition:
+An identifier and a type specification separated by a colon.
+Allow:
+  foo : bar
+  foo : int
+  foo : foo
+  foo : { foo : bool }
+
+Type Specification:
+Can be keywords int or bool, an identifier, or a non-empty comma-separated list of field definitions surrounded by braces.
+Allow
+  int
+  bool
+  foo
+  { foo : bar }
+  { foo : int, bar : bool }
+Disallow
+  {}
+  { foo : bar, }
+
+Type Definition:
+typedef then a type specification, then an identifier.
+Allow
+  typedef int foo
+  typedef foo foo
+
+Procedure:
+proc, a header, zero or more variable declarations, a body, end
+Allow
+  proc foo () write "asdf"; end
+
+Procedure Header:
+An identifier then a comma-separated list of zero or more parameters within a pair of parentheses.
+Allow
+  foo ()
+  foo (val int bar, ref bool baz)
+Disallow
+  foo (val int bar,)
+
+Formal Parameter:
+A parameter passing indicator (val or ref), a type specification, an identifier.
+Allow
+  val foo foo
+  ref { foo : bool, bar : int } baz
+  
+Variable Declaration:
+Type specification followed by an identifier, then a semicolon.
+Allow
+  foo foo;
+  int foo;
+  { foo : bool } bar;
+  
+Procedure Body:
+Non-empty sequence of statements (stmt-list).
+
+Atomic Statements:
+Assignment <lvalue> := <rvalue>;
+Read <read> := <lvalue>;
+Write write <expr>;
+Procedure Call <id> ( <expr-list> );
+
+lvalue:
+Either an identifier, or lvalue.identifier
+Allow
+  foo
+  foo.foo
+  foo.bar.baz
+
+rvalue:
+An expression or a structure initialization of left brace then a comma-separated list of zero or more field initializers of <ident> = <rvalue> followed by right brace.
+Allow
+  foo.baz
+  "foo"
+  53
+  5 <= 9
+  {}
+  { foo = foo, bar = 50}
+  
+expr:
+Either an lvalue, const, ( expr ), expr binop expr, or unop expr
+Where the binops are or and = != < <= > >= + - * / and the unops are not -
+Allow
+  1 + 2 < 3 * 4 / foo
+  - (1 + 5)
+  "foo"
+  true
+
+expr-list:
+Comma-separated list of zero or more expressions.
+Allow
+  
+  (5), 1 + 2, "asdf"
+  
+Composite Statements:
+if <expr> then <stmt-list> fi
+if <expr> then <stmt-list> else <stmt-list> fi
+while <expr> do <stmt-list> od

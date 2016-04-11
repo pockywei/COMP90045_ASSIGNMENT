@@ -1,6 +1,6 @@
 /* ocamlyacc parser for bean */
 %{
-open Sprout_ast
+open Bean_ast
 %}
 
 %token <bool> BOOL_VAL
@@ -34,14 +34,13 @@ open Sprout_ast
 %token EQ_COL
 %left OR
 %left AND
-%nonassoc NOT
 %nonassoc EQ NEQ LT LTE GT GTE
 %left PLUS MINUS
 %left MUL DIV
 %right EQ_COL
-%nonassoc UMINUS
+%nonassoc NOT UMINUS
 
-%type <Sprout_ast.program> start_state
+%type <Bean_ast.program> start_state
 
 %start start_state
 %%
@@ -89,7 +88,7 @@ rec_field_definition:
 /* At least one procedure required */
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 procedure_definition:
-| rec_procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,$5)::$1}
+| rec_procedure_definition PROC procedure_header variable_definition procedure_body END {($3,List.rev $4,$5)::$1}
 
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 rec_procedure_definition:
@@ -127,12 +126,12 @@ variable_definition:
 /*procedure , stmt list*/
 
 /* stmt list */
-stmt_list:
-| atomic_stmt SEMICOLON rec_stmt_list {$1::$3}
-| compound_stmt rec_stmt_list {$1::$2}
+procedure_body:
+| atomic_stmt SEMICOLON rec_procedure_body {$1::$3}
+| compound_stmt rec_procedure_body {$1::$2}
 
-rec_stmt_list:
-| stmt_list {$1}
+rec_procedure_body:
+| procedure_body {$1}
 | {[]}
 
 /* stmt */
@@ -184,7 +183,7 @@ expr:
 | expr AND expr { Ebinop($1,Op_and,$3) }
 | expr OR expr { Ebinop($1,Op_or,$3) }
 | NOT expr { Eunop(Op_not,$2) }
-| MINUS expr %prec UMINUS { Eunop(Op_minus,$2) }
+| UMINUS expr { Eunop(Op_minus,$2) }
 
 /* expr list */
 expr_list:
@@ -194,6 +193,9 @@ expr_list:
 rec_expr_list:
 | COMMA expr_list { $2 }
 | {[]}
+
+stmt_list:
+| procedure_body {$1}
 
 else_block:
 | ELSE stmt_list {$2}

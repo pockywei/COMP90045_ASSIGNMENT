@@ -1,4 +1,4 @@
-open Sprout_ast
+open Bean_ast
 open Format
 
 let print_program fmt prog = (Printf.printf " \nwhat is in side => \n" ;

@@ -1,0 +1,64 @@
+typedef {a : int, b : int, c : bool} record
+typedef {fA : int, fB : {gA : bool, fB : bool}} a_record
+typedef {used : bool, rec : a_record} b_record
+typedef int float
+
+
+
+proc main()
+    int m;
+    int n;
+
+    read n;
+    write (1+1);
+    x := (((1+1)*1));
+    write ( ( ( 1 * ( 2 - 3 )  + 4 - 3 )  )  )  * 2 * -1;
+    x := 6 + ( ( 3 * 2 )  )  + 4 * 5;
+    x := (2 + 1) - 1 * 5;
+    x := (x - y) + z;
+    x := x - (y + z);
+    while not done do
+        m := n;
+        while 2*(n / 2)  = n do
+            if n / 2 *2  = n then
+                n := n - 1;
+                m := m - 1;
+                if m = 0 then
+                    p(n,2,3);
+                fi
+            else
+                m := n - m;
+                m := m - 1;
+            fi
+        od
+    od
+end
+
+proc main()
+    int m;
+    int n;
+
+    read n;
+    write (1+1);
+    x := (((1+1)*1));
+    write ( ( ( 1 * ( 2 - 3 )  + 4 - 3 )  )  )  * 2 * -1;
+    x := 6 + ( ( 3 * 2 )  )  + 4 * 5;
+    x := (2 + 1) - 1 * 5;
+    x := (x - y) + z;
+    x := x - (y + z);
+    while not done do
+        m := n;
+        while 2*(n / 2)  = n do
+            if n / 2 *2  = n then
+                n := n - 1;
+                m := m - 1;
+                if m = 0 then
+                    p(n,2,3);
+                fi
+            else
+                m := n - m;
+                m := m - 1;
+            fi
+        od
+    od
+end

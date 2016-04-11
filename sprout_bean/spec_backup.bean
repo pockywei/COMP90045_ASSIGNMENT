@@ -3,7 +3,7 @@ f1 : int, f2 :
 { g1 : bool, g2 : bool }
 } a_record
 typedef {
-used : bool ,
+used : bool,
 rec : a_record
 } b_record
 proc q ( val bool x
@@ -20,13 +20,10 @@ i:=6*i + 4; end
 
 
 
-proc main_test()
-
+proc main ()
 int m;
 int n;
 read n;
-main(va1,va2,va3);
-
 while n>1 do
 m := n;
 while m>0 do
