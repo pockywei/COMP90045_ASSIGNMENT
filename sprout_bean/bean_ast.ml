@@ -216,7 +216,7 @@ let exprLookHead expr = match expr with
 
 let printUnop fmt singleUnop = match singleUnop with
 | Op_minus -> Format.fprintf fmt "-"
-| Op_not -> Format.fprintf fmt " not "
+| Op_not -> Format.fprintf fmt "not "
 
 let rec printExpr fmt (unNesBracket,singleExpr) = match singleExpr with
 | Ebool(bool_val) -> Format.fprintf fmt "%B" bool_val
@@ -339,12 +339,17 @@ let printSingleFuncdef fmt singleFuncdefData = match singleFuncdefData with
   then Format.fprintf fmt " @ %a " printFuncVardef funcvardef;
   (* if have function procedures declaration then print them*)
   if (List.length funcbody) != 0 
-  then Format.fprintf fmt " @ @ %a " printFuncBody funcbody;
-  Format.fprintf fmt "\nend\n\n")
+  then Format.fprintf fmt " @ @ %a " printFuncBody funcbody
+  )
 
 let printFuncdefList fmt funcdefDataList = let iniIdent = 4 
 in (Format.fprintf fmt "@[<v %d>" iniIdent ; 
-  List.iter (printSingleFuncdef fmt) funcdefDataList ;
+  List.iter ( fun x-> 
+    if x = List.nth funcdefDataList ((List.length funcdefDataList)-1) 
+      && x == List.nth funcdefDataList ((List.length funcdefDataList)-1)
+    then (printSingleFuncdef fmt x ;Format.fprintf fmt "\nend\n")
+    else (printSingleFuncdef fmt x ;Format.fprintf fmt "\nend\n\n")
+   ) funcdefDataList ;
   Format.fprintf fmt "@] " )
 
 
