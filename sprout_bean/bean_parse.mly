@@ -61,7 +61,7 @@ type program = {
 start_state:
 | type_definition procedure_definition {{typedefs = List.rev $1;funcdefs = List.rev $2}}
 
-/*typdef ? identifier*/
+/*typedef ? identifier*/
 type_definition:
 | type_definition TYPEDEF type_spec IDENTIFIER {($3,$4)::$1}
 | {[]}
@@ -69,7 +69,7 @@ type_definition:
 type_spec:
 | primitive_type {$1}
 | IDENTIFIER {SingleTypeTerm((IdentType $1))}
-/*typdef {?} identifier*/
+/*typedef {?} identifier*/
 | LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm( List.rev $2)}
 
 primitive_type:
@@ -79,6 +79,7 @@ primitive_type:
 field_definition:
 | rec_field_definition IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($2,$4)::$1}
 
+/* Commas only present between entries */
 rec_field_definition:
 | field_definition COMMA {$1}
 | {[]}
@@ -103,13 +104,12 @@ param:
 | rec_param param_passing_indicator type_spec IDENTIFIER {($2,$3,$4)::$1}
 | {[]}
 
-/*type funcDecParamList = (valRef*typedefStruct*string)*/
-
+/* Commas only present between entries */
 rec_param:
 | param COMMA {$1}
 | {[]}
 
-/* type valRef  */
+/* Pass by value or reference */
 param_passing_indicator:
 | VAL {Val}
 | REF {Ref}
@@ -121,7 +121,7 @@ variable_definition:
 
 /*procedure , stmt list*/
 
-/* stmt list */
+/* Right recursion to avoid shift/reduce conflicts */
 stmt_list:
 | atomic_stmt SEMICOLON rec_stmt_list {$1::$3}
 | compound_stmt rec_stmt_list {$1::$2}
@@ -136,12 +136,12 @@ atomic_stmt:
 | READ lvalue { Read($2) }
 | WRITE expr { Write($2) }
 | IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,$3) }
+| IDENTIFIER LEFT_PAREN RIGHT_PAREN { Method($1,[]) }
 
 /* stmt */
 compound_stmt:
 | IF expr THEN stmt_list else_block FI {IfDec($2,$4,$5)}
 | WHILE expr DO stmt_list OD {WhileDec($2,$4)}
-
 
 /* object.field*/
 lvalue:
@@ -179,13 +179,13 @@ expr:
 | expr AND expr { Ebinop($1,Op_and,$3) }
 | expr OR expr { Ebinop($1,Op_or,$3) }
 | NOT expr { Eunop(Op_not,$2) }
-| MINUS expr %prec UMINUS { Eunop(Op_minus,$2) }
+| MINUS expr %prec UMINUS { Eunop(Op_minus,$2) } /* Precedence for unary minus */
 
-/* expr list */
+/* Right recursion to avoid shift/reduce conflicts */
 expr_list:
 | expr rec_expr_list { $1::$2 }
-| {[]}
 
+/* Commas only present between entries */
 rec_expr_list:
 | COMMA expr_list { $2 }
 | {[]}
