@@ -211,7 +211,8 @@ compound_stmt:
 | WHILE expr DO stmt_list OD {WhileDec($2,$4)}
 
 
-/* varName.optionalField*/lvalue:
+/* varName.optionalField*/
+lvalue:
 | IDENTIFIER { LId($1) }
 | lvalue DOT IDENTIFIER { LField($1,$3) }
 
