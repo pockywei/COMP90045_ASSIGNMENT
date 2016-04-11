@@ -1,0 +1,63 @@
+context free grammar
+
+
+/*only allow data structure on top ?*/
+
+START_STATE -> DATA_STRUCTURE FUNCTION_DECLARATION
+
+/*typedef declaration */
+
+DATA_STRCUTRE -> typdef left_parenthesis TYPEDEF_BODY right_parenthesis identifier
+
+TYPEDEF_BODY -> TYPEDEF_VALUE_INIT SEMI_COLON
+
+/* value_init  lvalue:=rvalue*/
+TYPEDEF_VALUE_INIT -> TYPEDEF_VALUE_INIT value_init|TYPEDEF_VALUE_INIT TYPEDEF_LIST_VALUE_INIT|empty
+
+/*prevent last one has extra comma */
+RECURSIVE_VALUE_INIT -> left_parenthesis TYPEDEF_LIST_VALUE_INIT TYPEDEF_VALUE_INIT right_parenthesis
+
+
+TYPEDEF_LIST_VALUE_INIT -> TYPEDEF_VALUE_INIT dot | empty
+
+
+/*begin with function declaration */
+
+FUNCTION_DECLARATION -> FUCNTION_HEADER FUNCTION_BODY end
+
+/*function header*/
+
+FUNCTION_HEAD -> left_bracket PARAM_RECURSIVE PRAM right_bracket
+
+PRAM -> val identifier | ref identifier
+
+PARAM_RECURSIVE ->  PARAM_RECURSIVE PARAM | empty | PARAM_RECURSIVE val identifier dot | PARAM_RECURSIVE ref identifer dot
+
+/*function body*/
+
+FUNCTION_BODY -> FUNCTION_BODY value_init| FUNCTION_BODY NORMAL_STMT | empty
+
+NORMAL_STMT -> identifier(LISTIDENTIFIER) SEMI_COLON| NORMAL_STMT WHILE_STMT| NORMAL_STMT IF_STMT|EXPR|empty
+
+LISTIDENTIFIER -> IDENTIFIER_TEMP identifier
+
+IDENTIFIER_TEMP -> LISTIDENTIFIER identifier dot |empty
+
+
+WHILE_STMT -> while LOGIC_CONDITION do NORMAL_STMT od
+
+IF_STMT -> if LOGIC_CONDITION then NORMAL_STMT ELSE fi
+
+ELSE -> empty | NORMAL_STMT
+
+
+
+
+
+
+
+
+
+
+
+

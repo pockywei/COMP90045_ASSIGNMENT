@@ -1,0 +1,53 @@
+start_state:
+| data_structure {{decls =[("test",Bool)]; stmts = [Test]}}
+
+data_structure:
+| data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {}
+| {}
+typedef_body:
+| typedef_body typedef_value_init {}
+| {}
+
+typedef_value_init:
+| typedef_value_init IDENTIFIER COLON type_stmts COMMA {}
+| typedef_value_init IDENTIFIER COLON type_stmts {}
+| typedef_value_init IDENTIFIER COLON recursive_list_value_init {}
+| {}
+
+type_stmts:
+|IDENTIFIER {}
+|INT {}
+|BOOL {}
+
+recursive_list_value_init:
+| LEFT_PARENTHESIS typedef_value_init RIGHT_PARENTHESIS {}
+|{}
+
+
+-------------non conflict version-----------------
+
+
+start_state:
+| data_structure {{decls =[("test",Bool)]; stmts = [Test]}}
+
+data_structure:
+| data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {}
+| {}
+
+typedef_body:
+| typedef_body IDENTIFIER COLON type_stmts comma_temp {}
+| typedef_body IDENTIFIER COLON recursive_list_value_init {}
+| {}
+
+comma_temp:
+|COMMA {}
+|{}
+
+type_stmts:
+|IDENTIFIER {}
+|INT {}
+|BOOL {}
+
+recursive_list_value_init:
+| LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS {}
+

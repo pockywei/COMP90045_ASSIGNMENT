@@ -1,0 +1,399 @@
+typedef {a : int, b : int, c : bool} record
+typedef {fA : int, fB : {gA : bool, fB : bool}} a_record
+typedef {used : bool, rec : a_record} b_record
+typedef int float
+
+
+proc main()
+    int x;
+
+    x := 2 + 1 - 1 * 1;
+    write x;
+end
+
+proc main()
+    int x;
+    int y;
+    int z;
+
+    read y;
+    x := y + 1;
+    z := x * x + y * y;
+    write z - 1;
+end
+
+proc main()
+    int x;
+    int y;
+    int z;
+
+    while 42 >= 42 do
+        x := 42;
+    od
+end
+
+proc abc(val bool t, val float t', val int t'')
+
+    t := true;
+end
+
+proc main()
+    bool a;
+    int m;
+    int n;
+
+    p(a);
+    m := n;
+    p(a);
+    n := m + 9 - 1;
+    p(a);
+    if m = m then
+        p(a);
+    else
+        p(a);
+    fi
+    if n = m then
+        p(a);
+        n := m + 1;
+    else
+        p(a);
+    fi
+end
+
+// following can't be passed by yacc
+proc main()
+    int x;
+
+    x := -5 + 6;
+    x := -(5 - 2 - 1);
+    x := true and true or true and false;
+end
+
+proc main()
+    int x;
+
+    x := 6 + 3 * 2 + 4 * 5;
+end
+
+proc main()
+    int m;
+    int n;
+
+    read n;
+    while n > 1 do
+        m := n;
+        while m > 0 do
+            if m > 0 then
+                n := n - 1;
+                m := m - 1;
+                if m > 0 then
+                    m := m - 1;
+                else
+                    n := 6 * n + 4;
+                fi
+            fi
+        od
+    od
+end
+
+
+proc main()
+    bool x;
+
+    x := false;
+    p(x, x);
+    if x then
+        if x then
+            p(x, x);
+            if x then
+                p(x, x);
+            else
+                p(x, x);
+            fi
+        else
+            if x then
+                p(x, x);
+            else
+                while x do
+                    p(x, x);
+                    p(x, x);
+                od
+                p(x, x);
+            fi
+            p(x, x);
+        fi
+    else
+        while x do
+            p(x, x);
+            p(x, x);
+        od
+        if x then
+            p(x, x);
+        else
+            p(x, x);
+        fi
+    fi
+end
+
+proc p(val int u, val int v)
+
+    write u + v;
+end
+
+proc main()
+
+    p(4);
+end
+
+proc p()
+    int m;
+    int n;
+    int diff;
+
+    read m;
+    read n;
+    while m != n do
+        diff := 0;
+        while m * n > 0 do
+            m := m - 1;
+            n := n - 1;
+            diff := diff + 1;
+        od
+        if m != 0 then
+            n := diff;
+        else
+            m := diff;
+        fi
+    od
+    write m;
+end
+
+/*following yacc error */
+proc q()
+    bool x;
+
+    x := true and true or true and false;
+end
+
+proc r()
+    int x;
+
+    x := 6;
+    s(x, x);
+end
+
+proc main()
+    int n;
+    int result;
+
+    write "Type integer n: ";
+    read n;
+    bell(n, 0, result);
+    write "Bell(n) is: ";
+    write result;
+    write "\n";
+end
+
+proc bell(val int n, val int m, ref int out)
+    int resA;
+    int resB;
+
+    if m = 0 then
+        if n = 0 then
+            out := 1;
+        else
+            bell(n - 1, n - 1, out);
+        fi
+    else
+        bell(n, m - 1, resA);
+        bell(n - 1, m - 1, resB);
+        out := resA + resB;
+    fi
+end
+
+proc main()
+    int n;
+    int m;
+
+    write ">";
+    read n;
+    fib(n, m);
+    write m;
+    write "\n";
+end
+
+proc fib(val int n, ref int out)
+    int fA;
+    int fB;
+
+    if n <= 1 then
+        out := n;
+    else
+        fib(n - 2, fA);
+        fib(n - 1, fB);
+        out := fA + fB;
+    fi
+end
+
+/*yac error*/
+proc main()
+    int x;
+    int y;
+    int temp;
+    int quotient;
+    int remainder;
+
+    write "Input two positive integers: ";
+    read x;
+    read y;
+    write "\n";
+    if x y then //might be here
+        temp := x;
+        x := y;
+        y := temp;
+    fi
+    write "The gcd of ";
+    write x;
+    write " and ";
+    write y;
+    write " is ";
+    quotient := x / y;
+    remainder := x - quotient * y;
+    while remainder > 0 do
+        x := y;
+        y := remainder;
+        quotient := x / y;
+        remainder := x - quotient * y;
+    od
+    write y;
+    write "\n";
+end
+
+//yacc error
+proc main()
+    int n;
+    int result;
+
+    n := 1;
+    while n 21 do //might be here
+        hail(n, result);
+        write result;
+        write " ";
+        n := n + 1;
+    od
+    write "\n";
+end
+
+//yacc error
+proc hail(val int in, ref int out)
+    int count;
+
+    count := 1;
+    if in = 1 then
+        out := count;
+    else
+        if in / 2 * 2 = in then
+            hail(in / 2, count);
+        else
+            hail(3 * in + 1, count);
+        fi
+        out := count + 1;
+    fi
+end
+
+proc main()
+    float x;
+    float result;
+    int n;
+
+    write "Float x: ";
+    read x;
+    write "Positive integer n: ";
+    read n;
+    power(x, n, result);
+    write "x^n is: ";
+    write result;
+    write "\n";
+end
+
+//yacc error
+proc power(val float x, val int n, ref float out)
+    float res;
+
+    if n = 1 then
+        out := x;
+    else
+        power(x * x, n / 2, res);
+        if 2 * (n / 2) = n then
+            out := res;
+        else
+            out := x * res;
+        fi
+    fi
+end
+
+//yacc error
+proc main()
+    int x;
+    int sum;
+    int sumsq;
+    int mean;
+    int count;
+    int done;
+
+    write "Type a list of integers, ending with a negative number\n";
+    read x;
+    done := x 0;
+    while not done do
+        count := count + 1;
+        sum := sum + x;
+        sumsq := sumsq + x * x;
+        read x;
+        done := x 0;
+    od
+    mean := sum / count;
+    write "The mean is ";
+    write mean;
+    write "\n";
+    write "The variance is ";
+    write sumsq / count - mean * mean;
+    write "\n";
+end
+
+
+
+proc q(val bool x, ref b_record k)
+    int n;
+    bool y;
+    a_record z;
+
+    z.fA := 42;
+    z.fB := {fB = true, gA = false};
+end
+
+proc p(ref int i)
+
+    i := 6 * i + 4;
+end
+
+proc main()
+    int m;
+    int n;
+
+    read n;
+    while n > 1 do
+        m := n;
+        while m > 0 do
+            if m > 0 then
+                n := n - 1;
+                m := m - 1;
+                if m = 0 then
+                    p(n);
+                fi
+            else
+                m := n - m;
+                m := m - 1;
+            fi
+        od
+    od
+end

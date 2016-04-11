@@ -1,0 +1,353 @@
+fname => spec.bean 
+meet typedef 
+meet space or tab 
+meet { 
+meet newline 1
+meet ident => f1
+meet space or tab 
+meet : 
+meet space or tab 
+meet int 
+meet , 
+meet space or tab 
+meet ident => f2
+meet space or tab 
+meet : 
+meet newline 2
+meet { 
+meet space or tab 
+meet ident => g1
+meet space or tab 
+meet : 
+meet space or tab 
+meet bool 
+meet , 
+meet space or tab 
+meet ident => g2
+meet space or tab 
+meet : 
+meet space or tab 
+meet bool 
+meet space or tab 
+meet } 
+meet newline 3
+meet } 
+meet space or tab 
+meet ident => a_record
+meet newline 4
+meet typedef 
+meet space or tab 
+meet { 
+meet newline 5
+meet ident => used
+meet space or tab 
+meet : 
+meet space or tab 
+meet bool 
+meet space or tab 
+meet , 
+meet newline 6
+meet ident => rec
+meet space or tab 
+meet : 
+meet space or tab 
+meet ident => a_record
+meet newline 7
+meet } 
+meet space or tab 
+meet ident => b_record
+meet newline 8
+meet proc 
+ meet space or tab 
+meet ident => q
+meet space or tab 
+meet ( 
+meet space or tab 
+meet val 
+meet space or tab 
+meet bool 
+meet space or tab 
+meet ident => x
+meet newline 9
+meet , 
+meet space or tab 
+meet ref 
+meet space or tab 
+meet ident => b_record
+meet space or tab 
+meet ident => k
+meet newline 10
+meet ) 
+meet newline 11
+meet int 
+meet space or tab 
+meet ident => n
+meet ; 
+meet space or tab 
+meet bool 
+meet space or tab 
+meet ident => y
+meet ; 
+meet newline 12
+meet ident => a_record
+meet space or tab 
+meet ident => z
+meet ; 
+meet newline 13
+meet ident => z
+meet . 
+meet ident => f1
+meet space or tab 
+meet := 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 14
+meet ident => z
+meet . 
+meet ident => f2
+meet space or tab 
+meet := 
+meet space or tab 
+meet { 
+meet space or tab 
+meet ident => g2
+meet space or tab 
+meet = 
+meet space or tab 
+meet true 
+meet , 
+meet newline 15
+meet ident => g1
+meet space or tab 
+meet = 
+meet space or tab 
+meet false 
+meet space or tab 
+meet } 
+meet ; 
+meet newline 16
+meet end 
+meet newline 17
+meet proc 
+ meet space or tab 
+meet ident => p
+meet space or tab 
+meet ( 
+meet ref 
+meet space or tab 
+meet int 
+meet space or tab 
+meet ident => i
+meet ) 
+meet newline 18
+meet ident => i
+meet := 
+meet int literal 
+meet * 
+meet ident => i
+meet space or tab 
+meet + 
+meet space or tab 
+meet int literal 
+meet ; 
+meet space or tab 
+meet end 
+meet newline 19
+meet newline 20
+meet newline 21
+meet newline 22
+meet proc 
+ meet space or tab 
+meet ident => main_test
+meet ( 
+meet ) 
+meet newline 23
+meet newline 24
+meet int 
+meet space or tab 
+meet ident => m
+meet ; 
+meet newline 25
+meet int 
+meet space or tab 
+meet ident => n
+meet ; 
+meet newline 26
+meet read 
+meet space or tab 
+meet ident => n
+meet ; 
+meet newline 27
+meet ident => main
+meet ( 
+meet ident => va1
+meet , 
+meet ident => va2
+meet , 
+meet ident => va3
+meet ) 
+meet ; 
+meet newline 28
+meet newline 29
+meet while 
+meet space or tab 
+meet ident => n
+meet > 
+meet int literal 
+meet space or tab 
+meet do 
+meet newline 30
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => n
+meet ; 
+meet newline 31
+meet while 
+meet space or tab 
+meet ident => m
+meet > 
+meet int literal 
+meet space or tab 
+meet do 
+meet newline 32
+meet if 
+meet space or tab 
+meet ident => m
+meet > 
+meet int literal 
+meet space or tab 
+meet then 
+meet newline 33
+meet ident => n
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 34
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet ; 
+meet newline 35
+meet if 
+meet space or tab 
+meet ident => m
+meet = 
+meet int literal 
+meet space or tab 
+meet then 
+meet space or tab 
+meet ident => p
+meet ( 
+meet ident => n
+meet ) 
+meet ; 
+meet space or tab 
+meet fi 
+meet newline 36
+meet else 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => n
+meet space or tab 
+meet - 
+meet space or tab 
+meet ident => m
+meet ; 
+meet newline 37
+meet ident => m
+meet space or tab 
+meet := 
+meet space or tab 
+meet ident => m
+meet space or tab 
+meet - 
+meet space or tab 
+meet int literal 
+meet space or tab 
+meet ; 
+meet newline 38
+meet fi 
+meet space or tab 
+meet od 
+meet space or tab 
+meet od 
+meet newline 39
+meet end 
+meet newline 40
+end file 
+ 40 
+ 
+what is in side => 
+typedef {f1 : int, f2 : {g1 : bool, g2 : bool}} a_record
+typedef {used : bool, rec : a_record} b_record
+
+proc q( Val  bool x, Ref  b_record k) 
+    
+    n : int;
+    y : bool;
+    z : a_record; 
+    
+    f1.z = 42  
+    f2.z = g2 true g1 false  
+     
+end
+
+proc p( Ref  int i) 
+    
+     
+    
+    i = 6  * i + 4  
+     
+end
+
+proc main_test( ) 
+    
+    m : int;
+    n : int; 
+    
+    Read n 
+    main( va1, va2, va3 ) 
+    While n > 1  do 
+        m = n 
+        While m > 0  do 
+            If m > 0  then 
+            n = n - 1  
+                m = m - 1  
+                If m = 0  then 
+                p( n ) 
+                      
+                eles 
+                  
+                fi 
+                  
+            eles 
+            m = n - m 
+                m = m - 1  
+                  
+            fi 
+              
+        od 
+          
+    od 
+     
+end
+
+ 

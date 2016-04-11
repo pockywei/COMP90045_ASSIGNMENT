@@ -1,0 +1,103 @@
+
+start_state:
+| data_structure function_declaration {{decls =[("test",Bool)]; stmts = [Test]}}
+
+data_structure:
+| data_structure TYPEDEF LEFT_PARENTHESIS typedef_body RIGHT_PARENTHESIS IDENTIFIER {}
+| 
+typedef_body:
+| typedef_body typedef_value_init {}
+
+typedef_value_init_dot:
+| typedef_value_init_dot TYPEDEF_VALUE_INIT DOT {}
+| typedef_value_init_dot recursive_list_value_init DOT {}
+| {}
+
+typedef_value_init:
+| typedef_value_init TYPEDEF_VALUE_INIT {}
+| typedef_value_init recursive_list_value_init {}
+| {}
+
+
+recursive_list_value_init:
+|LEFT_PARENTHESIS typedef_value_init_dot typedef_value_init RIGHT_PARENTHESIS {}
+|{}
+
+
+function_declaration:
+|function_declaration function_header function_body END {}
+| {}
+
+/*abc() or abc(, , ,)*/
+function_header:
+| IDENTIFIER LEFT_PARENTHESIS RIGHT_PARENTHESIS {}
+| IDENTIFIER LEFT_PARENTHESIS param_recursive param RIGHT_PARENTHESIS {}
+
+param:
+| VAL IDENTIFIER {}
+| REF IDENTIFIER {}
+
+param_recursive:
+| param_recursive VAL IDENTIFIER DOT {}
+| param_recursive REF IDENTIFIER DOT {}
+| {}
+
+function_body:
+| function_body normal_stmt {}
+| {}
+
+normal_stmt:
+| value_assignment SEMICOLON {}
+| IDENTIFIER IDENTIFIER SEMICOLON {} 
+| WRITE expr SEMICOLON {}
+| READ IDENTIFIER {}
+| IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON {}
+| while_stmt {}
+| if_stmt {}
+| expr SEMICOLON {}
+| {}
+
+value_assignment:
+| IDENTIFIER dot_optional EQ_DOT expr {}
+| IDENTIFIER dot_optional EQ_DOT LEFT_PARENTHESIS value_assignment_dot value_assignment RIGHT_PARENTHESIS {}
+| {}
+
+dot_optional:
+| DOT {}
+| {}
+
+value_assignment_dot:
+| value_assignment_dot value_assignment DOT {}
+| {}
+
+while_stmt:
+|WHILE expr DO normal_stmt OD {}
+
+if_stmt:
+|IF expr THEN normal_stmt else_stmt FI  {}
+
+else_stmt:
+| ELSE normal_stmt {}
+| {}
+
+expr:
+  | BOOL { }
+  | INT {  }
+  | IDENTIFIER {  }
+  /* Binary operators */
+  | expr PLUS expr { }
+  | expr MINUS expr {  }
+  | expr MUL expr {  }
+  | expr EQ expr {  }
+  | expr LT expr {  }
+  /*MINUS expr has same presidence as UMINUS*/
+  | MINUS expr %prec UMINUS { }
+  | LEFT_BRACKET expr RIGHT_BRACKET { }
+
+
+
+
+
+
+
+
