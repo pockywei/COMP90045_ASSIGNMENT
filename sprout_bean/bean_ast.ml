@@ -12,16 +12,15 @@
  * Project Created Date : 18.03.2016
  *)
 
-(* Specification of an AST for bean *)
+(* see the data type comments in bean_ast.mli*)
+
 type ident = string
  
-(* Keep aliases intact for pretty printing. *)
 type beantype =
   | Bool
   | Int
   | IdentType of string 
 
-(* typedef structure type *)
 type typedefStruct =
   |SingleTypeTerm of beantype
   |SingleTypeTermWithIdent of (ident * typedefStruct)
@@ -35,17 +34,14 @@ type lvalue =
   | LField of (lvalue * ident)
   | LvalueNone
 
-(* Binary operator type *)
 type binop =
   | Op_add | Op_sub | Op_mul | Op_div
   | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
   | Op_and | Op_or
 
-(* Unary operator type *)
 type unop =
   | Op_minus | Op_not
 
-(* Expression type *)
 type expr =
   | Ebool of bool
   | Eint of int
@@ -55,7 +51,6 @@ type expr =
   | Eident of string
   | Ebracket of expr
 
-(* Will need to AST elements with additional data.  *)
 type rvalue =
   | Rexpr of expr
   | RField of (rvalue * expr)
@@ -78,13 +73,6 @@ type stmt =
   | IfDec of (expr * stmt list * stmt list)
 
 type decl = (ident * beantype)
-(*
-type stmt =  
-  | Assign of (lvalue * rvalue)
-  | Read of lvalue
-  | Write of expr
-  | Test
-*)
 
 type valRef = 
 |Val
@@ -93,42 +81,18 @@ type valRef =
 type funcDecParamList = (valRef*typedefStruct*string) list
 
 type functionDeclaration = (string*funcDecParamList)
-(*
-type program = {
-  typedefs : (typedef*ident) list;
-  funcdefs : (functionDeclaration*stmst list*stmt list) list
-}
-*)
+
 type program = {
   typedefs : (typedefStruct*ident) list;
   funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
 }
 type t = program
 
-(*
-let printBeantype beanTypeData = match beanTypeData with
-| Bool -> Printf.printf " Bool "
-| Int -> Printf.printf " Int "
-| IdentType(s) ->  Printf.printf " string => %s" s
-
-let rec printTypedefStruct typedefStructData = match typedefStructData with
-| SingleTypeTerm(id , tp) -> (Printf.printf "id => %s , type => \n" id ; printBeantype tp)
-| ListTypeTerm(id , tps) -> (Printf.printf "Listype name => %s " id;List.iter (printTypedefStruct) tps)
-
-let rec printTypedefs typedefData = match typedefData with
-| [] -> Printf.printf "Empty \n "
-| (hstructList,hid)::t -> ( Printf.printf "typedef name => %s : \n  " hid; List.iter (printTypedefStruct) hstructList ; printTypedefs t )
-
-*)
-
-(* Print typedef *)
-
 let printBeanType fmt (btype,suffix) =  match btype with
 | Bool -> Format.fprintf fmt "bool%s" suffix 
 | Int ->  Format.fprintf fmt "int%s" suffix  
 | IdentType(ident) -> Format.fprintf fmt "%s%s" ident suffix
 
-(* mode = 1 ==> in typedef *)
 let rec printTypedefStruct fmt (arrangeMode,typedefStructData) = match typedefStructData with
 | SingleTypeTerm (btype) -> if arrangeMode = 1 then printBeanType fmt (btype,"") else printBeanType fmt (btype," ")
 | SingleTypeTermWithIdent (ident,nestTypedefStructData) ->
@@ -148,12 +112,6 @@ let printSingleTypedef fmt singleTypedefData = let arrangeMode = 1 in match sing
 let printTypedefList fmt typedefDataList = (Format.fprintf fmt "@[";
   List.iter (printSingleTypedef fmt) typedefDataList;
   Format.fprintf fmt "@]@.")
-
-
-
-
-(* Print method delc*)
-
 
 let printFuncIndicator fmt funcIndicator = match funcIndicator with
 | Val -> Format.fprintf fmt "val "
@@ -177,7 +135,6 @@ let printFuncVardef fmt funcVardefData = let arrangeMode = 2 in List.iter (fun x
   funcVardefData
 
 
-(*//TODO *)
 let rec printLvalue fmt singleLvalue = match singleLvalue with
 | LId(ident) -> Format.fprintf fmt "%s" ident
 | LField(recLvalue,ident) -> (printLvalue fmt recLvalue;Format.fprintf fmt ".";Format.fprintf fmt "%s" ident)
@@ -337,10 +294,7 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
 let printFuncBody fmt funcBodyData = let initIdentFactor = 4 in List.iter (fun x -> if x = List.nth funcBodyData ((List.length funcBodyData)-1) && x == List.nth funcBodyData ((List.length funcBodyData)-1)
     then printStmt fmt (initIdentFactor,true,x)
     else printStmt fmt (initIdentFactor,false,x)) funcBodyData
-(*
-let printSingleFuncdef fmt initIdent initIdentFactor singleFuncdefData = match singleFuncdefData with
-| (funcheader,funcvardef,funcbody) -> Format.fprintf fmt "@[proc %a @ %a @ @ %a end@]@." printFuncheader (initIdent,initIdentFactor,funcheader) printFuncVardef (initIdent,initIdentFactor,funcvardef)  printFuncBody (initIdent,initIdentFactor,funcbody)
-*)
+
 let printSingleFuncdef fmt singleFuncdefData = match singleFuncdefData with
 | (funcheader,funcvardef,funcbody) ->(Format.fprintf fmt "proc %a" printFuncheader funcheader;
   if (List.length funcvardef) !=0 then Format.fprintf fmt " @ %a " printFuncVardef funcvardef;
