@@ -126,6 +126,7 @@ stmt_list:
 | atomic_stmt SEMICOLON rec_stmt_list {$1::$3}
 | compound_stmt rec_stmt_list {$1::$2}
 
+/* Exists since stmt_list must be non-empty */
 rec_stmt_list:
 | stmt_list {$1}
 | {[]}
