@@ -13,7 +13,7 @@ let digit = ['0' - '9']
 let alpha = ['a' - 'z' 'A' - 'Z']
 let alnum = alpha | digit (* unused *)
 let underscore = '_'
-let ident = (alpha|underscore)(alnum|underscore|apostro)* (* to be changed to (alpha|underscore)(alpha|underscore|apostro)* *)
+let ident = (alpha|underscore)(alpha|underscore|apostro)*
 let comment = '#'[^'\n']*'\n'
 
 rule token = parse
