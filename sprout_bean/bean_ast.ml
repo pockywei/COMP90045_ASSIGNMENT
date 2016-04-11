@@ -183,25 +183,44 @@ let printBinop fmt singleBinop = match singleBinop with
 | Op_and -> Format.fprintf fmt  " and "
 | Op_or -> Format.fprintf fmt  " or "
 
+let highOrderBino binop = match binop with
+| Op_mul -> true
+| Op_div -> true
+| _ -> false
+
+(*false => do print, true => dont*)
+let exprLookHead expr = match expr with 
+| Ebool(bool_val) -> true
+| Eint(int_val) -> true
+| Elval(lvalue) -> true
+| Ebinop(expr_one,binop,expr_two) ->if highOrderBino binop then true else false
+| Eunop(unop,expr) ->false
+| Eident(ident) -> true
+| Ebracket(expr) -> true
+
 let printUnop fmt singleUnop = match singleUnop with
 | Op_minus -> Format.fprintf fmt "-"
 | Op_not -> Format.fprintf fmt "!"
 
-let rec printExpr fmt singleExpr = match singleExpr with
+let rec printExpr fmt (unNesBracket,singleExpr) = match singleExpr with
 | Ebool(bool_val) -> Format.fprintf fmt "%B" bool_val
 | Eint(int_val) -> Format.fprintf fmt "%d" int_val
 | Elval(lvalue) -> printLvalue fmt lvalue
-| Ebinop(expr_one,binop,expr_two) -> (printExpr fmt expr_one;
-  printBinop fmt binop; printExpr fmt expr_two)
-| Eunop(unop,expr) -> (printUnop fmt unop ; printExpr fmt expr)
+| Ebinop(expr_one,binop,expr_two) ->if highOrderBino binop 
+then (printExpr fmt (true,expr_one);printBinop fmt binop; printExpr fmt (true,expr_two))
+else (printExpr fmt (true,expr_one);printBinop fmt binop; printExpr fmt (true,expr_two))
+
+| Eunop(unop,expr) -> (printUnop fmt unop ; printExpr fmt (true,expr))
 | Eident(ident) -> Format.fprintf fmt "%s" ident
-| Ebracket(expr) -> (Format.fprintf fmt "( " ; printExpr fmt expr  ;Format.fprintf fmt " ) ")
+| Ebracket(expr) -> (if unNesBracket && not (exprLookHead expr)
+  then Format.fprintf fmt "(%a)" printExpr (true,expr)
+  else Format.fprintf fmt "%a" printExpr (true,expr))
 
 
 let rec printRvalue fmt singleRvalue = match singleRvalue with
-| Rexpr(expr) -> printExpr fmt expr
+| Rexpr(expr) -> printExpr fmt (true,expr)
 | RField(rvalue,expr) -> (printRvalue fmt rvalue;
-  printExpr fmt expr)
+  printExpr fmt (true,expr))
 | Rassign(str,rvalue) -> (Format.fprintf fmt "%s = " str;
   printRvalue fmt rvalue)
 | Rstmts(rvalueList) -> (Format.fprintf fmt "{";
@@ -235,15 +254,15 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   printEndStmt fmt isLast ";")
 
 | Write(expr) -> (Format.fprintf fmt  "write ";
-  printExpr fmt expr;
+  printExpr fmt (true,expr);
   printEndStmt fmt isLast ";")
 
 | StmtNone -> Format.fprintf fmt "StmtNone"
 
 | Method(methodname, paramList) -> (Format.fprintf fmt "%s(" methodname ;
   List.iter (fun x -> if x = List.nth paramList ((List.length paramList)-1) && x == List.nth paramList ((List.length paramList)-1) 
-  then printExpr fmt x
-  else (printExpr fmt x; Format.fprintf fmt ", " )) paramList;
+  then printExpr fmt (true,x)
+  else (printExpr fmt (true,x); Format.fprintf fmt ", " )) paramList;
   Format.fprintf fmt ")";
   printEndStmt fmt isLast ";")
 
@@ -251,7 +270,7 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   Format.fprintf fmt "%s " ident;
   printEndStmt fmt isLast ";")
 
-| WhileDec(expr, stmtList) ->(Format.fprintf fmt "while %a do @ " printExpr expr;
+| WhileDec(expr, stmtList) ->(Format.fprintf fmt "while %a do @ " printExpr (true,expr);
   Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
   List.iter (fun x -> if x = List.nth stmtList ((List.length stmtList)-1) && x == List.nth stmtList ((List.length stmtList)-1) 
     then printStmt fmt (initIdent,true,x)
@@ -260,7 +279,7 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   Format.fprintf fmt"@ od";
   printEndStmt fmt isLast "")
 
-| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "if %a then @ " printExpr expr;
+| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "if %a then @ " printExpr (true,expr);
   Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
   List.iter (fun x -> if x = List.nth thenStmtList ((List.length thenStmtList)-1) && x == List.nth thenStmtList ((List.length thenStmtList)-1) 
     then printStmt fmt (initIdent,true,x)
