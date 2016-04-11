@@ -41,7 +41,7 @@ let main () =
         (* Open the input file *)
         let infile = match !infile_name with
         | None -> stdin
-        | Some fname -> begin Printf.printf "fname => %s \n" fname;open_in fname end in
+        | Some fname -> open_in fname  in
         (* Initialize lexing buffer *)
         let lexbuf = Lexing.from_channel infile in
         try

@@ -1529,12 +1529,12 @@ and __ocaml_lex_token_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
 # 35 "bean_lex.mll"
-                      ( Printf.printf "meet space or tab \n" ;flush stdout;token lexbuf )
+                      ( token lexbuf )
 # 1534 "bean_lex.ml"
 
   | 1 ->
 # 36 "bean_lex.mll"
-                      ( Printf.printf "meet newline\n";flush stdout; Lexing.new_line lexbuf ; token lexbuf )
+                      ( Lexing.new_line lexbuf ; token lexbuf )
 # 1539 "bean_lex.ml"
 
   | 2 ->
@@ -1544,7 +1544,7 @@ let
 # 1545 "bean_lex.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
 # 39 "bean_lex.mll"
-                      ( Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) )
+                      ( INT_VAL(int_of_string(lxm)) )
 # 1549 "bean_lex.ml"
 
   | 3 ->
@@ -1554,207 +1554,207 @@ let
 # 1555 "bean_lex.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
 # 40 "bean_lex.mll"
-                      ( Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm) )
+                      ( STRING_VAL(lxm) )
 # 1559 "bean_lex.ml"
 
   | 4 ->
 # 41 "bean_lex.mll"
-                      ( Printf.printf "meet true \n" ;flush stdout;BOOL_VAL true )
+                      ( BOOL_VAL true )
 # 1564 "bean_lex.ml"
 
   | 5 ->
 # 42 "bean_lex.mll"
-                      ( Printf.printf "meet false \n" ;flush stdout;BOOL_VAL false )
+                      ( BOOL_VAL false )
 # 1569 "bean_lex.ml"
 
   | 6 ->
 # 45 "bean_lex.mll"
-                      ( Printf.printf "meet typedef \n" ;flush stdout;TYPEDEF("typedef") )
+                      ( TYPEDEF("typedef") )
 # 1574 "bean_lex.ml"
 
   | 7 ->
 # 46 "bean_lex.mll"
-                      ( Printf.printf "meet proc \n ";flush stdout;PROC )
+                      ( PROC )
 # 1579 "bean_lex.ml"
 
   | 8 ->
 # 47 "bean_lex.mll"
-                      ( Printf.printf "meet end \n" ;flush stdout; END )
+                      ( END )
 # 1584 "bean_lex.ml"
 
   | 9 ->
 # 48 "bean_lex.mll"
-                      ( Printf.printf "meet val \n" ;flush stdout; VAL )
+                      ( VAL )
 # 1589 "bean_lex.ml"
 
   | 10 ->
 # 49 "bean_lex.mll"
-                      ( Printf.printf "meet ref \n" ;flush stdout;REF )
+                      ( REF )
 # 1594 "bean_lex.ml"
 
   | 11 ->
 # 50 "bean_lex.mll"
-                      ( Printf.printf "meet while \n" ;flush stdout;WHILE )
+                      ( WHILE )
 # 1599 "bean_lex.ml"
 
   | 12 ->
 # 51 "bean_lex.mll"
-                      ( Printf.printf "meet do \n" ;flush stdout;DO )
+                      ( DO )
 # 1604 "bean_lex.ml"
 
   | 13 ->
 # 52 "bean_lex.mll"
-                      ( Printf.printf "meet od \n" ;flush stdout;OD )
+                      ( OD )
 # 1609 "bean_lex.ml"
 
   | 14 ->
 # 53 "bean_lex.mll"
-                      ( Printf.printf "meet if \n" ;flush stdout;IF )
+                      ( IF )
 # 1614 "bean_lex.ml"
 
   | 15 ->
 # 54 "bean_lex.mll"
-                      ( Printf.printf "meet then \n" ;flush stdout;THEN )
+                      ( THEN )
 # 1619 "bean_lex.ml"
 
   | 16 ->
 # 55 "bean_lex.mll"
-                      ( Printf.printf "meet else \n" ;flush stdout;ELSE )
+                      ( ELSE )
 # 1624 "bean_lex.ml"
 
   | 17 ->
 # 56 "bean_lex.mll"
-                      ( Printf.printf "meet fi \n" ;flush stdout;FI)
+                      ( FI )
 # 1629 "bean_lex.ml"
 
   | 18 ->
 # 57 "bean_lex.mll"
-                      ( Printf.printf "meet bool \n" ;flush stdout;BOOL )
+                      ( BOOL )
 # 1634 "bean_lex.ml"
 
   | 19 ->
 # 58 "bean_lex.mll"
-                      ( Printf.printf "meet int \n" ;flush stdout; INT )
+                      ( INT )
 # 1639 "bean_lex.ml"
 
   | 20 ->
 # 59 "bean_lex.mll"
-                      ( Printf.printf "meet read \n" ;flush stdout;READ )
+                      ( READ )
 # 1644 "bean_lex.ml"
 
   | 21 ->
 # 60 "bean_lex.mll"
-                      ( Printf.printf "meet write \n" ;flush stdout; WRITE )
+                      ( WRITE )
 # 1649 "bean_lex.ml"
 
   | 22 ->
 # 61 "bean_lex.mll"
-                      ( Printf.printf "meet and \n" ;flush stdout;AND )
+                      ( AND )
 # 1654 "bean_lex.ml"
 
   | 23 ->
 # 62 "bean_lex.mll"
-                      ( Printf.printf "meet or \n" ;flush stdout;OR )
+                      ( OR )
 # 1659 "bean_lex.ml"
 
   | 24 ->
 # 63 "bean_lex.mll"
-                      ( Printf.printf "meet not \n" ;flush stdout;NOT )
+                      ( NOT )
 # 1664 "bean_lex.ml"
 
   | 25 ->
 # 66 "bean_lex.mll"
-                      ( Printf.printf "meet : \n" ;flush stdout;COLON )
+                      ( COLON )
 # 1669 "bean_lex.ml"
 
   | 26 ->
 # 67 "bean_lex.mll"
-                      ( Printf.printf "meet { \n" ;flush stdout;LEFT_BRACE )
+                      ( LEFT_BRACE )
 # 1674 "bean_lex.ml"
 
   | 27 ->
 # 68 "bean_lex.mll"
-                      ( Printf.printf "meet } \n" ;flush stdout;RIGHT_BRACE )
+                      ( RIGHT_BRACE )
 # 1679 "bean_lex.ml"
 
   | 28 ->
 # 69 "bean_lex.mll"
-                      ( Printf.printf "meet , \n" ;flush stdout;COMMA )
+                      ( COMMA )
 # 1684 "bean_lex.ml"
 
   | 29 ->
 # 70 "bean_lex.mll"
-                      ( Printf.printf "meet . \n" ;flush stdout;DOT )
+                      ( DOT )
 # 1689 "bean_lex.ml"
 
   | 30 ->
 # 71 "bean_lex.mll"
-                      ( Printf.printf "meet ( \n" ;flush stdout;LEFT_PAREN )
+                      ( LEFT_PAREN )
 # 1694 "bean_lex.ml"
 
   | 31 ->
 # 72 "bean_lex.mll"
-                      ( Printf.printf "meet ) \n" ;flush stdout;RIGHT_PAREN )
+                      ( RIGHT_PAREN )
 # 1699 "bean_lex.ml"
 
   | 32 ->
 # 73 "bean_lex.mll"
-                      ( Printf.printf "meet ; \n" ;flush stdout;SEMICOLON )
+                      ( SEMICOLON )
 # 1704 "bean_lex.ml"
 
   | 33 ->
 # 76 "bean_lex.mll"
-                      ( Printf.printf "meet := \n" ;flush stdout;EQ_COL )
+                      ( EQ_COL )
 # 1709 "bean_lex.ml"
 
   | 34 ->
 # 77 "bean_lex.mll"
-                      ( Printf.printf "meet != \n" ;flush stdout;NEQ )
+                      ( NEQ )
 # 1714 "bean_lex.ml"
 
   | 35 ->
 # 78 "bean_lex.mll"
-                      ( Printf.printf "meet < \n" ;flush stdout;LT )
+                      ( LT )
 # 1719 "bean_lex.ml"
 
   | 36 ->
 # 79 "bean_lex.mll"
-                      ( Printf.printf "meet <= \n" ;flush stdout;LTE )
+                      ( LTE )
 # 1724 "bean_lex.ml"
 
   | 37 ->
 # 80 "bean_lex.mll"
-                      ( Printf.printf "meet > \n" ;flush stdout;GT )
+                      ( GT )
 # 1729 "bean_lex.ml"
 
   | 38 ->
 # 81 "bean_lex.mll"
-                      ( Printf.printf "meet >= \n" ;flush stdout;GTE )
+                      ( GTE )
 # 1734 "bean_lex.ml"
 
   | 39 ->
 # 82 "bean_lex.mll"
-                      ( Printf.printf "meet = \n" ;flush stdout;EQ )
+                      ( EQ )
 # 1739 "bean_lex.ml"
 
   | 40 ->
 # 83 "bean_lex.mll"
-                      ( Printf.printf "meet + \n" ;flush stdout;PLUS )
+                      ( PLUS )
 # 1744 "bean_lex.ml"
 
   | 41 ->
 # 84 "bean_lex.mll"
-                      ( Printf.printf "meet - \n" ;flush stdout;MINUS )
+                      ( MINUS )
 # 1749 "bean_lex.ml"
 
   | 42 ->
 # 85 "bean_lex.mll"
-                      ( Printf.printf "meet * \n" ;flush stdout;MUL )
+                      ( MUL )
 # 1754 "bean_lex.ml"
 
   | 43 ->
 # 86 "bean_lex.mll"
-                      ( Printf.printf "meet / \n" ;flush stdout;DIV )
+                      ( DIV )
 # 1759 "bean_lex.ml"
 
   | 44 ->
@@ -1764,17 +1764,17 @@ let
 # 1765 "bean_lex.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
 # 89 "bean_lex.mll"
-                      ( Printf.printf "meet ident => %s\n" lxm ;flush stdout;IDENTIFIER(lxm) )
+                      ( IDENTIFIER(lxm) )
 # 1769 "bean_lex.ml"
 
   | 45 ->
 # 90 "bean_lex.mll"
-                      ( Printf.printf "Comment \n";flush stdout;token lexbuf )
+                      ( token lexbuf )
 # 1774 "bean_lex.ml"
 
   | 46 ->
 # 91 "bean_lex.mll"
-                      ( Printf.printf "end file \n";flush stdout;EOF )
+                      ( EOF )
 # 1779 "bean_lex.ml"
 
   | 47 ->
