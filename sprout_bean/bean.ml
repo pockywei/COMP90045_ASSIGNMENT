@@ -33,7 +33,7 @@ let main () =
       match !mode with
       | PrettyPrint ->
         Bean_pprint.print_program Format.std_formatter prog 
-      | Compile -> Printf.eprintf "Sorry, cannot compile yet."
+      | Compile -> Printf.eprintf "Sorry, cannot compile yet.\n"
   with
       | Parsing.Parse_error -> Printf.eprintf "Syntax error\n"
       | LexFail lexbuf -> let position = Lexing.lexeme_start_p lexbuf in
