@@ -11,7 +11,6 @@ let lex_fail lexbuf = raise (LexFail lexbuf)
 let apostro = '''
 let digit = ['0' - '9']
 let alpha = ['a' - 'z' 'A' - 'Z']
-let alnum = alpha | digit (* unused *)
 let underscore = '_'
 let ident = (alpha|underscore)(alpha|underscore|apostro)*
 let comment = '#'[^'\n']*'\n'
