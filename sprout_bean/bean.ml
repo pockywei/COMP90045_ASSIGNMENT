@@ -35,6 +35,7 @@ let main () =
         Bean_pprint.print_program Format.std_formatter prog 
       | Compile -> Printf.eprintf "Sorry, cannot compile yet.\n"
   with
+      (* Handle suitable message for parsing and lexing error *)
       | Parsing.Parse_error -> Printf.eprintf "Syntax error\n"
       | LexFail lexbuf -> let position = Lexing.lexeme_start_p lexbuf in
           Printf.eprintf "Illegal Character on line %d, col %d.\n" position.Lexing.pos_lnum
