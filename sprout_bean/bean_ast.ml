@@ -280,15 +280,15 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   printEndStmt fmt isLast ";")
 
 | Write(expr) -> (Format.fprintf fmt  "write ";
-  printExpr fmt (true,expr);
+  printExpr fmt (false,expr);
   printEndStmt fmt isLast ";")
 
 | StmtNone -> Format.fprintf fmt "StmtNone"
 
 | Method(methodname, paramList) -> (Format.fprintf fmt "%s(" methodname ;
   List.iter (fun x -> if x = List.nth paramList ((List.length paramList)-1) && x == List.nth paramList ((List.length paramList)-1) 
-  then printExpr fmt (true,x)
-  else (printExpr fmt (true,x); Format.fprintf fmt ", " )) paramList;
+  then printExpr fmt (false,x)
+  else (printExpr fmt (false,x); Format.fprintf fmt ", " )) paramList;
   Format.fprintf fmt ")";
   printEndStmt fmt isLast ";")
 
@@ -296,7 +296,7 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   Format.fprintf fmt "%s " ident;
   printEndStmt fmt isLast ";")
 
-| WhileDec(expr, stmtList) ->(Format.fprintf fmt "while %a do @ " printExpr (true,expr);
+| WhileDec(expr, stmtList) ->(Format.fprintf fmt "while %a do @ " printExpr (false,expr);
   Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
   List.iter (fun x -> if x = List.nth stmtList ((List.length stmtList)-1) && x == List.nth stmtList ((List.length stmtList)-1) 
     then printStmt fmt (initIdent,true,x)
@@ -305,7 +305,7 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   Format.fprintf fmt"@ od";
   printEndStmt fmt isLast "")
 
-| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "if %a then @ " printExpr (true,expr);
+| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "if %a then @ " printExpr (false,expr);
   Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
   List.iter (fun x -> if x = List.nth thenStmtList ((List.length thenStmtList)-1) && x == List.nth thenStmtList ((List.length thenStmtList)-1) 
     then printStmt fmt (initIdent,true,x)
