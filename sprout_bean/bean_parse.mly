@@ -1,3 +1,22 @@
+/*
+ * The is the file contains our yacc or context free grammar to build the syntax
+ * tree in order to check input file meets the syntax of the bean language.
+ *
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *
+*/
+
+
 /* ocamlyacc parser for bean */
 %{
 open Bean_ast
@@ -52,29 +71,69 @@ open Bean_ast
 
 
 /*
+
+The type used for this production rule:
+
 type program = {
   typedefs : (typedefStruct*ident) list;
   funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
 }
+
 */
 
 start_state:
 | type_definition procedure_definition {{typedefs = List.rev $1;funcdefs = List.rev $2}}
 
-/*typedef ? identifier*/
+/*
+
+The data type used for this production rule :
+
+(typedefStruct*ident) list;
+
+This production will check the type declaration for typedef
+
+typedef ? identifier
+
+
+*/
+
 type_definition:
 | type_definition TYPEDEF type_spec IDENTIFIER {($3,$4)::$1}
 | {[]}
 
+/*
+
+the typedef data type declaraction will be stored in data structure :
+
+typedefStruct
+
+this production rule is checking the syntax of type declaration
+
+typedef {?} identifier
+
+*/
+
 type_spec:
 | primitive_type {$1}
 | IDENTIFIER {SingleTypeTerm((IdentType $1))}
-/*typedef {?} identifier*/
 | LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm( List.rev $2)}
+
+/*
+
+the typedef data type declaraction will be stored in data structure :
+
+typedefStruct
+
+This production rule will return the primitive type of the bean language
+
+*/
+
 
 primitive_type:
 | BOOL {SingleTypeTerm(Bool)}
 | INT {SingleTypeTerm(Int)}
+
+
 
 field_definition:
 | rec_field_definition IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($2,$4)::$1}
@@ -89,17 +148,20 @@ rec_field_definition:
 procedure_definition:
 | rec_procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,$5)::$1}
 
-/* (functionDeclaration * typedefStruct  * stmt list) list */
 rec_procedure_definition:
 | procedure_definition {$1}
 | {[]}
 
 /*type functionDeclaration = (string*funcDecParamList)*/
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
+/*this production rule will check the method declaration, its method name 
+  followed by parameters.
+*/
 procedure_header:
 | IDENTIFIER LEFT_PAREN param RIGHT_PAREN {($1,List.rev $3)}
 
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
+/* checking the parameters in right format */
 param:
 | rec_param param_passing_indicator type_spec IDENTIFIER {($2,$3,$4)::$1}
 | {[]}
@@ -114,7 +176,8 @@ param_passing_indicator:
 | VAL {Val}
 | REF {Ref}
 
-/*typedefStruct*/
+/*typedefStruct list*/
+/* parse the variable declaration in the method body */
 variable_definition:
 | variable_definition type_spec IDENTIFIER SEMICOLON { SingleTypeTermWithIdent($3,$2)::$1 }
 | {[]}
@@ -122,6 +185,7 @@ variable_definition:
 /*procedure , stmt list*/
 
 /* Right recursion to avoid shift/reduce conflicts */
+/* checking/parsing the method procedures */
 stmt_list:
 | atomic_stmt SEMICOLON rec_stmt_list {$1::$3}
 | compound_stmt rec_stmt_list {$1::$2}
@@ -132,6 +196,7 @@ rec_stmt_list:
 | {[]}
 
 /* stmt */
+/* check different types of method procedures like assignment, read ,write */
 atomic_stmt:
 | lvalue EQ_COL rvalue { Assign($1,$3)}
 | READ lvalue { Read($2) }
@@ -140,12 +205,13 @@ atomic_stmt:
 | IDENTIFIER LEFT_PAREN RIGHT_PAREN { Method($1,[]) }
 
 /* stmt */
+/* check compound statements such as 'while' and 'if' */
 compound_stmt:
 | IF expr THEN stmt_list else_block FI {IfDec($2,$4,$5)}
 | WHILE expr DO stmt_list OD {WhileDec($2,$4)}
 
-/* object.field*/
-lvalue:
+
+/* varName.optionalField*/lvalue:
 | IDENTIFIER { LId($1) }
 | lvalue DOT IDENTIFIER { LField($1,$3) }
 
@@ -163,6 +229,7 @@ rec_field_init:
 | field_init COMMA {$1}
 | {[]}
 
+/* check expression */
 expr:
 | lvalue { Elval($1) }
 | const { $1 }
@@ -191,10 +258,12 @@ rec_expr_list:
 | COMMA expr_list { $2 }
 | {[]}
 
+/* check statments under else */
 else_block:
 | ELSE stmt_list {$2}
 | {[]}
 
+/* check literals*/
 const:
 | BOOL_VAL { Ebool($1) }
 | INT_VAL { Eint($1) }

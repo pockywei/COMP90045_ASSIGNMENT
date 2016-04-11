@@ -1,3 +1,18 @@
+(** The is the file contains our main method to run the whole program
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+
 open Bean_lex
 open Lexing
 module P = Bean_parse
