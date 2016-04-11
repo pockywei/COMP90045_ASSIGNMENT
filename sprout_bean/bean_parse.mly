@@ -136,12 +136,12 @@ atomic_stmt:
 | READ lvalue { Read($2) }
 | WRITE expr { Write($2) }
 | IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,$3) }
+| IDENTIFIER LEFT_PAREN RIGHT_PAREN { Method($1,[]) }
 
 /* stmt */
 compound_stmt:
 | IF expr THEN stmt_list else_block FI {IfDec($2,$4,$5)}
 | WHILE expr DO stmt_list OD {WhileDec($2,$4)}
-
 
 /* object.field*/
 lvalue:
@@ -184,7 +184,6 @@ expr:
 /* Right recursion to avoid shift/reduce conflicts */
 expr_list:
 | expr rec_expr_list { $1::$2 }
-| {[]}
 
 /* Commas only present between entries */
 rec_expr_list:
