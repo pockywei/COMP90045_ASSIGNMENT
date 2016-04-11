@@ -7,11 +7,13 @@ type beantype =
   | Int
   | IdentType of string 
 
+(* typedef structure type *)
 type typedefStruct =
   |SingleTypeTerm of beantype
   |SingleTypeTermWithIdent of (ident * typedefStruct)
   |ListTypeTerm of typedefStruct list
   |TypedefEnd
+
 type typedef = typedefStruct list
 
 type lvalue =
@@ -19,14 +21,17 @@ type lvalue =
   | LField of (lvalue * ident)
   | LvalueNone
 
+(* Binary operator type *)
 type binop =
   | Op_add | Op_sub | Op_mul | Op_div
   | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
   | Op_and | Op_or
 
+(* Unary operator type *)
 type unop =
   | Op_minus | Op_not
 
+(* Expression type *)
 type expr =
   | Ebool of bool
   | Eint of int
@@ -58,9 +63,6 @@ type stmt =
   | WhileDec of (expr * stmt list)
   | IfDec of (expr * stmt list * stmt list)
 
-
-
-
 type decl = (ident * beantype)
 (*
 type stmt =  
@@ -74,9 +76,7 @@ type valRef =
 |Val
 |Ref
 
-
 type funcDecParamList = (valRef*typedefStruct*string) list
-
 
 type functionDeclaration = (string*funcDecParamList)
 (*
