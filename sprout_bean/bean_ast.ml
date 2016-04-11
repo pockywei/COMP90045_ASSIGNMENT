@@ -89,26 +89,39 @@ type program = {
 type t = program
 
 let printBeanType fmt (btype,suffix) =  match btype with
+(* type def cool be followed by column or space *)
 | Bool -> Format.fprintf fmt "bool%s" suffix 
 | Int ->  Format.fprintf fmt "int%s" suffix  
 | IdentType(ident) -> Format.fprintf fmt "%s%s" ident suffix
 
 let rec printTypedefStruct fmt (arrangeMode,typedefStructData) = match typedefStructData with
-| SingleTypeTerm (btype) -> if arrangeMode = 1 then printBeanType fmt (btype,"") else printBeanType fmt (btype," ")
+| SingleTypeTerm (btype) -> 
+  (* if mode = 1 will print space after type *)
+  if arrangeMode = 1 
+  then printBeanType fmt (btype,"") 
+  else printBeanType fmt (btype," ")
+
 | SingleTypeTermWithIdent (ident,nestTypedefStructData) ->
-  if arrangeMode = 1 then Format.fprintf fmt "%s : %a" ident printTypedefStruct (arrangeMode,nestTypedefStructData)
+  if arrangeMode = 1 
+  then Format.fprintf fmt "%s : %a" ident printTypedefStruct (arrangeMode,nestTypedefStructData)
   else Format.fprintf fmt "%a%s" printTypedefStruct (arrangeMode,nestTypedefStructData) ident
+
 | ListTypeTerm (listTypedefStructData) ->(Format.fprintf fmt "{"  ;
-  List.iter (fun x -> if x = List.nth listTypedefStructData ((List.length listTypedefStructData)-1) && x == List.nth listTypedefStructData ((List.length listTypedefStructData)-1)
+  List.iter (fun x -> 
+    (* if it is the last type term should print } other wise , *)
+    if x = List.nth listTypedefStructData ((List.length listTypedefStructData)-1) 
+      && x == List.nth listTypedefStructData ((List.length listTypedefStructData)-1)
     then printTypedefStruct fmt (arrangeMode,x)
     else (printTypedefStruct fmt (arrangeMode,x) ; Format.fprintf fmt ", ")) listTypedefStructData;
   Format.fprintf fmt "}" )
 | TypedefEnd -> Format.fprintf fmt "end with type def \n"
 
-let printSingleTypedef fmt singleTypedefData = let arrangeMode = 1 in match singleTypedefData with
+(* mode 1 will follow type by :  *)
+let printSingleTypedef fmt singleTypedefData = let arrangeMode = 1 
+in match singleTypedefData with
 | (typedefStruct,ident) -> Format.fprintf fmt "typedef %a %s\n" printTypedefStruct (arrangeMode,typedefStruct) ident 
  
-
+(* start print typedefs by openning a format box *)
 let printTypedefList fmt typedefDataList = (Format.fprintf fmt "@[";
   List.iter (printSingleTypedef fmt) typedefDataList;
   Format.fprintf fmt "@]@.")
@@ -117,19 +130,23 @@ let printFuncIndicator fmt funcIndicator = match funcIndicator with
 | Val -> Format.fprintf fmt "val "
 | Ref -> Format.fprintf fmt "ref "
 
-let printFuncparams fmt singleFuncparamData =  let arrangeMode = 1 in match singleFuncparamData with
+let printFuncparams fmt singleFuncparamData =  let arrangeMode = 1 
+in match singleFuncparamData with
 | (funcIndicator,typedefStruct,ident) -> Format.fprintf fmt  "%a%a %s"  printFuncIndicator funcIndicator printTypedefStruct (arrangeMode,typedefStruct) ident
 
 let printFuncheader fmt funcheaderData = match funcheaderData with
 | (funcname,funcparams) -> (Format.fprintf fmt "%s(" funcname ;
-List.iter (fun x -> if x = List.nth funcparams ((List.length funcparams)-1) && x == List.nth funcparams ((List.length funcparams)-1)
-    then printFuncparams fmt x
-    else (printFuncparams fmt x ; Format.fprintf fmt ", ")) funcparams;
+List.iter (fun x -> 
+  if x = List.nth funcparams ((List.length funcparams)-1) 
+    && x == List.nth funcparams ((List.length funcparams)-1)
+  then printFuncparams fmt x
+  else (printFuncparams fmt x ; Format.fprintf fmt ", ")) funcparams;
     Format.fprintf fmt ")")
 
 
 let printFuncVardef fmt funcVardefData = let arrangeMode = 2 in List.iter (fun x -> 
-   if x = List.nth funcVardefData ((List.length funcVardefData)-1) && x == List.nth funcVardefData ((List.length funcVardefData)-1)
+   if x = List.nth funcVardefData ((List.length funcVardefData)-1) 
+    && x == List.nth funcVardefData ((List.length funcVardefData)-1)
    then (printTypedefStruct fmt (arrangeMode,x); Format.fprintf fmt ";")
    else (printTypedefStruct fmt (arrangeMode,x); Format.fprintf fmt ";@ "))
   funcVardefData
@@ -137,7 +154,8 @@ let printFuncVardef fmt funcVardefData = let arrangeMode = 2 in List.iter (fun x
 
 let rec printLvalue fmt singleLvalue = match singleLvalue with
 | LId(ident) -> Format.fprintf fmt "%s" ident
-| LField(recLvalue,ident) -> (printLvalue fmt recLvalue;Format.fprintf fmt ".";Format.fprintf fmt "%s" ident)
+| LField(recLvalue,ident) -> (printLvalue fmt recLvalue;Format.fprintf fmt ".";
+  Format.fprintf fmt "%s" ident)
 | LvalueNone -> Format.fprintf fmt "Empty lvalue"
 
 let printBinop fmt singleBinop = match singleBinop with
@@ -153,6 +171,7 @@ let printBinop fmt singleBinop = match singleBinop with
 | Op_gte -> Format.fprintf fmt  " >= "
 | Op_and -> Format.fprintf fmt  " and "
 | Op_or -> Format.fprintf fmt  " or "
+
 
 let rec loopToEndExpr expr = match expr with
 | Ebracket(expr) -> loopToEndExpr expr
@@ -209,7 +228,12 @@ let rec printExpr fmt (unNesBracket,singleExpr) = match singleExpr with
 
 | Eunop(unop,expr) -> (printUnop fmt unop ; printExpr fmt (true,expr))
 | Eident(ident) -> Format.fprintf fmt "%s" ident
-| Ebracket(expr) -> (if unNesBracket && not (exprLookHead expr)
+| Ebracket(expr) -> (
+  (* unNesBracket is a predictio of printing parenthesis or not
+   * and exprLookHead look he next expr to decide unnesBracket is true or not
+   *)
+  if unNesBracket && not (exprLookHead expr)
+  (* if next one is still a bracket ignore it *)
   then Format.fprintf fmt "(%a)" printExpr (not (nextBracket expr),expr)
   else Format.fprintf fmt "%a" printExpr (true,expr))
 
@@ -221,7 +245,9 @@ let rec printRvalue fmt singleRvalue = match singleRvalue with
 | Rassign(str,rvalue) -> (Format.fprintf fmt "%s = " str;
   printRvalue fmt rvalue)
 | Rstmts(rvalueList) -> (Format.fprintf fmt "{";
-  List.iter (fun x ->( if x = List.nth rvalueList ((List.length rvalueList)-1) && x == List.nth rvalueList ((List.length rvalueList)-1)
+  List.iter (fun x ->( 
+  if x = List.nth rvalueList ((List.length rvalueList)-1) 
+    && x == List.nth rvalueList ((List.length rvalueList)-1)
   then printRvalue fmt x
   else (printRvalue fmt x ;Format.fprintf fmt ", ") )) rvalueList;
   Format.fprintf fmt "}")
@@ -230,8 +256,8 @@ let rec printRvalue fmt singleRvalue = match singleRvalue with
 let getIdent identNum = String.make identNum ' '
 
 let printEndStmt fmt isLast lastStr = match isLast with
-  | true -> Format.fprintf fmt  "%s" lastStr
-  | false -> Format.fprintf fmt  "%s@ " lastStr
+| true -> Format.fprintf fmt  "%s" lastStr
+| false -> Format.fprintf fmt  "%s@ " lastStr
 
 let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
 
@@ -268,8 +294,13 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   printEndStmt fmt isLast ";")
 
 | WhileDec(expr, stmtList) ->(Format.fprintf fmt "while %a do @ " printExpr (false,expr);
+  (* start new vertical box for while body
+  * full fill it with 4 indents for avoid start with @ to give a new line
+  *)
   Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
-  List.iter (fun x -> if x = List.nth stmtList ((List.length stmtList)-1) && x == List.nth stmtList ((List.length stmtList)-1) 
+  List.iter (fun x -> 
+    if x = List.nth stmtList ((List.length stmtList)-1) 
+      && x == List.nth stmtList ((List.length stmtList)-1) 
     then printStmt fmt (initIdent,true,x)
     else printStmt fmt (initIdent,false,x)) stmtList;
   Format.fprintf fmt " @]";
@@ -278,11 +309,15 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
 
 | IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "if %a then @ " printExpr (false,expr);
   Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
-  List.iter (fun x -> if x = List.nth thenStmtList ((List.length thenStmtList)-1) && x == List.nth thenStmtList ((List.length thenStmtList)-1) 
+  List.iter (fun x -> 
+    if x = List.nth thenStmtList ((List.length thenStmtList)-1) 
+      && x == List.nth thenStmtList ((List.length thenStmtList)-1) 
     then printStmt fmt (initIdent,true,x)
     else printStmt fmt (initIdent,false,x)) thenStmtList;
   Format.fprintf fmt " @]";
-  if (List.length elseStmtList) != 0 then (Format.fprintf fmt " @ ";Format.fprintf fmt "else @ ");
+  (* if else has statements them do print them other wise dont*)
+  if (List.length elseStmtList) != 0 
+  then (Format.fprintf fmt " @ ";Format.fprintf fmt "else @ ");
   Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
   List.iter (fun x -> if x = List.nth elseStmtList ((List.length elseStmtList)-1) && x == List.nth elseStmtList ((List.length elseStmtList)-1)
     then printStmt fmt (initIdent,true,x)
@@ -291,17 +326,26 @@ let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
   Format.fprintf fmt  "@ fi";
   printEndStmt fmt isLast "")
 
-let printFuncBody fmt funcBodyData = let initIdentFactor = 4 in List.iter (fun x -> if x = List.nth funcBodyData ((List.length funcBodyData)-1) && x == List.nth funcBodyData ((List.length funcBodyData)-1)
-    then printStmt fmt (initIdentFactor,true,x)
-    else printStmt fmt (initIdentFactor,false,x)) funcBodyData
+let printFuncBody fmt funcBodyData = let initIdentFactor = 4 in List.iter (fun x -> 
+  if x = List.nth funcBodyData ((List.length funcBodyData)-1) 
+    && x == List.nth funcBodyData ((List.length funcBodyData)-1)
+  then printStmt fmt (initIdentFactor,true,x)
+  else printStmt fmt (initIdentFactor,false,x)) funcBodyData
 
 let printSingleFuncdef fmt singleFuncdefData = match singleFuncdefData with
 | (funcheader,funcvardef,funcbody) ->(Format.fprintf fmt "proc %a" printFuncheader funcheader;
-  if (List.length funcvardef) !=0 then Format.fprintf fmt " @ %a " printFuncVardef funcvardef;
-  if (List.length funcbody) != 0 then Format.fprintf fmt " @ @ %a " printFuncBody funcbody;
+  (* if have function variable declaration then print them*)
+  if (List.length funcvardef) !=0 
+  then Format.fprintf fmt " @ %a " printFuncVardef funcvardef;
+  (* if have function procedures declaration then print them*)
+  if (List.length funcbody) != 0 
+  then Format.fprintf fmt " @ @ %a " printFuncBody funcbody;
   Format.fprintf fmt "\nend\n\n")
 
-let printFuncdefList fmt funcdefDataList = let iniIdent = 4 in (Format.fprintf fmt "@[<v %d>" iniIdent ; List.iter (printSingleFuncdef fmt) funcdefDataList ;Format.fprintf fmt "@] " )
+let printFuncdefList fmt funcdefDataList = let iniIdent = 4 
+in (Format.fprintf fmt "@[<v %d>" iniIdent ; 
+  List.iter (printSingleFuncdef fmt) funcdefDataList ;
+  Format.fprintf fmt "@] " )
 
 
 

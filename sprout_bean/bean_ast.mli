@@ -143,3 +143,7 @@ val printFuncBody : Format.formatter -> stmt list -> unit
 val printSingleFuncdef : Format.formatter -> (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit
 (* print list of function definitions *)
 val printFuncdefList : Format.formatter -> ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit
+(* to find next expr apart from Ebracket *)
+val loopToEndExpr : expr -> expr
+(* to see if next Ebracket *)
+val nextBracket : expr -> bool
