@@ -3,35 +3,39 @@
 open Bean_ast
 %}
 
+/* Constants */
 %token <bool> BOOL_VAL
 %token <int> INT_VAL
 %token <string> STRING_VAL
+/* Keywords */
 %token WRITE READ
 %token ASSIGN
-%token EQ NEQ LT LTE GT GTE
-%token PLUS MINUS MUL DIV
-%token UMINUS
-%token COLON
-%token SEMICOLON
-%token AND OR NOT
-%token EOF
-
-
-%token <string> IDENTIFIER
-%token LEFT_PAREN RIGHT_PAREN
-%token <string> TYPEDEF
-%token TYPEDEF_VALUE_INIT
-%token DOT
-%token COMMA
-%token END
-%token VAL
-%token REF
-%token LEFT_BRACE RIGHT_BRACE
 %token WHILE DO OD
 %token IF THEN ELSE FI
 %token BOOL INT
 %token PROC
+%token END
+%token VAL
+%token REF
+%token <string> TYPEDEF
+/* Operators */
+%token EQ NEQ LT LTE GT GTE
+%token PLUS MINUS MUL DIV
+%token UMINUS
+%token AND OR NOT
 %token EQ_COL
+/* Punctuation */
+%token COLON
+%token SEMICOLON
+%token DOT
+%token COMMA
+%token LEFT_PAREN RIGHT_PAREN
+%token LEFT_BRACE RIGHT_BRACE
+/* Miscellaneous */
+%token EOF
+%token <string> IDENTIFIER
+
+/* Precedence */
 %left OR
 %left AND
 %nonassoc NOT
@@ -79,13 +83,6 @@ rec_field_definition:
 | field_definition COMMA {$1}
 | {[]}
 
-
-
-
-
-
-
-
 /* At least one procedure required */
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 procedure_definition:
@@ -100,7 +97,6 @@ rec_procedure_definition:
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
 procedure_header:
 | IDENTIFIER LEFT_PAREN param RIGHT_PAREN {($1,List.rev $3)}
-
 
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
 param:
@@ -117,7 +113,6 @@ rec_param:
 param_passing_indicator:
 | VAL {Val}
 | REF {Ref}
-
 
 /*typedefStruct*/
 variable_definition:
