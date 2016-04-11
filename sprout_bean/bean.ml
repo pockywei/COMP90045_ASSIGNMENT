@@ -56,6 +56,6 @@ let main () =
             | Parsing.Parse_error -> Printf.eprintf "Syntax error on line %d.\n" (lexeme_start_p lexbuf).pos_lnum
             | LexFail lexbuf -> let position = lexeme_start_p lexbuf in
               Printf.eprintf "Illegal Character on line %d, col %d.\n" position.pos_lnum
-              (position.pos_cnum - position.pos_bol)
+              (position.pos_cnum - position.pos_bol + 1)
 
 let _ = main ()
