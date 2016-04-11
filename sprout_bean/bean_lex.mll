@@ -19,7 +19,7 @@ rule token = parse
 
   (* Whitespace *)
     [' ' '\t']        { Printf.printf "meet space or tab \n" ;flush stdout;token lexbuf }     (* skip blanks *)
-  | '\r'?'\n'         { Printf.printf "meet newline %d\n";flush stdout; Lexing.new_line lexbuf ; token lexbuf }
+  | '\r'?'\n'         { Printf.printf "meet newline\n";flush stdout; Lexing.new_line lexbuf ; token lexbuf }
 
   (* Constants *)
   | int_val as lxm    { Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
