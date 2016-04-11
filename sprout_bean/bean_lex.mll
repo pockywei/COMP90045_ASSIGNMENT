@@ -13,6 +13,8 @@ let alpha = ['a' - 'z' 'A' - 'Z']
 let underscore = '_'
 let ident = (alpha|underscore)(alpha|underscore|apostro)*
 let comment = '#'[^'\n']*'\n'
+let string = '"' [^ '"' '\t' '\n' '\r' ]* '"'
+let int_val = '-'? digit+
 
 rule token = parse
 
@@ -21,8 +23,8 @@ rule token = parse
   | '\r'?'\n'         { incr line_num; Printf.printf "meet newline %d\n" !line_num ;flush stdout; Lexing.new_line lexbuf ; token lexbuf }
 
   (* Constants *)
-  | '-'?['0'-'9']+ as lxm{Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
-  | '"' [^ '"' '\t' '\n' '\r' ]* '"' as lxm{ Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm) }
+  | int_val as lxm    { Printf.printf "meet int literal \n" ;flush stdout; INT_VAL(int_of_string(lxm)) }
+  | string as lxm     { Printf.printf "meet string => %s \n" lxm ;flush stdout;STRING_VAL(lxm) }
   | "true"            { Printf.printf "meet true \n" ;flush stdout;BOOL_VAL true }
   | "false"           { Printf.printf "meet false \n" ;flush stdout;BOOL_VAL false }
 
