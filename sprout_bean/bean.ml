@@ -33,7 +33,7 @@ let (speclist:(Arg.key * Arg.spec * Arg.doc) list) =
      " Run the compiler in pretty-printer mode"
   ]
   
-let printError (msg, lexbuf) =
+let printError msg lexbuf =
     let position = lexeme_start_p lexbuf in
     Printf.eprintf "%s on line %d, column %d.\n" msg position.pos_lnum (position.pos_cnum - position.pos_bol + 1)
 
@@ -57,7 +57,7 @@ let main () =
             | Compile -> Printf.eprintf "Sorry, cannot compile yet.\n"
         with
             (* Handle suitable message for parsing and lexing error *)
-            | Parsing.Parse_error -> printError ("Syntax error", lexbuf)
-            | LexFail lexbuf -> printError ("Invalid character", lexbuf)
+            | Parsing.Parse_error -> printError "Syntax error" lexbuf
+            | LexFail -> printError "Invalid character" lexbuf
 
 let _ = main ()

@@ -16,8 +16,7 @@
 {
 open Bean_parse
 
-exception LexFail of Lexing.lexbuf
-let lex_fail lexbuf = raise (LexFail lexbuf)
+exception LexFail
 }
 
 let apostro = '''
@@ -89,4 +88,4 @@ rule token = parse
   | ident as lxm      { IDENTIFIER(lxm) }
   | comment           { token lexbuf }
   | eof               { EOF }
-  | _                 { lex_fail lexbuf }
+  | _                 { raise LexFail }
