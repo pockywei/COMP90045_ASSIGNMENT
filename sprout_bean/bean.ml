@@ -32,6 +32,10 @@ let (speclist:(Arg.key * Arg.spec * Arg.doc) list) =
      Arg.Unit(fun () -> mode := PrettyPrint),
      " Run the compiler in pretty-printer mode"
   ]
+  
+let printError (msg, lexbuf) =
+    let position = lexeme_start_p lexbuf in
+    Printf.eprintf "%s on line %d, column %d.\n" msg position.pos_lnum (position.pos_cnum - position.pos_bol + 1)
 
 let main () =
     (* Parse the command-line arguments *)
@@ -53,9 +57,7 @@ let main () =
             | Compile -> Printf.eprintf "Sorry, cannot compile yet.\n"
         with
             (* Handle suitable message for parsing and lexing error *)
-            | Parsing.Parse_error -> Printf.eprintf "Syntax error on line %d.\n" (lexeme_start_p lexbuf).pos_lnum
-            | LexFail lexbuf -> let position = lexeme_start_p lexbuf in
-              Printf.eprintf "Illegal Character on line %d, col %d.\n" position.pos_lnum
-              (position.pos_cnum - position.pos_bol + 1)
+            | Parsing.Parse_error -> printError ("Syntax error", lexbuf)
+            | LexFail lexbuf -> printError ("Invalid character", lexbuf)
 
 let _ = main ()
