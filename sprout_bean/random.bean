@@ -15,21 +15,18 @@ proc main()
         fizz := fizz + 1;
         buzz := buzz + 1;
         
+        write i;
         if fizz = 3 and buzz = 5 then # divisible by 3 and 5
             fizz := 0;
             buzz := 0;
-            write i;
             write " FizzBuzz\n";
         else if fizz = 3 then # divisible by 3
             fizz := 0;
-            write i;
             write " Fizz\n";
         else if buzz = 5 then # divisible by 5
             buzz := 0;
-            write i;
             write " Buzz\n";
         else
-            write i;
             write "\n";
         fi fi fi
         
