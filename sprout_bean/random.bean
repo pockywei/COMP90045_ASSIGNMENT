@@ -1,8 +1,9 @@
 # Fizzbuzz Program
-# For all integers from 1 to 100, print the number and also:
+# For all integers from 1 to 100, print:
 #   "Fizz" if it is divisible by 3
 #   "Buzz" if it is divisible by 5
 #   "FizzBuzz" if it is divisible by both
+#   The number otherwise
 
 proc main()
     int fizz;
@@ -15,7 +16,6 @@ proc main()
         fizz := fizz + 1;
         buzz := buzz + 1;
         
-        write i;
         if fizz = 3 and buzz = 5 then # divisible by 3 and 5
             fizz := 0;
             buzz := 0;
@@ -27,6 +27,7 @@ proc main()
             buzz := 0;
             write " Buzz\n";
         else
+            write i;
             write "\n";
         fi fi fi
         
