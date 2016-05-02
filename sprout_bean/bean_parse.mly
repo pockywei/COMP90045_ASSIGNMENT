@@ -34,7 +34,7 @@ open Bean_ast
 %token END
 %token VAL
 %token REF
-%token <string> TYPEDEF
+%token TYPEDEF
 /* Operators */
 %token EQ NEQ LT LTE GT GTE
 %token PLUS MINUS MUL DIV
