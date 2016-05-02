@@ -146,8 +146,8 @@ rec_field_definition:
 /* At least one procedure required */
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 procedure_definition:
-| procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,$5)::$1}
-| PROC procedure_header variable_definition stmt_list END {($2,List.rev $3,$4)::[]}
+| procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,List.rev $5)::$1}
+| PROC procedure_header variable_definition stmt_list END {($2,List.rev $3,List.rev $4)::[]}
 
 /*type functionDeclaration = (string*funcDecParamList)*/
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
@@ -196,7 +196,6 @@ atomic_stmt:
 | READ lvalue { Read($2) }
 | WRITE expr { Write($2) }
 | IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,$3) }
-| IDENTIFIER LEFT_PAREN RIGHT_PAREN { Method($1,[]) }
 
 /* stmt */
 /* check compound statements such as 'while' and 'if' */
@@ -213,16 +212,17 @@ lvalue:
 /* rvalue*/
 rvalue:
 | expr { Rexpr($1) }
-| LEFT_BRACE field_init RIGHT_BRACE { Rstmts(List.rev $2) }
-| LEFT_BRACE RIGHT_BRACE { Rempty }
+| LEFT_BRACE field_inits RIGHT_BRACE { Rstmts(List.rev $2) }
+/* TODO: Removed REmpty rule, deal with in AST */
+
+field_inits:
+| field_init {$1}
+| {[]}
 
 /* rvalue list */
 field_init:
-| rec_field_init IDENTIFIER EQ rvalue {Rassign($2,$4)::$1}
-
-rec_field_init:
-| field_init COMMA {$1}
-| {[]}
+| field_init COMMA IDENTIFIER EQ rvalue {Rassign($3,$5)::$1}
+| IDENTIFIER EQ rvalue {Rassign($1,$3)::[]}
 
 /* check expression */
 expr:
@@ -245,7 +245,11 @@ expr:
 | MINUS expr %prec UMINUS { Eunop(Op_minus,$2) } /* Precedence for unary minus */
 
 expr_list:
-| expr_list COMMA expr { $3::$1 }
+| exprs {$1}
+| {[]}
+
+exprs:
+| exprs COMMA expr { $3::$1 }
 | expr { $1::[] }
 
 /* check statments under else */
