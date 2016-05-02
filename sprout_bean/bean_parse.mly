@@ -78,7 +78,7 @@ type_definition:
 type_spec:
 | primitive_type {$1}
 | IDENTIFIER {SingleTypeTerm((IdentType $1))}
-| LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm( List.rev $2)}
+| LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm(List.rev $2)}
 
 primitive_type:
 | BOOL {SingleTypeTerm(Bool)}
@@ -126,22 +126,22 @@ stmt:
 | compound_stmt {$1}
 
 atomic_stmt:
-| lvalue EQ_COL rvalue { Assign($1,$3)}
-| READ lvalue { Read($2) }
-| WRITE expr { Write($2) }
-| IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,List.rev $3) }
+| lvalue EQ_COL rvalue {Assign($1,$3)}
+| READ lvalue {Read($2)}
+| WRITE expr {Write($2)}
+| IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN {Method($1,List.rev $3)}
 
 compound_stmt:
 | IF expr THEN stmt_list else_block FI {IfDec($2,List.rev $4,$5)}
 | WHILE expr DO stmt_list OD {WhileDec($2,List.rev $4)}
 
 lvalue:
-| IDENTIFIER { LId($1) }
-| lvalue DOT IDENTIFIER { LField($1,$3) }
+| IDENTIFIER {LId($1)}
+| lvalue DOT IDENTIFIER {LField($1,$3)}
 
 rvalue:
 | expr { Rexpr($1) }
-| LEFT_BRACE field_inits RIGHT_BRACE { Rstmts(List.rev $2) }
+| LEFT_BRACE field_inits RIGHT_BRACE {Rstmts(List.rev $2)}
 /* TODO: Removed REmpty rule, deal with in AST */
 
 field_inits:
@@ -155,35 +155,35 @@ field_init:
 expr:
 | lvalue { Elval($1) }
 | const { $1 }
-| LEFT_PAREN expr RIGHT_PAREN { Ebracket($2) }
-| expr PLUS expr { Ebinop($1,Op_add,$3) }
-| expr MINUS expr { Ebinop($1,Op_sub,$3) }
-| expr MUL expr { Ebinop($1,Op_mul,$3) }
-| expr DIV expr { Ebinop($1,Op_div,$3) }
-| expr EQ expr { Ebinop($1,Op_eq,$3) }
-| expr NEQ expr { Ebinop($1,Op_neq,$3) }
-| expr LT expr { Ebinop($1,Op_lt,$3) }
-| expr GT expr { Ebinop($1,Op_gt,$3) }
-| expr LTE expr { Ebinop($1,Op_lte,$3) }
-| expr GTE expr { Ebinop($1,Op_gte,$3) }
-| expr AND expr { Ebinop($1,Op_and,$3) }
-| expr OR expr { Ebinop($1,Op_or,$3) }
-| NOT expr { Eunop(Op_not,$2) }
-| MINUS expr %prec UMINUS { Eunop(Op_minus,$2) } /* Precedence for unary minus */
+| LEFT_PAREN expr RIGHT_PAREN {Ebracket($2)}
+| expr PLUS expr {Ebinop($1,Op_add,$3)}
+| expr MINUS expr {Ebinop($1,Op_sub,$3)}
+| expr MUL expr {Ebinop($1,Op_mul,$3)}
+| expr DIV expr {Ebinop($1,Op_div,$3)}
+| expr EQ expr {Ebinop($1,Op_eq,$3)}
+| expr NEQ expr {Ebinop($1,Op_neq,$3)}
+| expr LT expr {Ebinop($1,Op_lt,$3)}
+| expr GT expr {Ebinop($1,Op_gt,$3)}
+| expr LTE expr {Ebinop($1,Op_lte,$3)}
+| expr GTE expr {Ebinop($1,Op_gte,$3)}
+| expr AND expr {Ebinop($1,Op_and,$3)}
+| expr OR expr {Ebinop($1,Op_or,$3)}
+| NOT expr {Eunop(Op_not,$2)}
+| MINUS expr %prec UMINUS {Eunop(Op_minus,$2)} /* Precedence for unary minus */
 
 expr_list:
 | exprs {$1}
 | {[]}
 
 exprs:
-| exprs COMMA expr { $3::$1 }
-| expr { $1::[] }
+| exprs COMMA expr {$3::$1}
+| expr {$1::[]}
 
 else_block:
 | ELSE stmt_list {List.rev $2}
 | {[]}
 
 const:
-| BOOL_VAL { Ebool($1) }
-| INT_VAL { Eint($1) }
-| STRING_VAL { Eident($1) }
+| BOOL_VAL {Ebool($1)}
+| INT_VAL {Eint($1)}
+| STRING_VAL {Eident($1)}
