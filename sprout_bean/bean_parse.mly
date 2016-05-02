@@ -180,16 +180,14 @@ variable_definition:
 
 /*procedure , stmt list*/
 
-/* Right recursion to avoid shift/reduce conflicts */
 /* checking/parsing the method procedures */
 stmt_list:
-| atomic_stmt SEMICOLON rec_stmt_list {$1::$3}
-| compound_stmt rec_stmt_list {$1::$2}
+| stmt_list stmt {$2::$1}
+| stmt {$1::[]}
 
-/* Exists since stmt_list must be non-empty */
-rec_stmt_list:
-| stmt_list {$1}
-| {[]}
+stmt:
+| atomic_stmt SEMICOLON {$1}
+| compound_stmt {$1}
 
 /* stmt */
 /* check different types of method procedures like assignment, read ,write */
