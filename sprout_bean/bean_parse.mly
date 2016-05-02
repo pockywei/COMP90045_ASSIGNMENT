@@ -254,7 +254,7 @@ exprs:
 
 /* check statments under else */
 else_block:
-| ELSE stmt_list {$2}
+| ELSE stmt_list {List.rev $2}
 | {[]}
 
 /* check literals*/
