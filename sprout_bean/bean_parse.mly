@@ -195,13 +195,13 @@ atomic_stmt:
 | lvalue EQ_COL rvalue { Assign($1,$3)}
 | READ lvalue { Read($2) }
 | WRITE expr { Write($2) }
-| IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,$3) }
+| IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,List.rev $3) }
 
 /* stmt */
 /* check compound statements such as 'while' and 'if' */
 compound_stmt:
-| IF expr THEN stmt_list else_block FI {IfDec($2,$4,$5)}
-| WHILE expr DO stmt_list OD {WhileDec($2,$4)}
+| IF expr THEN stmt_list else_block FI {IfDec($2,List.rev $4,$5)}
+| WHILE expr DO stmt_list OD {WhileDec($2,List.rev $4)}
 
 
 /* varName.optionalField*/
