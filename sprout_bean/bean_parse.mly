@@ -146,11 +146,8 @@ rec_field_definition:
 /* At least one procedure required */
 /* (functionDeclaration * typedefStruct  * stmt list) list */
 procedure_definition:
-| rec_procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,$5)::$1}
-
-rec_procedure_definition:
-| procedure_definition {$1}
-| {[]}
+| procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,$5)::$1}
+| PROC procedure_header variable_definition stmt_list END {($2,List.rev $3,$4)::[]}
 
 /*type functionDeclaration = (string*funcDecParamList)*/
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
@@ -158,21 +155,20 @@ rec_procedure_definition:
   followed by parameters.
 */
 procedure_header:
-| IDENTIFIER LEFT_PAREN param RIGHT_PAREN {($1,List.rev $3)}
+| IDENTIFIER LEFT_PAREN params RIGHT_PAREN {($1,List.rev $3)}
 
 /*type funcDecParamList = (valRef*typedefStruct*string) list*/
 /* checking the parameters in right format */
-param:
-| rec_param param_passing_indicator type_spec IDENTIFIER {($2,$3,$4)::$1}
+params:
+| param {$1}
 | {[]}
 
-/* Commas only present between entries */
-rec_param:
-| param COMMA {$1}
-| {[]}
+param:
+| param COMMA pass_type type_spec IDENTIFIER {($3,$4,$5)::$1}
+| pass_type type_spec IDENTIFIER {($1,$2,$3)::[]}
 
 /* Pass by value or reference */
-param_passing_indicator:
+pass_type:
 | VAL {Val}
 | REF {Ref}
 
@@ -250,14 +246,9 @@ expr:
 | NOT expr { Eunop(Op_not,$2) }
 | MINUS expr %prec UMINUS { Eunop(Op_minus,$2) } /* Precedence for unary minus */
 
-/* Right recursion to avoid shift/reduce conflicts */
 expr_list:
-| expr rec_expr_list { $1::$2 }
-
-/* Commas only present between entries */
-rec_expr_list:
-| COMMA expr_list { $2 }
-| {[]}
+| expr_list COMMA expr { $3::$1 }
+| expr { $1::[] }
 
 /* check statments under else */
 else_block:
