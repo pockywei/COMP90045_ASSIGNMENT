@@ -24,7 +24,7 @@ let digit = ['0' - '9']
 let alpha = ['a' - 'z' 'A' - 'Z']
 let underscore = '_'
 let ident = (alpha|underscore)(alpha|underscore|apostro)*
-let comment = '#'[^'\n']*'\n'
+let comment = '#'[^'\n']*
 let string = '"' [^ '"' '\t' '\n' '\r' ]* '"'
 let int_val = '-'? digit+
 
