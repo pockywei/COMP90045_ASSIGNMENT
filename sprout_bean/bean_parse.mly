@@ -16,8 +16,6 @@
  *
 */
 
-
-/* ocamlyacc parser for bean */
 %{
 open Bean_ast
 %}
@@ -69,96 +67,37 @@ open Bean_ast
 %start start_state
 %%
 
-
-/*
-
-The type used for this production rule:
-
-type program = {
-  typedefs : (typedefStruct*ident) list;
-  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
-}
-
-*/
-
 start_state:
 | type_definition procedure_definition {{typedefs = List.rev $1;funcdefs = List.rev $2}}
 
-/*
-
-The data type used for this production rule :
-
-(typedefStruct*ident) list;
-
-This production will check the type declaration for typedef
-
-typedef ? identifier
-
-
-*/
-
+/* Zero or more type definitions */
 type_definition:
 | type_definition TYPEDEF type_spec IDENTIFIER {($3,$4)::$1}
 | {[]}
-
-/*
-
-the typedef data type declaraction will be stored in data structure :
-
-typedefStruct
-
-this production rule is checking the syntax of type declaration
-
-typedef {?} identifier
-
-*/
 
 type_spec:
 | primitive_type {$1}
 | IDENTIFIER {SingleTypeTerm((IdentType $1))}
 | LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm( List.rev $2)}
 
-/*
-
-the typedef data type declaraction will be stored in data structure :
-
-typedefStruct
-
-This production rule will return the primitive type of the bean language
-
-*/
-
-
 primitive_type:
 | BOOL {SingleTypeTerm(Bool)}
 | INT {SingleTypeTerm(Int)}
 
-
-
+/* One or more field definitions */
 field_definition:
-| rec_field_definition IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($2,$4)::$1}
+| field_definition COMMA IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($3,$5)::$1}
+| IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($1,$3)::[]}
 
-/* Commas only present between entries */
-rec_field_definition:
-| field_definition COMMA {$1}
-| {[]}
-
-/* At least one procedure required */
-/* (functionDeclaration * typedefStruct  * stmt list) list */
+/* One or more procedures */
 procedure_definition:
 | procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,List.rev $5)::$1}
 | PROC procedure_header variable_definition stmt_list END {($2,List.rev $3,List.rev $4)::[]}
 
-/*type functionDeclaration = (string*funcDecParamList)*/
-/*type funcDecParamList = (valRef*typedefStruct*string) list*/
-/*this production rule will check the method declaration, its method name 
-  followed by parameters.
-*/
 procedure_header:
 | IDENTIFIER LEFT_PAREN params RIGHT_PAREN {($1,List.rev $3)}
 
-/*type funcDecParamList = (valRef*typedefStruct*string) list*/
-/* checking the parameters in right format */
+/* Zero or more parameters */
 params:
 | param {$1}
 | {[]}
@@ -172,15 +111,12 @@ pass_type:
 | VAL {Val}
 | REF {Ref}
 
-/*typedefStruct list*/
-/* parse the variable declaration in the method body */
+/* Zero or more local variables */
 variable_definition:
 | variable_definition type_spec IDENTIFIER SEMICOLON { SingleTypeTermWithIdent($3,$2)::$1 }
 | {[]}
 
-/*procedure , stmt list*/
-
-/* checking/parsing the method procedures */
+/* One or more statements */
 stmt_list:
 | stmt_list stmt {$2::$1}
 | stmt {$1::[]}
@@ -189,27 +125,20 @@ stmt:
 | atomic_stmt SEMICOLON {$1}
 | compound_stmt {$1}
 
-/* stmt */
-/* check different types of method procedures like assignment, read ,write */
 atomic_stmt:
 | lvalue EQ_COL rvalue { Assign($1,$3)}
 | READ lvalue { Read($2) }
 | WRITE expr { Write($2) }
 | IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN { Method($1,List.rev $3) }
 
-/* stmt */
-/* check compound statements such as 'while' and 'if' */
 compound_stmt:
 | IF expr THEN stmt_list else_block FI {IfDec($2,List.rev $4,$5)}
 | WHILE expr DO stmt_list OD {WhileDec($2,List.rev $4)}
 
-
-/* varName.optionalField*/
 lvalue:
 | IDENTIFIER { LId($1) }
 | lvalue DOT IDENTIFIER { LField($1,$3) }
 
-/* rvalue*/
 rvalue:
 | expr { Rexpr($1) }
 | LEFT_BRACE field_inits RIGHT_BRACE { Rstmts(List.rev $2) }
@@ -219,12 +148,10 @@ field_inits:
 | field_init {$1}
 | {[]}
 
-/* rvalue list */
 field_init:
 | field_init COMMA IDENTIFIER EQ rvalue {Rassign($3,$5)::$1}
 | IDENTIFIER EQ rvalue {Rassign($1,$3)::[]}
 
-/* check expression */
 expr:
 | lvalue { Elval($1) }
 | const { $1 }
@@ -252,12 +179,10 @@ exprs:
 | exprs COMMA expr { $3::$1 }
 | expr { $1::[] }
 
-/* check statments under else */
 else_block:
 | ELSE stmt_list {List.rev $2}
 | {[]}
 
-/* check literals*/
 const:
 | BOOL_VAL { Ebool($1) }
 | INT_VAL { Eint($1) }
