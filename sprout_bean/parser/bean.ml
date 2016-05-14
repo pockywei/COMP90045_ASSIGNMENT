@@ -17,6 +17,7 @@ open Bean_codegen
 open Bean_lex
 open Lexing
 open Bean_symbol
+open Bean_analyze
 module P = Bean_parse
 
 (* Argument parsing code *)
@@ -53,7 +54,7 @@ let main () =
             (* Call the parser *)
             let prog = Bean_parse.start_state Bean_lex.token lexbuf in
             match !mode with
-            | PrettyPrint ->(build_typedef_table_hash (prog.typedefs);build_symbol_table_hash_all (prog.funcdefs);print_out_one_typedef_table typdef_table_hash;print_out_one_symbol_table symbol_table_hash)
+            | PrettyPrint ->start_test_analyzer prog
                 (*codegen_stmts (List.hd prog.funcdefs)*)
               (*Bean_pprint.print_program Format.std_formatter prog *)
 

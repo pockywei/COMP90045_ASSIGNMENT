@@ -1,7 +1,7 @@
 TARGETS = bean
 TARGETS_BYTE=$(TARGETS:%=%.byte)
 
-MODULES = bean_ast bean_lex bean_parse bean_pprint bean_codegen bean_symbol
+MODULES = bean_ast bean_lex bean_parse bean_pprint bean_codegen bean_symbol bean_analyze
 MLFILES = $(addsuffix .ml, $(MODULES))
 CMOFILES = $(addsuffix .cmo, $(MODULES))
 CMXFILES = $(addsuffix .cmx, $(MODULES))
