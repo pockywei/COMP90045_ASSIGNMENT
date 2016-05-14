@@ -87,6 +87,7 @@ type typedefTableType =
   |Typedef_None
 
 type symbolTableType =
+  | S_Func of (string , symbolTableType) Hashtbl.t
   | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)
   | S_Hash of (beantype * (string, symbolTableType) Hashtbl.t)(*self def type*)
   | S_Bool of (beantype * stackNum) (*Int => stack num*)
@@ -94,7 +95,8 @@ type symbolTableType =
   | S_Struct of (beantype * stackNum) (*struct name, *)
   | S_Ref_Int of (beantype * stackNum)
   | S_Ref_Bool of (beantype * stackNum)(*if beantype is a ident, need to search through typedef hash table*)
-
+  | S_Intext_Hash of (string , symbolTableType) Hashtbl.t
+  | S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t
 
 
 type funcDecParamList = (valRef*typedefStruct*string) list

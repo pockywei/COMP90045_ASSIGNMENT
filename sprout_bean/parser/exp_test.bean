@@ -1,11 +1,23 @@
 typedef int int_temp
+typedef int_temp test
 
 typedef {t_vii : int, t_viii : int, t_ix  : int,
          t_iv  : int, t_v    : int, t_vi  : int,
          t_i   : int, t_ii   : int, t_iii : int} GameBoard
-
+typedef GameBoard GameBoard_temp
 # Initialize Board State (with 0's)
+
 proc initializeBoard (ref GameBoard board)
+    int a;
+    int b;
+    bool x;
+
+    write 1+(4+1)*(7+8)*3;
+
+end
+
+
+proc main (val {a: int}  t)
     int a;
     int b;
     bool x;

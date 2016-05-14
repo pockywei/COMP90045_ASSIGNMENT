@@ -2,6 +2,8 @@ open Bean_ast
 open Bean_symbol
 (* *)
 (* == , this compare refernece, = compare content equality*)
+
+
 let t_flag = ref true
 let t0_free = ref true
 let cur_register_count = ref 0
@@ -56,6 +58,42 @@ let print_or register_1 register_2 register_3 = Printf.printf "or %s, %s, %s" re
 let print_not register_1 register_2 = Printf.printf "not %s, %s" register_1 register_2
 
 let print_move register_1 register_2 = Printf.printf "move %s, %s" register_1 register_2
+
+let print_call label_name = Printf.printf "call %s\n" label_name 
+
+let call_builtin builtin_funciton_name = Printf.printf "call_builtin %s\n"
+
+let print_branch_on_true register_name label_name= Printf.printf "branch_on_true %s, %s" register_name label_name
+
+let print_branch_on_false register_name label_name= Printf.printf "branch_on_false %s, %s" register_name label_name
+
+let print_label_by_number label_number= Printf.printf "label_%d:\n" label_number
+
+let print_return () = Printf.printf "return\n"
+
+let print_halt () = Printf.printf "halt\n"
+
+let print_debug_reg register_name = Printf.printf "debug_reg %s\n" register_name
+
+let print_debug_slot slot_num = Printf.printf "debug_slot %d\n" slot_num
+
+let print_debug_stack () = Printf.printf "debug_stack\n"
+
+let print_label_by_function_name function_name = Printf.printf "%s:" function_name 
+
+let print_read_int () = Printf.printf "call_builtin read_int\n"
+
+let print_read_bool () =Printf.printf "call_builtin read_bool\n"
+
+let print_print_int register_name = Printf.printf "call_builtin print_int %s \n" register_name
+
+let print_print_bool register_name = Printf.printf "call_builtin print_bool %s \n" register_name
+
+let print_print_string register_name = Printf.printf "call_builtin print_string %s \n" register_name
+
+
+(*instruction following the call instruction.
+The following are all built-in functions: read_int, read_bool, print_int, print_bool, print_string. *)
 
 (*
 push_stack_frame framesize
