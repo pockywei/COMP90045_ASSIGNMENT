@@ -51,6 +51,7 @@ type expr =
   | Eunop of (unop * expr)
   | Eident of string
   | Ebracket of expr
+  | Enone
 
 type rvalue =
   | Rexpr of expr

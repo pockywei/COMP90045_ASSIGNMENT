@@ -9,13 +9,15 @@ let t0_free = ref true
 let cur_register_count = ref 0
 let cur_label_count = ref 0
 
+let get_register_string register_num = "r"^(string_of_int register_num)
+
 let print_push_stack_frame frame_size = Printf.printf "push_stack_frame %d\n" frame_size
 
 let print_pop_stack_frame frame_size = Printf.printf "pop_stack_frame %d\n" frame_size
 
 let print_load register_name slot_num = Printf.printf "load %s, %d" register_name slot_num
 
-let print_sotre slot_num register_name = Printf.printf "store %d, %s" slot_num register_name
+let print_store slot_num register_name = Printf.printf "store %d, %s" slot_num register_name
 
 let print_load_address register_name slot_num = Printf.printf "load_address %s, %d" register_name slot_num
 
@@ -69,6 +71,9 @@ let print_branch_on_false register_name label_name= Printf.printf "branch_on_fal
 
 let print_label_by_number label_number= Printf.printf "label_%d:\n" label_number
 
+let print_label_by_function_name function_name = Printf.printf "%s:" function_name 
+
+
 let print_return () = Printf.printf "return\n"
 
 let print_halt () = Printf.printf "halt\n"
@@ -79,7 +84,6 @@ let print_debug_slot slot_num = Printf.printf "debug_slot %d\n" slot_num
 
 let print_debug_stack () = Printf.printf "debug_stack\n"
 
-let print_label_by_function_name function_name = Printf.printf "%s:" function_name 
 
 let print_read_int () = Printf.printf "call_builtin read_int\n"
 
