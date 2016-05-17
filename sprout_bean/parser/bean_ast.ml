@@ -21,6 +21,7 @@ type beantype =
   | Bool
   | Int
   | IdentType of string 
+  | BeanTypeNone
 
 type typedefStruct =
   |SingleTypeTerm of beantype
@@ -51,7 +52,6 @@ type expr =
   | Eunop of (unop * expr)
   | Eident of string
   | Ebracket of expr
-  | Enone
 
 type rvalue =
   | Rexpr of expr
@@ -86,14 +86,13 @@ type typedefTableType =
   |Typedef_Struct_Sinlge_Type of beantype
   |Typedef_Struct of ((string , typedefTableType) Hashtbl.t)
   |Typedef_None
-
+(*S_Struct removed*)
 type symbolTableType =
   | S_Func of (string , symbolTableType) Hashtbl.t
   | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)
   | S_Hash of (beantype * (string, symbolTableType) Hashtbl.t)(*self def type*)
   | S_Bool of (beantype * stackNum) (*Int => stack num*)
   | S_Int of (beantype * stackNum)
-  | S_Struct of (beantype * stackNum) (*struct name, *)
   | S_Ref_Int of (beantype * stackNum)
   | S_Ref_Bool of (beantype * stackNum)(*if beantype is a ident, need to search through typedef hash table*)
   | S_Intext_Hash of (string , symbolTableType) Hashtbl.t

@@ -15,7 +15,7 @@ let func_stack_num_hash = Hashtbl.create hash_table_size (* local variables *)
 
 let func_param_symbol_table_hash = Hashtbl.create hash_table_size (* params  *)
 
-
+let cur_func_symbol_hash_table = ref (Hashtbl.create hash_table_size)
 
 (*record number of stack needed*)
 let symbol_table_stackNum_hash = Hashtbl.create hash_table_size
@@ -31,6 +31,7 @@ let get_hash_table_symbol symbolTableType = match symbolTableType with
   | S_Ref_Intext_Hash(hash_table) -> hash_table
   | S_Func(hash_table) -> hash_table
 	| _ -> (Printf.printf "get symbol hash failed "; exit 0)
+
 
 
 let rec build_one_typedef_table_hash_ hash_table typedefStruct_list = (List.iter (fun x -> 
@@ -135,7 +136,10 @@ let print_func_stack_num_hash func_stack_num_hash = (Printf.printf "----- Start 
 		Hashtbl.iter (fun key value -> Printf.printf "Function name => %s, Function Max Stack Num => %d\n" key value ) func_stack_num_hash;
 		Printf.printf "----- End Printing func_stack_num_hash -----\n" )
 
+(*				| S_Struct(bean_type,stack_num)-> Printf.printf " type => ident , stack number => %d  \n" stack_num  (*struct name, *)
+				| S_Ref_Struct(bean_type,stack_num)-> Printf.printf " Ref type => ident , stack number => %d  \n" stack_num  (*struct name, *)
 
+			REAMOVED *)
 let rec print_out_one_symbol_table one_symbol_table = (Printf.printf "----- Start Printing Sub Symbol Table -----\n";
 	Hashtbl.iter (fun key value ->( 
 		Printf.printf "Name  => %s ," key;
@@ -148,7 +152,6 @@ let rec print_out_one_symbol_table one_symbol_table = (Printf.printf "----- Star
 						print_out_one_symbol_table sub_symbol_table)(*self def type*)
 				| S_Bool(bean_type,stack_num) -> Printf.printf " type => Bool , stack number => %d  \n" stack_num (*Int => stack num*)
 				| S_Int(bean_type,stack_num) -> Printf.printf " type => Int , stack number => %d  \n" stack_num 
-				| S_Struct(bean_type,stack_num)-> Printf.printf " type => Bool , stack number => %d  \n" stack_num  (*struct name, *)
 				| S_Intext_Hash(sub_symbol_table)->(Printf.printf " Intext Type => :";
 						print_out_one_symbol_table sub_symbol_table)
 				| S_Ref_Int(bean_type,stack_num) -> Printf.printf " Ref type => Bool , stack number => %d  \n" stack_num 
