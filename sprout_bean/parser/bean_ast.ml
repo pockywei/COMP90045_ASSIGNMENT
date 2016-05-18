@@ -89,7 +89,7 @@ type typedefTableType =
 (*S_Struct removed*)
 type symbolTableType =
   | S_Func of (string , symbolTableType) Hashtbl.t
-  | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)
+  | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)(* stored nest type of typedef*)
   | S_Hash of (beantype * (string, symbolTableType) Hashtbl.t)(*self def type*)
   | S_Bool of (beantype * stackNum) (*Int => stack num*)
   | S_Int of (beantype * stackNum)

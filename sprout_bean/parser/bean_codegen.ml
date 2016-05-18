@@ -246,7 +246,7 @@ let rec codegen_arithmatic expr = let local_register_count = !cur_register_count
 	| Eunop(Op_not) -> print_not register_1 register_1 
 	| Ebracket(expr) -> codegen_arithmatic expr
 	| Elval(lvalue) -> let temp_stack_num = get_lvalue_stack_num lvalue cur_func_symbol_hash_table in
-		print_load temp_stack_num (get_register_string local_register_count)
+		print_load temp_stack_num (get_register_string local_register_count(* lvalue could be nested for a.x.c =>  *)
 
 
 let codegen_stmts funcdef = match funcdef with
