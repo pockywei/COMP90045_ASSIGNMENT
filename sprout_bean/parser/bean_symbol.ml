@@ -133,7 +133,7 @@ let build_symbol_table_hash_all funcDefs= List.iter (fun x ->(
 			build_symbol_table_hash_funcDecParamList (get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name)) funcDecParamList;
 			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name)) typedefStruct_list;
 			Hashtbl.add func_stack_num_hash func_name (!stack_count+1);
-			Hashtbl.add func_param_order_hash_table x (*param struct added *)
+			Hashtbl.add func_param_order_hash_table func_name x (*param struct added *)
 			))) funcDefs
 
 let print_func_stack_num_hash func_stack_num_hash = (Printf.printf "----- Start Printing func_stack_num_hash -----\n" ;

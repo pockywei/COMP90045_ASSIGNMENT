@@ -2,6 +2,7 @@ val t_flag : bool ref
 val t0_free : bool ref
 val cur_register_count : int ref
 val cur_label_count : int ref
+val get_register_string : int -> bytes
 val print_push_stack_frame : int -> unit
 val print_pop_stack_frame : int -> unit
 val print_load : bytes -> int -> unit
@@ -31,18 +32,23 @@ val print_call : bytes -> unit
 val call_builtin : 'a -> bytes -> unit
 val print_branch_on_true : bytes -> bytes -> unit
 val print_branch_on_false : bytes -> bytes -> unit
+val print_branch_on_unc : 'a -> bytes -> unit
 val print_label_by_number : int -> unit
+val print_label_by_function_name : bytes -> unit
+val get_label_name : int -> bytes
 val print_return : unit -> unit
 val print_halt : unit -> unit
 val print_debug_reg : bytes -> unit
 val print_debug_slot : int -> unit
 val print_debug_stack : unit -> unit
-val print_label_by_function_name : bytes -> unit
 val print_read_int : unit -> unit
 val print_read_bool : unit -> unit
-val print_print_int : bytes -> unit
-val print_print_bool : bytes -> unit
-val print_print_string : bytes -> unit
+val print_print_int : unit -> unit
+val print_print_bool : unit -> unit
+val print_print_string : unit -> unit
+val codegen_binop : bytes -> bytes -> bytes -> Bean_ast.binop -> unit
 val printBinop : Bean_ast.binop -> bytes
-val codegen_stmts : 'a * 'b * Bean_ast.stmt list -> unit
-val inc_cur_register_count : unit -> unit
+val codegen_unop : bytes -> bytes -> Bean_ast.unop -> unit
+val getStackNum : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> int
+val get_lvalue_stack_num : (bytes, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> int
+val codegen_arithmatic : Bean_ast.expr -> int
