@@ -1,4 +1,4 @@
-open Bean_ast
+(*open Bean_ast*)
 (*bean_symbol.ml*)
 (*open Bean_codegen*)
 let hash_table_size = 20
@@ -173,7 +173,8 @@ let rec print_out_one_typedef_table one_typedef_table = (Printf.printf "----- St
 			|Typedef_Struct_Sinlge_Type(bean_type) ->(match bean_type with
 				| Bool -> Printf.printf " var => %s, type => Bool\n" key
 				| Int -> Printf.printf " var => %s, type => Int\n" key
-				| IdentType(ident) -> Printf.printf "Shouldn't have this \n")
+				| IdentType(ident) -> Printf.printf "Shouldn't have this \n"
+				| _ -> (Printf.printf "print_out_one_typedef_table type error \n ";exit 0))
 			|Typedef_Struct(one_sub_table) -> (Printf.printf " var => %s:" key;
 				print_out_one_typedef_table one_sub_table)
 			|Typedef_None -> Printf.printf "Error ! \n"

@@ -72,7 +72,7 @@ let print_branch_on_true register_name label_name= Printf.printf "branch_on_true
 
 let print_branch_on_false register_name label_name= Printf.printf "branch_on_false %s, %s\n" register_name label_name
 
-let print_branch_on_unc label_name = Printf.printf "branch_uncond %s\n"
+let print_branch_on_unc label_name = Printf.printf "branch_uncond %s\n" label_name
 
 let print_label_by_number label_number= Printf.printf "label_%d:\n" label_number
 
