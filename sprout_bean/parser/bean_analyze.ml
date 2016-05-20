@@ -1,6 +1,7 @@
-(*open Bean_ast
+open Bean_ast
 open Bean_symbol
-open Bean_codegen*)
+open Bean_codegen
+
 
 let register_count = ref (-1)
 let cur_expr_type = ref BeanTypeNone

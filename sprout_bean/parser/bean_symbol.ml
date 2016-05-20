@@ -1,6 +1,8 @@
-(*open Bean_ast*)
-(*bean_symbol.ml*)
-(*open Bean_codegen*)
+open Bean_ast
+
+let cur_register_count = ref 0
+let cur_label_count = ref 0
+
 let hash_table_size = 20
 
 let stack_count = ref (-1)

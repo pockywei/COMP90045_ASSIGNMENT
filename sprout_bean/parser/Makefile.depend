@@ -6,7 +6,7 @@ bean_pprint.cmi :
 bean_ast.cmo : bean_ast.cmi
 bean_ast.cmx : bean_ast.cmi
 bean_symbol.cmi : bean_ast.cmi
-bean_codegen.cmi : bean_ast.cmi bean_symbol.cmi
+bean_codegen.cmi : bean_ast.cmi bean_symbol.cmi 
 bean_analyze.cmi : bean_ast.cmi bean_symbol.cmi bean_codegen.cmi
 bean_lex.cmo : bean_parse.cmi
 bean_lex.cmx : bean_parse.cmx
@@ -14,8 +14,11 @@ bean_parse.cmo : bean_ast.cmi bean_parse.cmi
 bean_parse.cmx : bean_ast.cmx bean_parse.cmi
 bean_pprint.cmo : bean_pprint.cmi
 bean_pprint.cmx : bean_pprint.cmi
-bean_codegen.cmx : bean_codegen.cmi
+bean_symbol.cmo : bean_symbol.cmi
 bean_symbol.cmx : bean_symbol.cmi
+bean_codegen.cmo : bean_codegen.cmi
+bean_codegen.cmx : bean_codegen.cmi
+bean_analyze.cmo : bean_analyze.cmi
 bean_analyze.cmx : bean_analyze.cmi
 bean.cmo :
 bean.cmx :

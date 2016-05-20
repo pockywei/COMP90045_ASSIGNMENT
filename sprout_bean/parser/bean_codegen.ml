@@ -1,15 +1,14 @@
-(*open Bean_ast
+open Bean_ast
 open Bean_symbol
-open Bean_analyze
-*)
+
+
 (* *)
 (* == , this compare refernece, = compare content equality*)
 
 
 let t_flag = ref true
 let t0_free = ref true
-let cur_register_count = ref 0
-let cur_label_count = ref 0
+
 
 
 let get_register_string register_num = "r"^(string_of_int register_num)
