@@ -4,9 +4,7 @@
 proc main()
     int x;
     read x;
-    if x < 50 then
+    if (x <= 50 and x <= 25) and x = 1 then
         write "Went down\n";
-    else
-        write "Went up\n";
     fi
 end

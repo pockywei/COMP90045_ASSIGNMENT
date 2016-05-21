@@ -8,13 +8,17 @@ call_builtin read_int
 store 0, r0
 load r0, 0
 int_const r1, 50
-cmp_lt_int r0, r0, r1
-branch_on_false r0, label_0
+cmp_le_int r0, r0, r1
+load r1, 0
+int_const r2, 25
+cmp_le_int r1, r1, r2
+and r0, r0, r1
+load r1, 0
+int_const r2, 1
+cmp_eq_int r1, r1, r2
+and r0, r0, r1
+branch_on_false r0, label_1
 string_const r0, "Went down\n"
-call_builtin print_string
-branch_uncond label_1
-label_0:
-string_const r0, "Went up\n"
 call_builtin print_string
 label_1:
 pop_stack_frame 1

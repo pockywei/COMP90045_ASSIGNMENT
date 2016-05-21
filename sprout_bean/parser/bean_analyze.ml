@@ -396,10 +396,11 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 	  			print_label_by_number if_else_label;
 	  			List.iter (codegen_one_stmt hash_table) else_stmt_list;(*if false go to else label, if true say in and jump uncondition to out label*)
 	  			print_label_by_number if_out_label))
-  		else (print_branch_on_false "r0" (get_label_name if_out_label);(*if not else and false go to out label*)
-  			print_branch_on_unc (get_label_name if_out_label);
-  			List.iter (codegen_one_stmt hash_table) then_stmt_list;
-  			print_label_by_number if_out_label)(* if not else directly go *) ))
+  		else (cur_register_count := 0;
+        let _ = codegen_arithmatic expr in 
+          (print_branch_on_false "r0" (get_label_name if_out_label);(*if not else and false go to out label*)
+  			   List.iter (codegen_one_stmt hash_table) then_stmt_list;
+  			   print_label_by_number if_out_label))))(* if not else directly go *) 
   | _ -> (Printf.printf "start_translate_by_function_stmt_list error \n";exit 0))
 
 (*
