@@ -17,6 +17,7 @@ val build_one_typedef_table_hash_ : (Bean_ast.ident, Bean_ast.typedefTableType) 
 val build_one_typedef_table_hash : Bean_ast.typedefStruct * Bean_ast.ident -> unit
 val build_typedef_table_hash : (Bean_ast.typedefStruct * Bean_ast.ident) list -> unit
 val build_symbol_table_self_type : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> (Bean_ast.ident, Bean_ast.typedefTableType) Hashtbl.t -> unit
+val build_symbol_table_self_type_ref : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> (Bean_ast.ident, Bean_ast.typedefTableType) Hashtbl.t -> unit
 val build_symbol_table_typedefStruct_list : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.typedefStruct list -> unit
 val build_symbol_table_hash_funcDecParamList : ('a, Bean_ast.symbolTableType) Hashtbl.t -> (Bean_ast.valRef * Bean_ast.typedefStruct * 'a) list -> unit
 val build_symbol_table_hash_all : ((string *(Bean_ast.valRef * Bean_ast.typedefStruct * string) list) *Bean_ast.typedefStruct list * Bean_ast.stmt list) list -> unit

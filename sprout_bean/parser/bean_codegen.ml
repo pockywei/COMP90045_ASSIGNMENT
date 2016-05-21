@@ -165,8 +165,8 @@ let codegen_binop register_1 register_2 register_3 singleBinop = match singleBin
 	| Op_neq -> (top_level_expr_type := Bool; print_cmp_ne_int register_1 register_2 register_3 )
 	| Op_lte -> (top_level_expr_type := Bool; print_cmp_le_int register_1 register_2 register_3 )
 	| Op_gte -> (top_level_expr_type := Bool; print_cmp_ge_int register_1 register_2 register_3 )
-	| Op_and -> (if !cur_expr_type = Bool then print_and register_1 register_2 register_3 else (Printf.printf "Op_and type error\n";exit 0))
-	| Op_or ->  (if !cur_expr_type = Bool then print_or register_1 register_2 register_3 else  (Printf.printf "Op_or type error\n";exit 0))
+	| Op_and -> print_and register_1 register_2 register_3 
+	| Op_or ->  print_or register_1 register_2 register_3 
 
 let printBinop single_binop = match single_binop with
 	| Op_add -> " + "
@@ -272,6 +272,7 @@ let rec codegen_arithmatic expr = let local_register_count = !cur_register_count
 			codegen_binop (get_register_string local_register_count) (get_register_string left) (get_register_string right) binop;
 			local_register_count)
 	| Eunop(Op_minus,expr) -> (print_int_const (get_register_string local_register_count) (-1);
+		incr cur_register_count;
 		print_mul_int (get_register_string local_register_count) (get_register_string local_register_count) (get_register_string(codegen_arithmatic expr));
 		local_register_count) (*codegen_Arithmatic expr alone in here cause warnning, becuase it return a single int nad is not used*)
 	| Eunop(Op_not,expr) ->let _ = codegen_arithmatic expr in (print_not (get_register_string (local_register_count)) (get_register_string (local_register_count));local_register_count) 
@@ -320,6 +321,13 @@ let rec codegen_arithmatic_ref expr = let local_register_count = !cur_register_c
 				 (print_load_address (get_register_string local_register_count) temp_stack_num;
 					local_register_count))) (* lvalue could be nested for a.x.c =>  *)
 	| _ -> (Printf.printf "error at code gen ";exit 0)
+
+
+
+
+
+
+
 
 	(*| Eident(ident) -> (incr cur_register_count;
 		try let temp_stack_num = Hashtbl.find cur_func_symbol_hash_table ident in

@@ -137,7 +137,7 @@ compound_stmt:
 
 lvalue:
 | IDENTIFIER {LId($1)}
-| lvalue DOT IDENTIFIER {LField($1,$3)}
+| IDENTIFIER DOT lvalue{LField($3,$1)}
 
 rvalue:
 | expr { Rexpr($1) }

@@ -13,6 +13,7 @@ val get_bool_ref_val_symbol_type : Bean_ast.symbolTableType -> bool
 val get_lvalue_ref_or_not : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> bool
 val get_lvalue_symbol_type : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> Bean_ast.symbolTableType
 val get_lvalue_stack_num : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> Bean_ast.stackNum
+val add_in_Lid_to_Last : Bean_ast.lvalue -> string -> Bean_ast.lvalue
 val codegen_var_init : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.typedefStruct -> unit
 val codegen_var_init_incr_ver : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.typedefStruct -> unit
 val codegen_param_init : ('a, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.valRef * Bean_ast.typedefStruct * 'a -> unit
@@ -28,3 +29,5 @@ val start_translate_by_function : (Bean_ast.ident * (Bean_ast.valRef * Bean_ast.
 val find_funcdef : (('a * 'b) * 'c * 'd) list -> 'a -> ('a * 'b) * 'c * 'd
 val start_test_analyzer : Bean_ast.t -> unit
 val start_analyzer : Bean_ast.t -> unit
+val codegen_store_rvalue : Bean_ast.symbolTableType -> Bean_ast.symbolTableType -> bool -> unit
+val get_symbol_hash_table_primitive_type_stack_num : Bean_ast.symbolTableType -> Bean_ast.stackNum

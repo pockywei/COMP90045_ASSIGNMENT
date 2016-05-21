@@ -2,13 +2,12 @@ open Bean_ast
 open Bean_symbol
 open Bean_codegen
 
-
 let register_count = ref (-1)
 let cur_param_ref = ref false
 
 
 
-let get_cur_LId lvalue = match lvalue with
+let rec get_cur_LId lvalue = match lvalue with
 	| LId(ident) -> ident
   | LField(lvalue,ident) -> ident
   | _ -> (Printf.printf "Error at get_cur_LId"; exit 0)
@@ -17,25 +16,7 @@ let get_rest_lvalue lvalue= match lvalue with
   | LField(lvalue,ident) -> lvalue
   | _ -> (Printf.printf "get_rest_lvalue"; exit 0)
 
-(*key should be found in the hashtable other wise it is a type error *)
-let rec process_rvalue is_ref lvalue hash_table rvalue = match rvalue with(*{a:int}, {b:int} not the same *)
-	| Rexpr(expr) -> let temp_var_stack_num = (getStackNum hash_table (get_cur_LId lvalue)) in
-     (cur_func_symbol_hash_table := hash_table ;
-		  cur_register_count := 0 ;
-		  let _ = codegen_arithmatic expr in (if is_ref
-        then (print_load "r1" temp_var_stack_num; (*assign new value to ref var*)
-          print_store_indirect "r1" "r0") (*r1 = r0 *)
-        else print_store temp_var_stack_num "r0")) (*answer is in r0 *)
-  | Rassign (inner_var,inner_rvalue) -> let temp_var_stack_num = (getStackNum hash_table inner_var) in
-  	(process_rvalue is_ref lvalue hash_table inner_rvalue;(* a := {b=12+x,c=321}*)
-  		if is_ref(*load address to register*)
-  		then 
-  			(print_load "r1" temp_var_stack_num; (*assign new value to ref var*)
-  			print_store_indirect "r1" "r0") (*r1 = r0 *)
-  		else print_store 0 "r0")
-  | Rstmts (rvalue_list) -> List.iter (process_rvalue is_ref (get_rest_lvalue lvalue) (get_hash_table_symbol (Hashtbl.find hash_table (get_cur_LId lvalue)))) rvalue_list (* a := {a=123,b=321}, if can't find in the hasb table mean error*)
-  (* a := {b= ? ,c= ?}*)
-  | _ -> (Printf.printf "rvalue processing error \n";exit 0)
+
 
 let get_symbol_hash_table_primitive_type hash_table key_name = match (Hashtbl.find hash_table key_name) with
   | S_Bool(bean_type , _) -> bean_type
@@ -43,6 +24,14 @@ let get_symbol_hash_table_primitive_type hash_table key_name = match (Hashtbl.fi
   (*| S_Struct(bean_type , _) -> bean_type*)
   | S_Ref_Int(bean_type , _) -> bean_type
   | S_Ref_Bool(bean_type , _) -> bean_type (*only return Bool or Int, typedef of {} type will cause error*)
+  | _ -> (Printf.printf "get primitive type error\n"; exit 0)
+
+let get_symbol_hash_table_primitive_type_stack_num symbol_type = match symbol_type with
+  | S_Bool(_ , stackNum) -> stackNum
+  | S_Int(_ , stackNum) -> stackNum
+  (*| S_Struct(bean_type , _) -> bean_type*)
+  | S_Ref_Int(_ , stackNum) -> stackNum
+  | S_Ref_Bool(_ ,stackNum) -> stackNum (*only return Bool or Int, typedef of {} type will cause error*)
   | _ -> (Printf.printf "get primitive type error\n"; exit 0)
 
 
@@ -123,6 +112,11 @@ let rec get_lvalue_symbol_type hash_table lvalue = match lvalue with
   	get_lvalue_symbol_type temp_hash_symbol_table lvalue_type
   | _ -> (Printf.printf"error on checking lvalue type \n"; exit 0)
 
+let rec add_in_Lid_to_Last l_field add_on_string = match l_field with 
+  | LId(ident) -> LField(LId(add_on_string),ident)
+  | LField(lvalue_type,ident) -> LField( (add_in_Lid_to_Last lvalue_type add_on_string),ident)
+  | _ -> (Printf.printf"error add_in_Lid_to_Last \n"; exit 0)
+
 (*
  let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
 	| LId(ident) -> getStackNum(Hashtbl.find hash_table ident)
@@ -131,25 +125,138 @@ let rec get_lvalue_symbol_type hash_table lvalue = match lvalue with
   | _ -> (Printf.printf"error on get stack num lvalue type \n"; exit 0)
 *)
 
+
+let rec parse_print_store symbol_struct = match symbol_struct with
+  | S_Bool(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Int(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Hash(bean_type,inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | S_Ref_Hash(bean_type,inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | S_Ref_Int(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Ref_Bool(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | _ -> (Printf.printf "error parse_print_store \n";exit 0)
+
 let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
 	| LId(ident) -> getStackNum hash_table ident
   | LField(lvalue_type,ident) -> let temp_hash_symbol_table =  get_hash_table_symbol (Hashtbl.find hash_table ident) in 
   	get_lvalue_stack_num temp_hash_symbol_table lvalue_type
   | _ -> (Printf.printf"error on get stack num lvalue type \n"; exit 0)
 
+(*
+let rec do_print_rassign is_ref lvalue hash_table expr = match (get_lvalue_symbol_type lvalue) with
+  | S_Ref_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> 
+    ) inner_hash_table )
+  | S_Hash(inner_hash_table)
+  | S_Bool(bean_type,stackNum)
+  | S_Int(bean_type,stackNum)
+  | S_Ref_Int(bean_type,stackNum)
+  | S_Ref_Bool(bean_type,stackNum)
+  | S_Intext_Hash(inner_hash_table)
+  | S_Ref_Intext_Hash(inner_hash_table)
+  | -> (Printf.printf "error do_print_rassign\n";exit 0)
+*)
+
+(*must be lvalue*)
+(*
+let codegen_load_lvalue_typedef is_ref hash_table symbol_struct = match symbol_struct with
+    | S_Ref_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Intext_Hash(inner_hash_table) ->(Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Ref_Intext_Hash(inner_hash_table) ->(Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Bool(bean_type,stackNum) -> codegen_arithmatic expr
+    | S_Int(bean_type,stackNum) -> codegen_arithmatic expr
+    | S_Ref_Int(bean_type,stackNum) -> codegen_arithmatic expr
+    | S_Ref_Bool(bean_type,stackNum) -> codegen_arithmatic expr
+    | -> (Printf.printf "error do_print_rassign\n";exit 0)
+
+
+  | _ -> (Printf.printf "type mis match from codegen_expr_typedef\n";exit 0) 
+*)
+
+let rec codegen_store_rvalue lvalue_symbol_struct expr_symbol_struct is_ref_expr = match lvalue_symbol_struct with
+  | S_Ref_Hash(bean_type,inner_hash_table) -> (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Hash(bean_type,inner_hash_table) ->  (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Intext_Hash(inner_hash_table) ->  (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Ref_Intext_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Bool(bean_type,stackNum) ->( match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_load_indirect "r0" "r0" ;
+        print_store stackNum "r0" )
+    | false -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_store stackNum "r0" ))
+  | S_Int(bean_type,stackNum) ->( match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_load_indirect "r0" "r0" ;
+        print_store stackNum "r0" )
+    | false -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_store stackNum "r0" ))
+  | S_Ref_Int(bean_type,stackNum) -> (match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_store stackNum "r0" )
+    | false -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load_address "r0" expr_stack_num ;
+        print_store stackNum"r0" ))
+  | S_Ref_Bool(bean_type,stackNum) -> (match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_store stackNum "r0" )
+    | false -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load_address "r0" expr_stack_num ;
+        print_store stackNum "r0" ))
+  | _ -> (Printf.printf "error do_print_rassign\n";exit 0)
+
+
+
+(*key should be found in the hashtable other wise it is a type error *)
+let rec process_rvalue is_ref lvalue hash_table rvalue = match rvalue with(*{a:int}, {b:int} not the same *)
+  | Rexpr( Elval(lvalue_inner) ) ->(codegen_store_rvalue (get_lvalue_symbol_type (!cur_func_symbol_hash_table) lvalue) (get_lvalue_symbol_type (!cur_func_symbol_hash_table) lvalue_inner ) (get_lvalue_ref_or_not (!cur_func_symbol_hash_table)  lvalue_inner))
+  | Rexpr(expr) -> let temp_var_stack_num = (get_lvalue_stack_num hash_table lvalue) in
+     (cur_func_symbol_hash_table := hash_table ;
+      cur_register_count := 0 ;
+      let _ = codegen_arithmatic expr in (if is_ref
+        then (print_load "r1" temp_var_stack_num; (*assign new value to ref var*)
+          print_store_indirect "r1" "r0") (*r1 = r0 *)
+        else print_store temp_var_stack_num "r0")) (*answer is in r0 *)
+  
+  | Rassign (inner_var, inner_rvalue) -> let new_lvalue = add_in_Lid_to_Last lvalue inner_var in
+        (process_rvalue is_ref new_lvalue hash_table inner_rvalue)
+  (*| Rassign (inner_var, Rexpr(expr)) -> let new_lvalue = add_in_Lid_to_Last lvalue inner_var in
+      let temp_var_stack_num = (get_lvalue_stack_num hash_table new_lvalue) in
+        (process_rvalue is_ref new_lvalue hash_table (Rexpr(expr));(* a := {b=12+x,c=321}*)
+          if is_ref(*load address to register*)
+          then 
+            (print_load "r1" temp_var_stack_num; (*assign new value to ref var*)
+            print_store_indirect "r1" "r0") (*r1 = r0 *)
+          else print_store 0 "r0")
+  | Rassign (inner_var,Rstmts (rvalue_list)) -> process_rvalue is_ref (add_in_Lid_to_Last inner_var)  (Rstmts (rvalue_list))*)
+  | Rstmts (rvalue_list) -> List.iter (process_rvalue is_ref lvalue hash_table ) rvalue_list (* a := {a=123,b=321}, if can't find in the hasb table mean error*)
+  (* a := {b= ? ,c= ?}*)
+  | _ -> (Printf.printf "rvalue processing error \n";exit 0)
+
+
 
 let rec codegen_var_init hash_table one_struct = match one_struct with
 	| SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
 			List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
 		Not_found -> (Printf.printf "codegen_var_init finding symbol table failed at ListTypeTerm\n";exit 0))
-	| SingleTypeTermWithIdent(var_name,_) -> print_store (getStackNum hash_table var_name) (get_register_string (!cur_register_count)) 
+	| SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name) 
 	| _ -> (Printf.printf "Error on initializing local var codegen_var_init\n";exit 0)
 
 let rec codegen_var_init_incr_ver hash_table one_struct =(incr cur_register_count ;match one_struct with
 	| SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
 			List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
 		Not_found -> (Printf.printf "codegen_var_init finding symbol table failed at ListTypeTerm\n";exit 0))
-	| SingleTypeTermWithIdent(var_name,_) -> print_store (getStackNum hash_table var_name) (get_register_string (!cur_register_count)) 
+	| SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name)
 	| _ -> (Printf.printf "Error on initializing local var codegen_var_init\n";exit 0))
 
 let rec codegen_param_init hash_table one_param = match one_param with
@@ -337,7 +444,7 @@ let process_calling_method_param caller_hash_table callee_hash_table one_expr_pa
 	(*| _ -> (Printf.printf "process_calling_method_param error";exit 0)*)
 
 let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := hash_table; match one_stmt with
-	| Assign(lvalue, rvalue) -> (process_rvalue (get_lvalue_ref_or_not hash_table lvalue) lvalue hash_table rvalue) (*set cur_expr_type to lvalue type, then in process_rvalue will check type*)
+	| Assign(lvalue, rvalue) -> (cur_register_count := 0;process_rvalue (get_lvalue_ref_or_not hash_table lvalue) lvalue hash_table rvalue) (*set cur_expr_type to lvalue type, then in process_rvalue will check type*)
   | Read(lvalue) ->let temp_lvalue_type = get_lvalue_type hash_table lvalue in 
   	let temp_lvalue_stack_num = (get_lvalue_stack_num hash_table lvalue) in (*ref ?*)
 	  	if(temp_lvalue_type = Int)
@@ -355,7 +462,7 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 	  					print_store_indirect "r1" "r0" )
 	  		else (print_read_bool();
 	  					print_store temp_lvalue_stack_num "r0")
-  | Write(expr) ->(cur_expr_type := BeanTypeNone; cur_register_count := 0;
+  | Write(expr) ->(top_level_expr_type:= BeanTypeNone;cur_expr_type := BeanTypeNone; cur_register_count := 0;
     if check_expr_type hash_table expr 
   	then 
   		if(!cur_expr_type = Int) (*write int, result of arithematic is in r0*)
