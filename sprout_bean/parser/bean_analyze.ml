@@ -385,10 +385,10 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 			  	print_branch_on_unc (get_label_name while_out_label);
 			  	print_label_by_number while_out_label)))
 	(*will reserve else label as well, eventhough it might have no else part*)
-  | IfDec(expr,then_stmt_list,else_stmt_list) -> let if_else_label = (!cur_label_count) in
+  | IfDec(expr,then_stmt_list,else_stmt_list) ->(cur_label_count := 0;let if_else_label = (!cur_label_count) in
   	let if_out_label= (!cur_label_count)+1 in ( cur_label_count:=(!cur_label_count)+2;
   		if(List.length (else_stmt_list))!= 0 (*if have else and condition is flase then go to else*)
-  		then (cur_register_count := -1;
+  		then (cur_register_count := 0;
   			let _ = codegen_arithmatic expr in
   			(print_branch_on_false "r0" (get_label_name if_else_label);
 	  			List.iter (codegen_one_stmt hash_table) then_stmt_list ;
@@ -399,7 +399,7 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
   		else (print_branch_on_false "r0" (get_label_name if_out_label);(*if not else and false go to out label*)
   			print_branch_on_unc (get_label_name if_out_label);
   			List.iter (codegen_one_stmt hash_table) then_stmt_list;
-  			print_label_by_number if_out_label)(* if not else directly go *) )
+  			print_label_by_number if_out_label)(* if not else directly go *) ))
   | _ -> (Printf.printf "start_translate_by_function_stmt_list error \n";exit 0))
 
 (*

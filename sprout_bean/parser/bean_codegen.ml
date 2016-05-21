@@ -256,8 +256,8 @@ let rec codegen_arithmatic expr = let local_register_count = !cur_register_count
 		local_register_count) (*codegen_Arithmatic expr alone in here cause warnning, becuase it return a single int nad is not used*)
 	| Eunop(Op_not,expr) ->let _ = codegen_arithmatic expr in (print_not (get_register_string (local_register_count)) (get_register_string (local_register_count));local_register_count) 
 	| Ebracket(expr) -> codegen_arithmatic expr
-	| Elval(lvalue) -> let temp_stack_num = get_lvalue_stack_num (!cur_func_symbol_hash_table) lvalue  in
-		(print_load (get_register_string local_register_count) temp_stack_num ; local_register_count) (* lvalue could be nested for a.x.c =>  *)
+	| Elval(lvalue) ->(incr cur_register_count;let temp_stack_num = get_lvalue_stack_num (!cur_func_symbol_hash_table) lvalue  in
+		(print_load (get_register_string local_register_count) temp_stack_num ; local_register_count)) (* lvalue could be nested for a.x.c =>  *)
 	| _ -> (Printf.printf "error at code gen ";exit 0)
 
 	(*| Eident(ident) -> (incr cur_register_count;

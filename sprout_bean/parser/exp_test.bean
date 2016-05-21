@@ -1,20 +1,12 @@
-typedef int int_temp
+# Phase 3 test case
+# If and while statements
 
-# Initialize Board State (with 0's)
-proc main ()
-    int a;
-    int b;
-    bool x;
-
-    a := 3;
-    write a;
-    write "\n";
-    b := 4;
-    write b;
-    x := true;
-    write x;
-    #x := true;
-    #write 1+(4+1)*(7+8)*3;
-    #write a;
-
+proc main()
+    int x;
+    read x;
+    if x < 50 then
+        write "Went down\n";
+    else
+        write "Went up\n";
+    fi
 end
