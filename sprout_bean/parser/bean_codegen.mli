@@ -50,4 +50,8 @@ val printBinop : Bean_ast.binop -> Bean_ast.ident
 val codegen_unop : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.unop -> unit
 val getStackNum : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> Bean_ast.stackNum
 val get_lvalue_stack_num : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> Bean_ast.stackNum
+val get_bool_ref_val_symbol_hash_table : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> bool
+val get_lvalue_ref_or_not : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> bool
 val codegen_arithmatic : Bean_ast.expr -> Bean_ast.stackNum
+val codegen_arithmatic_ref : Bean_ast.expr -> Bean_ast.stackNum
+

@@ -4,20 +4,30 @@ main:
 push_stack_frame 1
 int_const r0, 0
 store 0, r0
-call_builtin read_int
-store 0, r0
-label_0:
-load r0, 0
-int_const r1, 10
-cmp_gt_int r0, r0, r1
-branch_on_false r0, label_1
-string_const r0, "in loop \n"
+int_const r0, 4
+load r1, 0
+call p
+string_const r0, "result\n"
 call_builtin print_string
 load r0, 0
-int_const r1, 1
-sub_int r0, r0, r1
-store 0, r0
-branch_uncond label_0
-label_1:
+call_builtin print_int
+string_const r0, "\n"
+call_builtin print_string
 pop_stack_frame 1
+return
+
+p:
+push_stack_frame 2
+store 0, r0
+store 1, r1
+int_const r0, 0
+int_const r0, 2
+load r1, 0
+mul_int r0, r0, r1
+store 1, r0
+string_const r0, "out\n"
+call_builtin print_string
+load r0, 1
+call_builtin print_int
+pop_stack_frame 2
 return

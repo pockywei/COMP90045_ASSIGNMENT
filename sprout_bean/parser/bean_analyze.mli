@@ -1,5 +1,4 @@
 val register_count : Bean_ast.stackNum ref
-val cur_expr_type : Bean_ast.beantype ref
 val cur_param_ref : bool ref
 val get_cur_LId : Bean_ast.lvalue -> Bean_ast.ident
 val get_rest_lvalue : Bean_ast.lvalue -> Bean_ast.lvalue

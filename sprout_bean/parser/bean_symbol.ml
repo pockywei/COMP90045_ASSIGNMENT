@@ -1,5 +1,9 @@
 open Bean_ast
 
+let top_level_expr_type = ref BeanTypeNone (*for case like write x > 4+1;, to know that i should print bool*)
+let cur_expr_type = ref BeanTypeNone
+
+
 let cur_register_count = ref (-1)
 let cur_label_count = ref 0
 

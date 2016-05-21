@@ -1,4 +1,6 @@
 val cur_register_count : Bean_ast.stackNum ref
+val top_level_expr_type : Bean_ast.beantype ref
+val cur_expr_type : Bean_ast.beantype ref
 val cur_label_count : Bean_ast.stackNum ref
 val hash_table_size : Bean_ast.stackNum
 val stack_count : Bean_ast.stackNum ref
