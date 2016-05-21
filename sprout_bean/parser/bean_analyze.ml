@@ -463,7 +463,8 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 	  		else (print_read_bool();
 	  					print_store temp_lvalue_stack_num "r0")
   | Write(expr) ->(top_level_expr_type:= BeanTypeNone;cur_expr_type := BeanTypeNone; cur_register_count := 0;
-    if check_expr_type hash_table expr 
+    check_expr_type hash_table expr ;
+    if true
   	then 
   		if(!cur_expr_type = Int) (*write int, result of arithematic is in r0*)
   		then 
@@ -488,8 +489,8 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 	  	let while_out_label = (!cur_label_count) + 1 in 
 		  	(print_label_by_number while_label;
           cur_label_count := (!cur_label_count) + 2;
-		  		let _ = codegen_arithmatic expr in (*compare condition *)
-			  	(print_branch_on_false "r0" (get_label_name while_out_label); (*branch is different to call .*)
+		  		let result_register = codegen_arithmatic expr in (*compare condition *)
+			  	(print_branch_on_false (get_register_string result_register) (get_label_name while_out_label); (*branch is different to call .*)
 			  	List.iter (codegen_one_stmt hash_table) stmt_list; (**)
 			  	print_branch_on_unc (get_label_name while_label);
 			  	print_label_by_number while_out_label)))
@@ -498,16 +499,16 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
   	let if_out_label= (!cur_label_count)+1 in ( cur_label_count:=(!cur_label_count)+2;
   		if(List.length (else_stmt_list))!= 0 (*if have else and condition is flase then go to else*)
   		then (cur_register_count := 0;
-  			let _ = codegen_arithmatic expr in
-  			(print_branch_on_false "r0" (get_label_name if_else_label);
+  			let result_register = codegen_arithmatic expr in
+  			(print_branch_on_false (get_register_string result_register) (get_label_name if_else_label);
 	  			List.iter (codegen_one_stmt hash_table) then_stmt_list ;
 	  			print_branch_on_unc (get_label_name if_out_label);
 	  			print_label_by_number if_else_label;
 	  			List.iter (codegen_one_stmt hash_table) else_stmt_list;(*if false go to else label, if true say in and jump uncondition to out label*)
 	  			print_label_by_number if_out_label))
   		else (cur_register_count := 0;
-        let _ = codegen_arithmatic expr in 
-          (print_branch_on_false "r0" (get_label_name if_out_label);(*if not else and false go to out label*)
+        let result_register = codegen_arithmatic expr in 
+          (print_branch_on_false (get_register_string result_register) (get_label_name if_out_label);(*if not else and false go to out label*)
   			   List.iter (codegen_one_stmt hash_table) then_stmt_list;
   			   print_label_by_number if_out_label))))(* if not else directly go *) 
   | _ -> (Printf.printf "start_translate_by_function_stmt_list error \n";exit 0))
@@ -556,7 +557,7 @@ let rec find_funcdef funcdefs func_name = try match (List.hd funcdefs) with
 let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
 		build_symbol_table_hash_all (prog.funcdefs);
 		(*build_func_method_param_order_hash_table (prog.funcdefs);*)
-
+(*
 		Printf.printf "----- Start Printing typdef_table_hash -----\n";
 		print_out_one_typedef_table typdef_table_hash;
 		Printf.printf "----- End Printing typdef_table_hash -----\n";
@@ -573,7 +574,7 @@ let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
 		print_func_stack_num_hash func_stack_num_hash;
 		Printf.printf "----- End Printing func_stack_num_hash -----\n";
 
-		Printf.printf "----- Start Generating Oz Code -----\n";
+		Printf.printf "----- Start Generating Oz Code -----\n";*)
 		print_call "main";
 		print_halt ();
 (*!= compare address ...*)
@@ -581,8 +582,7 @@ let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
 			(start_translate_by_function main_def;
 
 		  List.iter (fun x ->( match x with 
-        |((func_name,_),_,_) -> if not (func_name = "main") then start_translate_by_function x  )) prog.funcdefs;
-			Printf.printf "----- End Generating Oz Code -----\n"))
+        |((func_name,_),_,_) -> if not (func_name = "main") then start_translate_by_function x  )) prog.funcdefs))
 
 let start_analyzer prog = (build_typedef_table_hash (prog.typedefs);
 		build_symbol_table_hash_all (prog.funcdefs))

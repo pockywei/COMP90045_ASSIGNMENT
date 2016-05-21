@@ -54,11 +54,12 @@ let main () =
             (* Call the parser *)
             let prog = Bean_parse.start_state Bean_lex.token lexbuf in
             match !mode with
-            | PrettyPrint ->start_test_analyzer prog
+            | PrettyPrint ->Printf.printf "pretty print disable\n"
+            (*start_test_analyzer prog*)
                 (*codegen_stmts (List.hd prog.funcdefs)*)
               (*Bean_pprint.print_program Format.std_formatter prog *)
 
-            | Compile -> Printf.eprintf "Sorry, cannot compile yet.\n"
+            | Compile -> start_test_analyzer prog
         with
             (* Handle suitable message for parsing and lexing error *)
             | Parsing.Parse_error -> printError "Syntax error" lexbuf
