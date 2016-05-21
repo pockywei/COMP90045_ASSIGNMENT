@@ -1,7 +1,7 @@
 open Bean_ast
 
-let cur_register_count = ref 0
-let cur_label_count = ref 0
+let cur_register_count = ref (-1)
+let cur_label_count = ref (-1)
 
 let hash_table_size = 20
 
@@ -74,7 +74,7 @@ let rec build_symbol_table_self_type hash_table typedef_hash_table = Hashtbl.ite
 
 (*key can be used to represent name*)
 let rec build_symbol_table_typedefStruct_list  hashtable typedefStruct_list = List.iter (fun x -> (
-	stack_count:= !stack_count + 1;
+	incr stack_count;
 	match x with
 		| SingleTypeTermWithIdent(var_name,SingleTypeTerm(Bool)) -> Hashtbl.add hashtable var_name (S_Bool(Bool,!stack_count));
 		| SingleTypeTermWithIdent(var_name,SingleTypeTerm(Int)) -> Hashtbl.add hashtable var_name (S_Int(Int,!stack_count));
@@ -93,7 +93,7 @@ let rec build_symbol_table_typedefStruct_list  hashtable typedefStruct_list = Li
 
 
 let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.iter (fun x -> ( 
-	stack_count := !stack_count + 1;
+	incr stack_count;
 	match x with
 		| (Val , SingleTypeTerm(Bool) , param_name) -> Hashtbl.add hash_table param_name (S_Bool(Bool,!stack_count))
 		| (Val , SingleTypeTerm(Int) , param_name) -> Hashtbl.add hash_table param_name (S_Int(Int,!stack_count))
@@ -101,11 +101,11 @@ let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.
 			match temp_type with
 					|Typedef_Struct_Sinlge_Type (Bool) ->Hashtbl.add hash_table param_name (S_Bool(Bool,!stack_count))
 					|Typedef_Struct_Sinlge_Type (Int) ->Hashtbl.add hash_table param_name (S_Int(Int,!stack_count))
-					|Typedef_Struct (typdef_hash_table) -> (stack_count:= !stack_count - 1;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
+					|Typedef_Struct (typdef_hash_table) -> (decr stack_count;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
 						Hashtbl.add hash_table param_name (S_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
 						build_symbol_table_self_type (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typdef_hash_table ) (* according to type name get the corresponding hash table *)
 					|_ -> (Printf.printf "build symbol table failed \n";exit 0))
-		|	(Val , ListTypeTerm(typedefStruct_list) , param_name) -> (Hashtbl.add hash_table param_name (S_Intext_Hash(Hashtbl.create hash_table_size));
+		| (Val , ListTypeTerm(typedefStruct_list) , param_name) -> (decr stack_count;Hashtbl.add hash_table param_name (S_Intext_Hash(Hashtbl.create hash_table_size));
 			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typedefStruct_list)  (* {a:int } a *)
 		| (Ref , SingleTypeTerm(Bool) , param_name) ->  Hashtbl.add hash_table param_name (S_Ref_Bool(Bool,!stack_count));
 		| (Ref , SingleTypeTerm(Int) , param_name) ->  Hashtbl.add hash_table param_name (S_Ref_Int(Int,!stack_count));
@@ -113,11 +113,11 @@ let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.
 			match temp_type with
 					|Typedef_Struct_Sinlge_Type (Bool) ->Hashtbl.add hash_table param_name (S_Ref_Bool(Bool,!stack_count))
 					|Typedef_Struct_Sinlge_Type (Int) ->Hashtbl.add hash_table param_name (S_Ref_Int(Int,!stack_count))
-					|Typedef_Struct (typdef_hash_table) -> (stack_count:= !stack_count - 1;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
+					|Typedef_Struct (typdef_hash_table) -> (decr stack_count;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
 						Hashtbl.add hash_table param_name (S_Ref_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
 						build_symbol_table_self_type (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typdef_hash_table )
 					|_ -> (Printf.printf "build symbol table failed ";exit 0))
-		|	(Ref , ListTypeTerm(typedefStruct_list) , param_name) -> (Hashtbl.add hash_table param_name (S_Ref_Intext_Hash(Hashtbl.create hash_table_size));
+		|	(Ref , ListTypeTerm(typedefStruct_list) , param_name) -> (decr stack_count;Hashtbl.add hash_table param_name (S_Ref_Intext_Hash(Hashtbl.create hash_table_size));
 			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typedefStruct_list )  (* {a:int } a *)
 		| _ -> (Printf.printf "funcDecParam error. \n"; exit 0 ))) funcDecParamList
 

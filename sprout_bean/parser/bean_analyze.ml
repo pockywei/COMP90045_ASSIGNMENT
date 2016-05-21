@@ -20,9 +20,10 @@ let get_rest_lvalue lvalue= match lvalue with
 
 (*key should be found in the hashtable other wise it is a type error *)
 let rec process_rvalue is_ref lvalue hash_table rvalue = match rvalue with(*{a:int}, {b:int} not the same *)
-	| Rexpr(expr) -> (cur_func_symbol_hash_table := hash_table ;
-		cur_register_count := 0 ;
-		let _ = codegen_arithmatic expr in Printf.printf "") (*answer is in r0 *)
+	| Rexpr(expr) -> let temp_var_stack_num = (getStackNum hash_table (get_cur_LId lvalue)) in
+     (cur_func_symbol_hash_table := hash_table ;
+		  cur_register_count := 0 ;
+		  let _ = codegen_arithmatic expr in (print_store temp_var_stack_num "r0")) (*answer is in r0 *)
   | Rassign (inner_var,inner_rvalue) -> let temp_var_stack_num = (getStackNum hash_table inner_var) in
   	(process_rvalue is_ref lvalue hash_table inner_rvalue;(* a := {b=12+x,c=321}*)
   		if is_ref(*load address to register*)
@@ -150,6 +151,9 @@ let rec codegen_var_init_incr_ver hash_table one_struct =(incr cur_register_coun
 	| _ -> (Printf.printf "Error on initializing local var codegen_var_init\n";exit 0))
 
 let rec codegen_param_init hash_table one_param = match one_param with
+  | (Val , ListTypeTerm(typedefStruct_list) , param_name) ->(try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table param_name) in
+      List.iter (codegen_var_init_incr_ver temp_hash_symbol_table) typedefStruct_list with
+    Not_found -> (Printf.printf "find hash failed codegen_param_init\n";exit 0))
 	| (Ref , ListTypeTerm(typedefStruct_list) , param_name) ->(try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table param_name) in
 			List.iter (codegen_var_init_incr_ver temp_hash_symbol_table) typedefStruct_list with
 		Not_found -> (Printf.printf "find hash failed codegen_param_init\n";exit 0))
@@ -349,7 +353,8 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 	  					print_store_indirect "r1" "r0" )
 	  		else (print_read_bool();
 	  					print_store temp_lvalue_stack_num "r0")
-  | Write(expr) -> if check_expr_type hash_table expr 
+  | Write(expr) ->(cur_expr_type := BeanTypeNone; cur_register_count := 0;
+    if check_expr_type hash_table expr 
   	then 
   		if(!cur_expr_type = Int) (*write int, result of arithematic is in r0*)
   		then 
@@ -359,9 +364,10 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
   			  match !cur_expr_type with (*write string*)
   				| IdentType(string_temp) -> (print_string_const (get_register_string 0) string_temp;
   					print_print_string())
+          | Bool -> (let _ =codegen_arithmatic expr in
+          print_print_bool())
   				| _ -> (Printf.printf "type error when writing a string\n";exit 0)
-  				
-		else (Printf.printf "write check type failed \n" ; exit 0)
+		else (Printf.printf "write check type failed \n" ; exit 0))
   | Method(method_name, expr_params_list) ->(register_count := -1;
   	print_call method_name;
   	let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find symbol_table_hash method_name) in (*callee hashtable*)
@@ -406,7 +412,7 @@ let check_one_stmt_type stmt_data type_data = (*write, read, assign, *)
 
 let start_translate_by_function_declaration func_name one_functionDeclaration = match one_functionDeclaration with
 	|(func_name,funcDecParamList) -> (cur_register_count := -1;
-		print_label_by_function_name func_name;
+		print_label_by_function_name func_name; (*start each label body*)
 		(try let function_symbol_table_hash = get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name) in
 			(print_push_stack_frame (Hashtbl.find func_stack_num_hash func_name);
 				List.iter (fun x -> (incr cur_register_count;
@@ -429,6 +435,7 @@ let start_translate_by_function one_funcdef = match one_funcdef with
 	|((func_name,func_param_list),typedefStruct_list,stmt_list) ->(start_translate_by_function_declaration func_name (func_name,func_param_list);
 		start_translate_by_function_variable_declaration func_name typedefStruct_list;
 		start_translate_by_function_stmt_list func_name stmt_list;
+    print_pop_stack_frame (Hashtbl.find func_stack_num_hash func_name); (*pop stack at the end of function body*)
 		print_return ())
 
 (*syntax ?*)
