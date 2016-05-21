@@ -375,17 +375,17 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 		  	(if (List.length expr_params_list) = (List.length temp_param_list)
 		  	then (List.iter2 (fun first second -> (let _ = process_calling_method_param hash_table temp_hash_symbol_table first second in Printf.printf "")) expr_params_list temp_param_list )
 		  	else (Printf.printf "short for params for calling %s\n" method_name;exit 0)))
-  | WhileDec(expr, stmt_list) -> (print_label_by_number !cur_label_count;
-  	let while_label = (!cur_label_count) in 
+  | WhileDec(expr, stmt_list) -> (let while_label = (!cur_label_count) in 
 	  	let while_out_label = (!cur_label_count) + 1 in 
-		  	(cur_label_count := (!cur_label_count) + 2;
+		  	(print_label_by_number while_label;
+          cur_label_count := (!cur_label_count) + 2;
 		  		let _ = codegen_arithmatic expr in (*compare condition *)
-			  	(print_branch_on_false "r0" (get_label_name while_label); (*branch is different to call .*)
+			  	(print_branch_on_false "r0" (get_label_name while_out_label); (*branch is different to call .*)
 			  	List.iter (codegen_one_stmt hash_table) stmt_list; (**)
-			  	print_branch_on_unc (get_label_name while_out_label);
+			  	print_branch_on_unc (get_label_name while_label);
 			  	print_label_by_number while_out_label)))
 	(*will reserve else label as well, eventhough it might have no else part*)
-  | IfDec(expr,then_stmt_list,else_stmt_list) ->(cur_label_count := 0;let if_else_label = (!cur_label_count) in
+  | IfDec(expr,then_stmt_list,else_stmt_list) ->(let if_else_label = (!cur_label_count) in
   	let if_out_label= (!cur_label_count)+1 in ( cur_label_count:=(!cur_label_count)+2;
   		if(List.length (else_stmt_list))!= 0 (*if have else and condition is flase then go to else*)
   		then (cur_register_count := 0;
