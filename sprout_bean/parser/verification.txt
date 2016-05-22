@@ -1,0 +1,2656 @@
+============================================
+vis/bingfengl.out
+19:15:00_Sunday_22_May_2016
+============================================
+COMP90045 project stage 3 - Test of the Bean compiler
+User:  bingfengl
+
+--- Makefile found ---
+--- Running Makefile ---
+ocamlc  -c bean_ast.mli
+ocamlopt  -g -c bean_ast.ml
+ocamlyacc bean_parse.mly
+ocamlc  -c bean_parse.mli
+ocamlopt  -g -c bean_parse.ml
+ocamllex bean_lex.mll
+97 states, 5826 transitions, table size 23886 bytes
+ocamlopt  -g -c bean_lex.ml
+ocamlc  -c bean_pprint.mli
+ocamlopt  -g -c bean_pprint.ml
+ocamlc  -c bean_symbol.mli
+ocamlopt  -g -c bean_symbol.ml
+ocamlc  -c bean_codegen.mli
+ocamlopt  -g -c bean_codegen.ml
+ocamlc  -c bean_analyze.mli
+ocamlopt  -g -c bean_analyze.ml
+ocamlopt  -g -c bean.ml
+ocamlopt -g -o bean bean_ast.cmx bean_lex.cmx bean_parse.cmx bean_pprint.cmx bean_symbol.cmx bean_codegen.cmx bean_analyze.cmx bean.cmx
+
+--- Succeeded ---
+
+
+PLEASE NOTE: These cases are very basic and are not intended to be
+comprehensive. Passing these does not guarantee a correct compiler!
+
+--- Running basic test of each milestone ---
+Milestone 1: Expressions and write statement
+PASS
+Milestone 2: Read and assignment statements
+PASS
+Milestone 3: If and while statements
+PASS
+Milestone 4: Procedure arguments and calls (by-value only)
+PASS
+Milestone 5: By-reference arguments
+PASS
+Milestone 6: Structures
+PASS
+Milestone 7: Semantic errors
+PASS:
+Compiler output:
+Fatal error: exception Failure("process_calling_method_param error => then match one_expr_param with
+")
+
+--- Running simple tests ---
+vis/*.bean)
+bell:               PASS
+fib:                PASS
+gcd:                PASS
+hail:               PASS
+power:              PASS
+tute_question_42:   PASS
+tute_question_44:   PASS
+7/7 cases passed
+
+--- Running peer-contributed tests ---
+(made_avail/*.bean)
+allgood:            PASS
+antiOcaml:          PASS
+beyondasciiart:     PASS
+buffalo:            PASS
+cocoa:              PASS
+Cromwell:           PASS
+emc:                PASS
+half:               PASS
+HAX:                PASS
+HighSkill:          PASS
+Kylin:              PASS
+LamentingLexers:    PASS
+Legumes:            PASS
+nxgencompiler.bad:  PASS:
+Compiler output:
+Fatal error: exception Failure("get stack num error
+")
+nxgencompiler:      PASS
+OEucalyptBean:      PASS
+pli:                PASS
+ramen:              PASS
+random:             PASS
+togetherness:       PASS
+20/20 cases passed
+
+
+--- End of testing for bingfengl ---
+
+============================================
+src/bean_analyze.mli
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the ast file contains the methods for code semantic analysing
+ *
+ *
+ *
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+(* keep track of register count*)
+val register_count : Bean_ast.stackNum ref
+(* is current param Ref?*)
+val cur_param_ref : bool ref
+(* get current LId from lvaue*)
+val get_cur_LId : Bean_ast.lvalue -> Bean_ast.ident
+(* get the rest of lvalue*)
+val get_rest_lvalue : Bean_ast.lvalue -> Bean_ast.lvalue
+(* try to generate code for rvalue*)
+val process_rvalue : bool -> Bean_ast.lvalue -> (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.rvalue -> unit
+(* get the beantype from the symbol type struct*)
+val get_symbol_hash_table_primitive_type : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> Bean_ast.beantype
+(* matching type of expr with curren expr*)
+val expr_type_match_with_cur_expr_type : Bean_ast.beantype -> bool
+(* get type from lvalue*)
+val get_lvalue_type : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> Bean_ast.beantype
+(* check expr type*)
+val check_expr_type : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.expr -> bool
+(* get variable stack number from symbol type struct*)
+val getStackNum : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> Bean_ast.stackNum
+(* check symbol table struct is Ref or Val from hash table*)
+val get_bool_ref_val_symbol_hash_table : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> bool
+(* check symbol table struct is Ref or Val*)
+val get_bool_ref_val_symbol_type : Bean_ast.symbolTableType -> bool
+(* check lavalue is Ref or not*)
+val get_lvalue_ref_or_not : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> bool
+(* get symbol table struct from lvalue*)
+val get_lvalue_symbol_type : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> Bean_ast.symbolTableType
+(* get stack number from lvalue*)
+val get_lvalue_stack_num : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> Bean_ast.stackNum
+(* add LId to the last of lvalue*)
+val add_in_Lid_to_Last : Bean_ast.lvalue -> string -> Bean_ast.lvalue
+(* generate code for variable initialization*)
+val codegen_var_init : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.typedefStruct -> unit
+(* code generation fo variable initialization*)
+val codegen_var_init_incr_ver : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.typedefStruct -> unit
+(* code generation for parameters*)
+val codegen_param_init : (string, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.valRef * Bean_ast.typedefStruct * string -> unit
+(* check symbol struct equality regardless Val or Ref*)
+val check_ref_val_type_equal : Bean_ast.symbolTableType -> Bean_ast.symbolTableType -> bool
+(* converting an expr to symbl type struct*)
+val convert_one_expr_param_to_symbol_type : Bean_ast.expr -> Bean_ast.symbolTableType
+(* use symbol type struct to get corresponding stack num*)
+val gen_symbol_type_to_register : Bean_ast.symbolTableType -> bool -> bool -> unit
+(* code generating for calling a method*)
+val process_calling_method_param : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.expr -> Bean_ast.valRef * 'a * Bean_ast.ident -> Bean_ast.stackNum
+(* co generation for each statments in the method body*)
+val codegen_one_stmt : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.stmt -> unit
+(* start code translation the function declaration *)
+val start_translate_by_function_declaration : 'a -> Bean_ast.ident * (Bean_ast.valRef * Bean_ast.typedefStruct * Bean_ast.ident) list -> unit
+(* start code tranlation for variable initialization*)
+val start_translate_by_function_variable_declaration : Bean_ast.ident -> Bean_ast.typedefStruct list -> unit
+(* start code translation for method statment body*)
+val start_translate_by_function_stmt_list : Bean_ast.ident -> Bean_ast.stmt list -> unit
+(* start code translation function by function*)
+val start_translate_by_function : (Bean_ast.ident * (Bean_ast.valRef * Bean_ast.typedefStruct * Bean_ast.ident) list) * Bean_ast.typedefStruct list * Bean_ast.stmt list -> unit
+(* funding function structs according to function name*)
+val find_funcdef : (('a * 'b) * 'c * 'd) list -> 'a -> ('a * 'b) * 'c * 'd
+(* start analyzing*)
+val start_test_analyzer : Bean_ast.t -> unit
+(* start analyzing code*)
+val start_analyzer : Bean_ast.t -> unit
+(* generate code for store rvalue to lvalue*)
+val codegen_store_rvalue : Bean_ast.symbolTableType -> Bean_ast.symbolTableType -> bool -> unit
+(* get primitive struct types's stack num*)
+val get_symbol_hash_table_primitive_type_stack_num : Bean_ast.symbolTableType -> Bean_ast.stackNum
+(* generate all the fields initialization for typedef*)
+val codgen_all_param_fields : Bean_ast.symbolTableType -> (string, Bean_ast.symbolTableType) Hashtbl.t -> unit============================================
+src/bean_symbol.ml
+19:14:55_Sunday_22_May_2016
+============================================
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+open Bean_ast
+(*for case like write x > 4+1;, to know that i should print bool*)
+let top_level_expr_type = ref BeanTypeNone 
+let cur_expr_type = ref BeanTypeNone
+
+
+let cur_register_count = ref (-1)
+let cur_label_count = ref 0
+
+let hash_table_size = 20
+
+let stack_count = ref (-1)
+
+(*cur method*)
+let symbol_table_hash = Hashtbl.create hash_table_size
+
+(*typedefs*)
+let typdef_table_hash = Hashtbl.create hash_table_size
+
+let func_stack_num_hash = Hashtbl.create hash_table_size (* local variables *)
+
+let func_param_symbol_table_hash = Hashtbl.create hash_table_size (* params  *)
+
+let cur_func_symbol_hash_table = ref (Hashtbl.create hash_table_size)
+
+let func_param_order_hash_table = Hashtbl.create hash_table_size
+
+
+(*record number of stack needed*)
+let symbol_table_stackNum_hash = Hashtbl.create hash_table_size
+
+let get_hash_table_typedef typedefTableType = match typedefTableType with
+	| Typedef_Struct(hash_table) -> hash_table
+	| _ -> (Printf.printf "get typedef hash failed "; exit 0)
+
+let get_hash_table_symbol symbolTableType = match symbolTableType with
+	| S_Hash(_,hash_table) -> hash_table
+	| S_Ref_Hash(_,hash_table) -> hash_table
+	| S_Intext_Hash(hash_table) -> hash_table
+  	| S_Ref_Intext_Hash(hash_table) -> hash_table
+  	| S_Func(hash_table) -> hash_table
+	| _ -> (Printf.printf "get symbol hash failed "; exit 0)
+
+
+
+let rec build_one_typedef_table_hash_ hash_table typedefStruct_list = (List.iter (fun x -> 
+	match x with
+	| SingleTypeTermWithIdent(ident,SingleTypeTerm(IdentType(type_name))) -> (try Hashtbl.add hash_table ident (Hashtbl.find typdef_table_hash type_name) with Not_found ->(Printf.printf "type not found %s" type_name;exit 0))
+	| SingleTypeTermWithIdent(ident,SingleTypeTerm(bean_type)) -> (Hashtbl.add hash_table ident (Typedef_Struct_Sinlge_Type(bean_type)))
+	| SingleTypeTermWithIdent(ident,ListTypeTerm(typedefStruct_list_inner)) ->(Hashtbl.add hash_table ident (Typedef_Struct(Hashtbl.create hash_table_size));
+		build_one_typedef_table_hash_ (get_hash_table_typedef (Hashtbl.find hash_table ident)) typedefStruct_list_inner)
+	| _ ->(raise (Failure  "unexpect typedefStruct "))
+	) typedefStruct_list)
+
+let build_one_typedef_table_hash one_typdef = match one_typdef with
+	| (SingleTypeTerm(Bool),ident) -> Hashtbl.add typdef_table_hash ident (Typedef_Struct_Sinlge_Type(Bool))(*typedefs : (typedefStruct*ident) list;*)
+	| (SingleTypeTerm(Int),ident) -> Hashtbl.add typdef_table_hash ident (Typedef_Struct_Sinlge_Type(Int))
+	| (ListTypeTerm(typedefStruct_list),ident) -> (Hashtbl.add typdef_table_hash ident (Typedef_Struct(Hashtbl.create hash_table_size));
+		build_one_typedef_table_hash_ (get_hash_table_typedef (Hashtbl.find typdef_table_hash ident)) typedefStruct_list)
+	| (SingleTypeTerm(IdentType type_name),ident) ->(try Hashtbl.add typdef_table_hash ident (Hashtbl.find typdef_table_hash type_name) with Not_found -> (Printf.printf "Typedef order error ,adding type => %s ,finding type => %s\n" ident type_name; exit 0) )
+	| _ ->(raise (Failure  "build_one_typedef_table_hash error "))
+
+let build_typedef_table_hash typdefs = List.iter (build_one_typedef_table_hash) typdefs
+
+
+
+let rec build_symbol_table_self_type_ref hash_table typedef_hash_table_temp = Hashtbl.iter (fun key value ->( 
+	stack_count:= !stack_count + 1;
+	match value with
+		|Typedef_Struct_Sinlge_Type (Bool) ->Hashtbl.add hash_table key (S_Ref_Bool(Bool,!stack_count))
+		|Typedef_Struct_Sinlge_Type (Int) ->Hashtbl.add hash_table key (S_Ref_Int(Int,!stack_count))
+		|Typedef_Struct (inner_typdef_hash_table) -> (
+			stack_count:= !stack_count - 1;
+			Hashtbl.add hash_table key (S_Ref_Hash(IdentType(key),Hashtbl.create hash_table_size));
+			build_symbol_table_self_type_ref (get_hash_table_symbol (Hashtbl.find hash_table key)) inner_typdef_hash_table )
+		| _ -> (raise (Failure  "symbol table self type error \n"))
+	)) typedef_hash_table_temp
+
+let rec build_symbol_table_self_type hash_table typedef_hash_table_temp = Hashtbl.iter (fun key value ->( 
+	stack_count:= !stack_count + 1;
+	match value with
+		|Typedef_Struct_Sinlge_Type (Bool) ->Hashtbl.add hash_table key (S_Bool(Bool,!stack_count))
+		|Typedef_Struct_Sinlge_Type (Int) ->Hashtbl.add hash_table key (S_Int(Int,!stack_count))
+		|Typedef_Struct (inner_typdef_hash_table) -> (
+			stack_count:= !stack_count - 1;
+			Hashtbl.add hash_table key (S_Hash(IdentType(key),Hashtbl.create hash_table_size));
+			build_symbol_table_self_type (get_hash_table_symbol (Hashtbl.find hash_table key)) inner_typdef_hash_table )
+		| _ -> (raise (Failure  "symbol table self type error \n"))
+	)) typedef_hash_table_temp
+(*Hashtbl.add hash_table (key_prefix^"."^key) *)
+
+
+(*key can be used to represent name*)
+let rec build_symbol_table_typedefStruct_list  hashtable typedefStruct_list = List.iter (fun x -> (
+	incr stack_count;
+	match x with
+		| SingleTypeTermWithIdent(var_name,SingleTypeTerm(Bool)) -> Hashtbl.add hashtable var_name (S_Bool(Bool,!stack_count));
+		| SingleTypeTermWithIdent(var_name,SingleTypeTerm(Int)) -> Hashtbl.add hashtable var_name (S_Int(Int,!stack_count));
+		| SingleTypeTermWithIdent(var_name,SingleTypeTerm(IdentType(type_name))) -> (let temp_type = Hashtbl.find typdef_table_hash type_name in
+			match temp_type with
+					|Typedef_Struct_Sinlge_Type (Bool) ->Hashtbl.add hashtable var_name (S_Bool(Bool,!stack_count)) (*dont need ref ?*)
+					|Typedef_Struct_Sinlge_Type (Int) ->Hashtbl.add hashtable var_name (S_Int(Int,!stack_count))
+					|Typedef_Struct (typdef_hash_table_inner) -> (
+						stack_count:= !stack_count - 1;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
+						Hashtbl.add hashtable var_name (S_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
+						build_symbol_table_self_type (get_hash_table_symbol(Hashtbl.find hashtable var_name)) typdef_hash_table_inner ) (* according to type name get the corresponding hash table *)
+					|_ -> (raise (Failure  "build symbol table failed ")))
+		| SingleTypeTermWithIdent(var_name, ListTypeTerm(typedefStruct_list_inner)) ->(Hashtbl.add hashtable var_name (S_Intext_Hash(Hashtbl.create hash_table_size));(*if got one ref mean whole ref*)
+			build_symbol_table_typedefStruct_list (get_hash_table_symbol (Hashtbl.find hashtable var_name)) typedefStruct_list_inner )
+		| _ -> (raise (Failure  "build symbol table failed outer")))) typedefStruct_list
+
+
+let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.iter (fun x -> ( 
+	incr stack_count;
+	match x with
+		| (Val , SingleTypeTerm(Bool) , param_name) -> Hashtbl.add hash_table param_name (S_Bool(Bool,!stack_count))
+		| (Val , SingleTypeTerm(Int) , param_name) -> Hashtbl.add hash_table param_name (S_Int(Int,!stack_count))
+		| (Val , SingleTypeTerm(IdentType(type_name)) , param_name) ->(let temp_type = Hashtbl.find typdef_table_hash type_name in
+			match temp_type with
+					|Typedef_Struct_Sinlge_Type (Bool) ->Hashtbl.add hash_table param_name (S_Bool(Bool,!stack_count))
+					|Typedef_Struct_Sinlge_Type (Int) ->Hashtbl.add hash_table param_name (S_Int(Int,!stack_count))
+					|Typedef_Struct (typdef_hash_table_inner) -> (decr stack_count;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
+						Hashtbl.add hash_table param_name (S_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
+						build_symbol_table_self_type (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typdef_hash_table_inner ) (* according to type name get the corresponding hash table *)
+					|_ -> (raise (Failure  "build symbol table failed \n")))
+		| (Val , ListTypeTerm(typedefStruct_list) , param_name) -> (decr stack_count;Hashtbl.add hash_table param_name (S_Intext_Hash(Hashtbl.create hash_table_size));
+			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typedefStruct_list)  (* {a:int } a *)
+		| (Ref , SingleTypeTerm(Bool) , param_name) ->  Hashtbl.add hash_table param_name (S_Ref_Bool(Bool,!stack_count));
+		| (Ref , SingleTypeTerm(Int) , param_name) ->  Hashtbl.add hash_table param_name (S_Ref_Int(Int,!stack_count));
+		| (Ref , SingleTypeTerm(IdentType(type_name)) , param_name) ->(let temp_type = Hashtbl.find typdef_table_hash type_name in
+			match temp_type with
+					|Typedef_Struct_Sinlge_Type (Bool) ->Hashtbl.add hash_table param_name (S_Ref_Bool(Bool,!stack_count))
+					|Typedef_Struct_Sinlge_Type (Int) ->Hashtbl.add hash_table param_name (S_Ref_Int(Int,!stack_count))
+					|Typedef_Struct (typdef_hash_table_inner) -> (decr stack_count;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
+						Hashtbl.add hash_table param_name (S_Ref_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
+						build_symbol_table_self_type_ref (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typdef_hash_table_inner )
+					|_ -> (raise (Failure  "build symbol table failed ")))
+		|	(Ref , ListTypeTerm(typedefStruct_list) , param_name) -> (decr stack_count;Hashtbl.add hash_table param_name (S_Ref_Intext_Hash(Hashtbl.create hash_table_size));
+			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typedefStruct_list )  (* {a:int } a *)
+		| _ -> (raise (Failure  "funcDecParam error. \n") ))) funcDecParamList
+
+
+
+
+(*initial function name and its corresponding type is in type S_Hash*)
+
+(*check duplicate function name in here ?*)
+let build_symbol_table_hash_all funcDefs= List.iter (fun x ->(
+	stack_count := -1;
+	match x with
+		|((func_name,funcDecParamList),typedefStruct_list,_) ->(Hashtbl.add symbol_table_hash func_name (S_Func((Hashtbl.create hash_table_size)));(*func name is stored*)
+			(*Hashtbl.add func_param_symbol_table_hash func_name (S_Func((Hashtbl.create hash_table_size)));*)
+			build_symbol_table_hash_funcDecParamList (get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name)) funcDecParamList;
+			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name)) typedefStruct_list;
+			Hashtbl.add func_stack_num_hash func_name (!stack_count+1);
+			Hashtbl.add func_param_order_hash_table func_name x (*param struct added *)
+			))) funcDefs
+
+let print_func_stack_num_hash func_stack_num_hash = (Printf.printf "----- Start Printing func_stack_num_hash -----\n" ;
+		Hashtbl.iter (fun key value -> Printf.printf "Function name => %s, Function Max Stack Num => %d\n" key value ) func_stack_num_hash;
+		Printf.printf "----- End Printing func_stack_num_hash -----\n" )
+
+(*				| S_Struct(bean_type,stack_num)-> Printf.printf " type => ident , stack number => %d  \n" stack_num  (*struct name, *)
+				| S_Ref_Struct(bean_type,stack_num)-> Printf.printf " Ref type => ident , stack number => %d  \n" stack_num  (*struct name, *)
+
+			REAMOVED *)
+let rec print_out_one_symbol_table one_symbol_table = (Printf.printf "----- Start Printing Sub Symbol Table -----\n";
+	Hashtbl.iter (fun key value ->( 
+		Printf.printf "Name  => %s ," key;
+			match value with
+				| S_Func(sub_symbol_table) -> (Printf.printf " Function Type => :";
+						print_out_one_symbol_table sub_symbol_table)
+				| S_Ref_Hash(IdentType(type_name),sub_symbol_table) ->(Printf.printf " Ref type => %s : \n" type_name;
+						print_out_one_symbol_table sub_symbol_table)(*self def type*)
+				| S_Hash(IdentType(type_name),sub_symbol_table) ->(Printf.printf " type => %s : \n" type_name;
+						print_out_one_symbol_table sub_symbol_table)(*self def type*)
+				| S_Bool(bean_type,stack_num) -> Printf.printf " type => Bool , stack number => %d  \n" stack_num (*Int => stack num*)
+				| S_Int(bean_type,stack_num) -> Printf.printf " type => Int , stack number => %d  \n" stack_num 
+				| S_Intext_Hash(sub_symbol_table)->(Printf.printf " Intext Type => :";
+						print_out_one_symbol_table sub_symbol_table)
+				| S_Ref_Int(bean_type,stack_num) -> Printf.printf " Ref type => Bool , stack number => %d  \n" stack_num 
+				| S_Ref_Bool(bean_type,stack_num) -> Printf.printf " Ref type => Bool , stack number => %d  \n" stack_num 
+				| S_Ref_Intext_Hash(sub_symbol_table)->(Printf.printf " Intext Type => :";
+						print_out_one_symbol_table sub_symbol_table)
+				| _ -> (Printf.printf " print_out_one_symbol_table error \n";exit 0)
+	)) one_symbol_table;
+	Printf.printf "----- End Printing Sub Symbol Table -----\n")
+
+
+let rec print_out_one_typedef_table one_typedef_table = (Printf.printf "----- Start Printing Sub Typedef -----\n";
+	Hashtbl.iter (fun key value ->
+		match value with
+			|Typedef_Struct_Sinlge_Type(bean_type) ->(match bean_type with
+				| Bool -> Printf.printf " var => %s, type => Bool\n" key
+				| Int -> Printf.printf " var => %s, type => Int\n" key
+				| IdentType(ident) -> Printf.printf "Shouldn't have this \n"
+				| _ -> (Printf.printf "print_out_one_typedef_table type error \n ";exit 0))
+			|Typedef_Struct(one_sub_table) -> (Printf.printf " var => %s:" key;
+				print_out_one_typedef_table one_sub_table)
+			|Typedef_None -> Printf.printf "Error ! \n"
+		) one_typedef_table;
+	Printf.printf "----- End Printing Sub Typedef -----\n")
+
+
+
+
+(* let build_symbol_table_hash *)============================================
+src/bean_lex.mll
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is our lex file it is used to extract tokens for yacc to use
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+{
+open Bean_parse
+
+exception LexFail
+}
+
+let apostro = '''
+let digit = ['0' - '9']
+let alpha = ['a' - 'z' 'A' - 'Z']
+let underscore = '_'
+let ident = (alpha|underscore)(alpha|underscore|apostro)*
+let comment = '#'[^'\n']*
+let string = '"' [^ '"' '\t' '\n' '\r' ]* '"'
+let int_val = '-'? digit+
+
+rule token = parse
+
+  (* Whitespace *)
+    [' ' '\t']        {token lexbuf}     (* skip blanks *)
+  | '\r'?'\n'         {Lexing.new_line lexbuf; token lexbuf}
+
+  (* Constants *)
+  | int_val as lxm    {INT_VAL(int_of_string(lxm))}
+  | string as lxm     {STRING_VAL(lxm)}
+  | "true"            {BOOL_VAL true}
+  | "false"           {BOOL_VAL false}
+
+  (* Keywords *)
+  | "typedef"         {TYPEDEF}
+  | "proc"            {PROC}
+  | "end"             {END}
+  | "val"             {VAL}
+  | "ref"             {REF}
+  | "while"           {WHILE}
+  | "do"              {DO}
+  | "od"              {OD}
+  | "if"              {IF}
+  | "then"            {THEN}
+  | "else"            {ELSE}
+  | "fi"              {FI} 
+  | "bool"            {BOOL}
+  | "int"             {INT}
+  | "read"            {READ}
+  | "write"           {WRITE}
+  | "and"             {AND}
+  | "or"              {OR}
+  | "not"             {NOT}
+
+  (* Punctuation *)
+  | ':'               {COLON}
+  | '{'               {LEFT_BRACE}
+  | '}'               {RIGHT_BRACE}
+  | ','               {COMMA}
+  | '.'               {DOT}
+  | '('               {LEFT_PAREN}
+  | ')'               {RIGHT_PAREN}
+  | ';'               {SEMICOLON}
+
+  (* Symbol Operators *)
+  | ":="              {EQ_COL}
+  | "!="              {NEQ}
+  | '<'               {LT}
+  | "<="              {LTE}
+  | '>'               {GT}
+  | ">="              {GTE}
+  | '='               {EQ}
+  | '+'               {PLUS}
+  | '-'               {MINUS}
+  | '*'               {MUL}
+  | '/'               {DIV}
+
+  (* Miscellaneous *)
+  | ident as lxm      {IDENTIFIER(lxm)}
+  | comment           {token lexbuf}
+  | eof               {EOF}
+  | _                 {raise LexFail}============================================
+src/Makefile
+19:14:55_Sunday_22_May_2016
+============================================
+TARGETS = bean
+TARGETS_BYTE=$(TARGETS:%=%.byte)
+
+MODULES = bean_ast bean_lex bean_parse bean_pprint bean_symbol bean_codegen bean_analyze
+MLFILES = $(addsuffix .ml, $(MODULES))
+CMOFILES = $(addsuffix .cmo, $(MODULES))
+CMXFILES = $(addsuffix .cmx, $(MODULES))
+
+ALLMODULES = $(MODULES) bean
+
+OCAMLLEX = ocamllex
+OCAMLYACC = ocamlyacc
+OCAMLDEP = ocamldep
+
+OCAMLFLAGS =
+
+all : opt byte
+byte: $(TARGETS_BYTE)
+opt: $(TARGETS)
+
+%.cmi: %.mli
+	ocamlc $(OCAMLFLAGS) -c $<
+
+%.cmo: %.ml
+	ocamlc $(OCAMLFLAGS) -g -c $<
+
+%.cmx: %.ml
+	ocamlopt $(OCAMLOPTFLAGS) -g -c $<
+
+%.ml: %.mll
+	$(OCAMLLEX) $^
+
+%.ml %.mli: %.mly
+	$(OCAMLYACC) $^
+
+bean.byte : $(CMOFILES) bean.cmo
+	ocamlc -g -o $@ $^
+
+bean : $(CMXFILES) bean.cmx
+	ocamlopt -g -o $@ $^
+
+clean :
+	rm -f *.cmo *.cmi *.cmx *.o ./bean *.byte
+	rm -f bean_lex.ml bean_parse.ml bean_parse.mli
+
+clobber : clean
+	rm -f $(TARGETS) $(TARGETS_BYTE)
+
+.PHONY : clean clobber depend
+
+# include depend
+depend: bean_lex.ml bean_parse.ml
+	$(OCAMLDEP) bean.ml bean.mli $(ALLMODULES:%=%.mli) $(ALLMODULES:%=%.ml) >Makefile.depend
+
+-include Makefile.depend
+============================================
+src/Makefile.depend
+19:14:55_Sunday_22_May_2016
+============================================
+bean.cmo :
+bean.cmx :
+bean_ast.cmi :
+bean_parse.cmi : bean_ast.cmi
+bean_pprint.cmi :
+bean_ast.cmo : bean_ast.cmi
+bean_ast.cmx : bean_ast.cmi
+bean_symbol.cmi : bean_ast.cmi
+bean_codegen.cmi : bean_ast.cmi bean_symbol.cmi 
+bean_analyze.cmi : bean_ast.cmi bean_symbol.cmi bean_codegen.cmi
+bean_lex.cmo : bean_parse.cmi
+bean_lex.cmx : bean_parse.cmx
+bean_parse.cmo : bean_ast.cmi bean_parse.cmi
+bean_parse.cmx : bean_ast.cmx bean_parse.cmi
+bean_pprint.cmo : bean_pprint.cmi
+bean_pprint.cmx : bean_pprint.cmi
+bean_symbol.cmo : bean_symbol.cmi
+bean_symbol.cmx : bean_symbol.cmi
+bean_codegen.cmo : bean_codegen.cmi
+bean_codegen.cmx : bean_codegen.cmi
+bean_analyze.cmo : bean_analyze.cmi
+bean_analyze.cmx : bean_analyze.cmi
+bean.cmo :
+bean.cmx :
+============================================
+src/bean_pprint.ml
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the file contains our pretty print method to nicely print out the 
+ * bean language.
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ *it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+
+open Bean_ast
+open Format
+
+let print_program fmt prog = (
+	(*set max indent, other wise the indentation might be limited*)
+	Format.set_max_indent 100; 
+	(*start print typedef part*)
+	printTypedefList fmt prog.typedefs;
+	(*start print method declaration part*)
+	printFuncdefList fmt prog.funcdefs
+)
+============================================
+src/bean_symbol.mli
+19:14:55_Sunday_22_May_2016
+============================================
+(** The is the bean_symbol contains will build and store symbol table for type
+ * checking and stack num tracking. The hash is used as the datascture for the
+ * symbol table for fast look up.
+ *  
+ *
+ * Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+(* record current register used *)
+val cur_register_count : Bean_ast.stackNum ref
+(* what the overall expression type should be *)
+val top_level_expr_type : Bean_ast.beantype ref
+(* current expression type *)
+val cur_expr_type : Bean_ast.beantype ref
+(* current label number used  *)
+val cur_label_count : Bean_ast.stackNum ref
+(* start with 20 slot in hash table *)
+val hash_table_size : Bean_ast.stackNum
+(* keep count of stack *)
+val stack_count : Bean_ast.stackNum ref
+(* variable symbol table *)
+val symbol_table_hash : (string, Bean_ast.symbolTableType) Hashtbl.t
+(* typedef symbol table *)
+val typdef_table_hash : (string, Bean_ast.typedefTableType) Hashtbl.t
+(* function total stack num hash table *)
+val func_stack_num_hash : (string, int) Hashtbl.t
+(* function parameters hashtable *)
+val func_param_symbol_table_hash : (string, (Bean_ast.functionDeclaration*Bean_ast.typedefStruct list*Bean_ast.stmt list)) Hashtbl.t
+(* current symbol table used *)
+val cur_func_symbol_hash_table : (string, Bean_ast.symbolTableType) Hashtbl.t ref
+(*  ordered function parameter table *)
+val func_param_order_hash_table : (string, (Bean_ast.functionDeclaration*Bean_ast.typedefStruct list*Bean_ast.stmt list)) Hashtbl.t
+(*  record stack num*)
+val symbol_table_stackNum_hash : (string, Bean_ast.stackNum) Hashtbl.t
+(*  get one typedef symbol table back *)
+val get_hash_table_typedef : Bean_ast.typedefTableType -> (Bean_ast.ident, Bean_ast.typedefTableType) Hashtbl.t
+(*  get one symbol hash table back from symbol table struct *)
+val get_hash_table_symbol : Bean_ast.symbolTableType -> (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t
+(*  build one typedef symbol table helper method *)
+val build_one_typedef_table_hash_ : (Bean_ast.ident, Bean_ast.typedefTableType) Hashtbl.t -> Bean_ast.typedefStruct list -> unit
+(*  buld one typeef symbol table*)
+val build_one_typedef_table_hash : Bean_ast.typedefStruct * Bean_ast.ident -> unit
+(*  build entire typedef symbol table *)
+val build_typedef_table_hash : (Bean_ast.typedefStruct * Bean_ast.ident) list -> unit
+(*  build symbol table with self defined struct might have many fields*)
+val build_symbol_table_self_type : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> (Bean_ast.ident, Bean_ast.typedefTableType) Hashtbl.t -> unit
+(*  build symbol table with suitable Ref symbol struct *)
+val build_symbol_table_self_type_ref : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> (Bean_ast.ident, Bean_ast.typedefTableType) Hashtbl.t -> unit
+(*  use typedef sturct list (variable initialization) to build symboltable *)
+val build_symbol_table_typedefStruct_list : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.typedefStruct list -> unit
+(* build variable symbol table *)
+val build_symbol_table_hash_funcDecParamList : ('a, Bean_ast.symbolTableType) Hashtbl.t -> (Bean_ast.valRef * Bean_ast.typedefStruct * 'a) list -> unit
+(* build all hash table symbol table *)
+val build_symbol_table_hash_all : ((string *(Bean_ast.valRef * Bean_ast.typedefStruct * string) list) *Bean_ast.typedefStruct list * Bean_ast.stmt list) list -> unit
+(* debug used print out total stack num of function *)
+val print_func_stack_num_hash : (Bean_ast.ident, Bean_ast.stackNum) Hashtbl.t -> unit
+(* debug used print out one symbol table *)
+val print_out_one_symbol_table : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> unit
+(* debug used print typedef symbol table *)
+val print_out_one_typedef_table : (Bean_ast.ident, Bean_ast.typedefTableType) Hashtbl.t -> unit
+============================================
+src/bean_ast.ml
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+(* see the data type comments in bean_ast.mli*)
+
+
+type ident = string
+ 
+type beantype =
+  | Bool
+  | Int
+  | IdentType of string 
+  | BeanTypeNone
+
+type typedefStruct =
+  |SingleTypeTerm of beantype
+  |SingleTypeTermWithIdent of (ident * typedefStruct)
+  |ListTypeTerm of typedefStruct list
+  |TypedefEnd
+
+type typedef = typedefStruct list
+
+type lvalue =
+  | LId of ident
+  | LField of (lvalue * ident)
+  | LvalueNone
+
+type binop =
+  | Op_add | Op_sub | Op_mul | Op_div
+  | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
+  | Op_and | Op_or
+
+type unop =
+  | Op_minus | Op_not
+
+type expr =
+  | Ebool of bool
+  | Eint of int
+  | Elval of lvalue
+  | Ebinop of (expr * binop * expr)
+  | Eunop of (unop * expr)
+  | Eident of string
+  | Ebracket of expr
+
+type rvalue =
+  | Rexpr of expr
+  | RField of (rvalue * expr)
+  | Rassign of (string * rvalue)
+  | Rstmts of rvalue list 
+  | Rempty
+
+
+type paramList = expr list
+
+type stmt = 
+  | Assign of (lvalue * rvalue)
+  | AssignRvalueList of (lvalue * rvalue list)
+  | Read of lvalue
+  | Write of expr
+  | StmtNone
+  | Method of (string * paramList)
+  | VarDec of (beantype * string)
+  | WhileDec of (expr * stmt list)
+  | IfDec of (expr * stmt list * stmt list)
+
+type decl = (ident * beantype)
+
+type valRef = 
+|Val
+|Ref
+
+type stackNum = int
+
+type typedefTableType = 
+  |Typedef_Struct_Sinlge_Type of beantype
+  |Typedef_Struct of ((string , typedefTableType) Hashtbl.t)
+  |Typedef_None
+(*S_Struct removed*)
+type symbolTableType =
+  | S_Func of (string , symbolTableType) Hashtbl.t
+  | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)(* stored nest type of typedef*)
+  | S_Hash of (beantype * (string, symbolTableType) Hashtbl.t)(*self def type*)
+  | S_Bool of (beantype * stackNum) (*Int => stack num*)
+  | S_Int of (beantype * stackNum)
+  | S_Ref_Int of (beantype * stackNum)
+  | S_Ref_Bool of (beantype * stackNum)(*if beantype is a ident, need to search through typedef hash table*)
+  | S_Intext_Hash of (string , symbolTableType) Hashtbl.t
+  | S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t
+
+
+type funcDecParamList = (valRef*typedefStruct*string) list
+
+type functionDeclaration = (string*funcDecParamList)
+
+type program = {
+  typedefs : (typedefStruct*ident) list;
+  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
+}
+type t = program
+
+let printBeanType fmt (btype,suffix) =  match btype with
+(* type def cool be followed by column or space *)
+| Bool -> Format.fprintf fmt "bool%s" suffix 
+| Int ->  Format.fprintf fmt "int%s" suffix  
+| IdentType(ident) -> Format.fprintf fmt "%s%s" ident suffix
+| _ ->(raise (Failure "Error printBeanType"))
+
+let rec printTypedefStruct fmt (arrangeMode,typedefStructData) = match typedefStructData with
+| SingleTypeTerm (btype) -> 
+  (* if mode = 1 will print space after type *)
+  if arrangeMode = 1 
+  then printBeanType fmt (btype,"") 
+  else printBeanType fmt (btype," ")
+
+| SingleTypeTermWithIdent (ident,nestTypedefStructData) ->
+  if arrangeMode = 1 
+  then Format.fprintf fmt "%s : %a" ident printTypedefStruct (arrangeMode,nestTypedefStructData)
+  else Format.fprintf fmt "%a%s" printTypedefStruct (arrangeMode,nestTypedefStructData) ident
+
+| ListTypeTerm (listTypedefStructData) ->(Format.fprintf fmt "{"  ;
+  List.iter (fun x -> 
+    (* if it is the last type term should print } other wise , *)
+    if x = List.nth listTypedefStructData ((List.length listTypedefStructData)-1) 
+      && x == List.nth listTypedefStructData ((List.length listTypedefStructData)-1)
+    then printTypedefStruct fmt (arrangeMode,x)
+    else (printTypedefStruct fmt (arrangeMode,x) ; Format.fprintf fmt ", ")) listTypedefStructData;
+  Format.fprintf fmt "}" )
+| TypedefEnd -> Format.fprintf fmt "end with type def \n"
+
+(* mode 1 will follow type by :  *)
+let printSingleTypedef fmt singleTypedefData = let arrangeMode = 1 
+in match singleTypedefData with
+| (typedefStruct,ident) -> Format.fprintf fmt "typedef %a %s\n" printTypedefStruct (arrangeMode,typedefStruct) ident 
+ 
+(* start print typedefs by openning a format box *)
+let printTypedefList fmt typedefDataList = (Format.fprintf fmt "@[";
+  List.iter (printSingleTypedef fmt) typedefDataList;
+  Format.fprintf fmt "@]@.")
+
+let printFuncIndicator fmt funcIndicator = match funcIndicator with
+| Val -> Format.fprintf fmt "val "
+| Ref -> Format.fprintf fmt "ref "
+
+let printFuncparams fmt singleFuncparamData =  let arrangeMode = 1 
+in match singleFuncparamData with
+| (funcIndicator,typedefStruct,ident) -> Format.fprintf fmt  "%a%a %s"  printFuncIndicator funcIndicator printTypedefStruct (arrangeMode,typedefStruct) ident
+
+let printFuncheader fmt funcheaderData = match funcheaderData with
+| (funcname,funcparams) -> (Format.fprintf fmt "%s(" funcname ;
+List.iter (fun x -> 
+  if x = List.nth funcparams ((List.length funcparams)-1) 
+    && x == List.nth funcparams ((List.length funcparams)-1)
+  then printFuncparams fmt x
+  else (printFuncparams fmt x ; Format.fprintf fmt ", ")) funcparams;
+    Format.fprintf fmt ")")
+
+
+let printFuncVardef fmt funcVardefData = let arrangeMode = 2 in List.iter (fun x -> 
+   if x = List.nth funcVardefData ((List.length funcVardefData)-1) 
+    && x == List.nth funcVardefData ((List.length funcVardefData)-1)
+   then (printTypedefStruct fmt (arrangeMode,x); Format.fprintf fmt ";")
+   else (printTypedefStruct fmt (arrangeMode,x); Format.fprintf fmt ";@ "))
+  funcVardefData
+
+
+let rec printLvalue fmt singleLvalue = match singleLvalue with
+| LId(ident) -> Format.fprintf fmt "%s" ident
+| LField(recLvalue,ident) -> (printLvalue fmt recLvalue;Format.fprintf fmt ".";
+  Format.fprintf fmt "%s" ident)
+| LvalueNone -> Format.fprintf fmt "Empty lvalue"
+
+let printBinop fmt singleBinop = match singleBinop with
+| Op_add -> Format.fprintf fmt  " + "
+| Op_sub -> Format.fprintf fmt  " - "
+| Op_mul -> Format.fprintf fmt  " * "
+| Op_div -> Format.fprintf fmt " / " 
+| Op_eq -> Format.fprintf fmt  " = "
+| Op_lt -> Format.fprintf fmt  " < "
+| Op_gt -> Format.fprintf fmt  " > "
+| Op_neq -> Format.fprintf fmt  " != "
+| Op_lte -> Format.fprintf fmt  " <= "
+| Op_gte -> Format.fprintf fmt  " >= "
+| Op_and -> Format.fprintf fmt  " and "
+| Op_or -> Format.fprintf fmt  " or "
+
+
+let rec loopToEndExpr expr = match expr with
+| Ebracket(expr) -> loopToEndExpr expr
+| _ -> expr
+
+
+let highOrderBinoBefore binop expr =  match binop with
+| Op_mul -> (match (loopToEndExpr expr) with 
+  | Ebinop(expr_one,binop,expr_two) -> (match binop with
+    | Op_mul -> false
+    | Op_div -> false
+    | _ -> true)
+  | _ -> true)
+
+| Op_div -> (match (loopToEndExpr expr) with 
+  | Ebinop(expr_one,binop,expr_two) -> (match binop with
+    | Op_mul -> false
+    | Op_div -> false
+    | _ -> true)
+  | _ -> true)
+
+| _ -> false
+
+
+let highOrderBino binop = match binop with
+| Op_mul -> true
+| _ -> false
+
+let nextBracket expr = match expr with
+| Ebracket(expr) -> true
+| _ ->false
+
+(*false => do print, true => dont*)
+let exprLookHead expr = match expr with 
+| Ebool(bool_val) -> true
+| Eint(int_val) -> true
+| Elval(lvalue) -> true
+| Ebinop(expr_one,binop,expr_two) ->if highOrderBino binop  then true else false
+| Eunop(unop,expr) ->false
+| Eident(ident) -> true
+| Ebracket(expr) -> true
+
+let printUnop fmt singleUnop = match singleUnop with
+| Op_minus -> Format.fprintf fmt "-"
+| Op_not -> Format.fprintf fmt "not "
+
+let rec printExpr fmt (unNesBracket,singleExpr) = match singleExpr with
+| Ebool(bool_val) -> Format.fprintf fmt "%B" bool_val
+| Eint(int_val) -> Format.fprintf fmt "%d" int_val
+| Elval(lvalue) -> printLvalue fmt lvalue
+| Ebinop(expr_one,binop,expr_two) ->(printExpr fmt (highOrderBinoBefore binop expr_one,expr_one);
+  printBinop fmt binop;
+  printExpr fmt (true,expr_two))
+
+| Eunop(unop,expr) -> (printUnop fmt unop ; printExpr fmt (true,expr))
+| Eident(ident) -> Format.fprintf fmt "%s" ident
+| Ebracket(expr) -> (
+  (* unNesBracket is a predictio of printing parenthesis or not
+   * and exprLookHead look he next expr to decide unnesBracket is true or not
+   *)
+  if unNesBracket && not (exprLookHead expr)
+  (* if next one is still a bracket ignore it *)
+  then Format.fprintf fmt "(%a)" printExpr (not (nextBracket expr),expr)
+  else Format.fprintf fmt "%a" printExpr (true,expr))
+
+
+let rec printRvalue fmt singleRvalue = match singleRvalue with
+| Rexpr(expr) -> printExpr fmt (true,expr)
+| RField(rvalue,expr) -> (printRvalue fmt rvalue;
+  printExpr fmt (true,expr))
+| Rassign(str,rvalue) -> (Format.fprintf fmt "%s = " str;
+  printRvalue fmt rvalue)
+| Rstmts(rvalueList) -> (Format.fprintf fmt "{";
+  List.iter (fun x ->( 
+  if x = List.nth rvalueList ((List.length rvalueList)-1) 
+    && x == List.nth rvalueList ((List.length rvalueList)-1)
+  then printRvalue fmt x
+  else (printRvalue fmt x ;Format.fprintf fmt ", ") )) rvalueList;
+  Format.fprintf fmt "}")
+| Rempty -> Format.fprintf fmt "Empty Rvalue "
+
+let getIdent identNum = String.make identNum ' '
+
+let printEndStmt fmt isLast lastStr = match isLast with
+| true -> Format.fprintf fmt  "%s" lastStr
+| false -> Format.fprintf fmt  "%s@ " lastStr
+
+let rec printStmt fmt (initIdent,isLast,singleStmt) = match singleStmt with
+
+| Assign(lvalue, rvalue) -> (printLvalue fmt lvalue;
+  Format.fprintf fmt  " := ";
+  printRvalue fmt rvalue;
+  printEndStmt fmt isLast ";")
+
+| AssignRvalueList(lvalue,rvalueList) ->(printLvalue fmt lvalue;
+  Format.fprintf fmt  "={";
+  List.iter (printRvalue fmt) rvalueList;
+  Format.fprintf fmt "}";
+  printEndStmt fmt isLast ";")
+
+| Read(lvalue) -> (Format.fprintf fmt  "read ";
+  printLvalue fmt lvalue;
+  printEndStmt fmt isLast ";")
+
+| Write(expr) -> (Format.fprintf fmt  "write ";
+  printExpr fmt (false,expr);
+  printEndStmt fmt isLast ";")
+
+| StmtNone -> Format.fprintf fmt "StmtNone"
+
+| Method(methodname, paramList) -> (Format.fprintf fmt "%s(" methodname ;
+  List.iter (fun x -> if x = List.nth paramList ((List.length paramList)-1) && x == List.nth paramList ((List.length paramList)-1) 
+  then printExpr fmt (false,x)
+  else (printExpr fmt (false,x); Format.fprintf fmt ", " )) paramList;
+  Format.fprintf fmt ")";
+  printEndStmt fmt isLast ";")
+
+| VarDec(beantype, ident) -> (printBeanType fmt (beantype,"");
+  Format.fprintf fmt "%s " ident;
+  printEndStmt fmt isLast ";")
+
+| WhileDec(expr, stmtList) ->(Format.fprintf fmt "while %a do @ " printExpr (false,expr);
+  (* start new vertical box for while body
+  * full fill it with 4 indents for avoid start with @ to give a new line
+  *)
+  Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
+  List.iter (fun x -> 
+    if x = List.nth stmtList ((List.length stmtList)-1) 
+      && x == List.nth stmtList ((List.length stmtList)-1) 
+    then printStmt fmt (initIdent,true,x)
+    else printStmt fmt (initIdent,false,x)) stmtList;
+  Format.fprintf fmt " @]";
+  Format.fprintf fmt"@ od";
+  printEndStmt fmt isLast "")
+
+| IfDec(expr, thenStmtList, elseStmtList) -> (Format.fprintf fmt "if %a then @ " printExpr (false,expr);
+  Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
+  List.iter (fun x -> 
+    if x = List.nth thenStmtList ((List.length thenStmtList)-1) 
+      && x == List.nth thenStmtList ((List.length thenStmtList)-1) 
+    then printStmt fmt (initIdent,true,x)
+    else printStmt fmt (initIdent,false,x)) thenStmtList;
+  Format.fprintf fmt " @]";
+  (* if else has statements them do print them other wise dont*)
+  if (List.length elseStmtList) != 0 
+  then (Format.fprintf fmt " @ ";Format.fprintf fmt "else @ ");
+  Format.fprintf fmt "@[<v %d>%s" initIdent (getIdent initIdent);
+  List.iter (fun x -> if x = List.nth elseStmtList ((List.length elseStmtList)-1) && x == List.nth elseStmtList ((List.length elseStmtList)-1)
+    then printStmt fmt (initIdent,true,x)
+    else printStmt fmt (initIdent,false,x)) elseStmtList;
+  Format.fprintf fmt " @]";
+  Format.fprintf fmt  "@ fi";
+  printEndStmt fmt isLast "")
+
+let printFuncBody fmt funcBodyData = let initIdentFactor = 4 in List.iter (fun x -> 
+  if x = List.nth funcBodyData ((List.length funcBodyData)-1) 
+    && x == List.nth funcBodyData ((List.length funcBodyData)-1)
+  then printStmt fmt (initIdentFactor,true,x)
+  else printStmt fmt (initIdentFactor,false,x)) funcBodyData
+
+let printSingleFuncdef fmt singleFuncdefData = match singleFuncdefData with
+| (funcheader,funcvardef,funcbody) ->(Format.fprintf fmt "proc %a" printFuncheader funcheader;
+  (* if have function variable declaration then print them*)
+  if (List.length funcvardef) !=0 
+  then Format.fprintf fmt " @ %a " printFuncVardef funcvardef;
+  (* if have function procedures declaration then print them*)
+  if (List.length funcbody) != 0 
+  then Format.fprintf fmt " @ @ %a " printFuncBody funcbody
+  )
+
+let printFuncdefList fmt funcdefDataList = let iniIdent = 4 
+in (Format.fprintf fmt "@[<v %d>" iniIdent ; 
+  List.iter ( fun x-> 
+    if x = List.nth funcdefDataList ((List.length funcdefDataList)-1) 
+      && x == List.nth funcdefDataList ((List.length funcdefDataList)-1)
+    then (printSingleFuncdef fmt x ;Format.fprintf fmt "\nend\n")
+    else (printSingleFuncdef fmt x ;Format.fprintf fmt "\nend\n\n")
+   ) funcdefDataList ;
+  Format.fprintf fmt "@] " )
+
+
+
+
+
+
+
+
+
+============================================
+src/bean_codegen.ml
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+open Bean_ast
+open Bean_symbol
+
+(* *)
+(* == , this compare refernece, = compare content equality*)
+
+let get_register_string register_num = "r"^(string_of_int register_num)
+
+let print_push_stack_frame frame_size = Printf.printf "push_stack_frame %d\n" frame_size
+
+let print_pop_stack_frame frame_size = Printf.printf "pop_stack_frame %d\n" frame_size
+
+let print_load register_name slot_num = Printf.printf "load %s, %d\n" register_name slot_num
+
+let print_store slot_num register_name = Printf.printf "store %d, %s\n" slot_num register_name
+
+let print_load_address register_name slot_num = Printf.printf "load_address %s, %d\n" register_name slot_num
+
+let print_load_indirect register_name_1 register_name_2 = Printf.printf "load_indirect %s, %s\n" register_name_1 register_name_2
+
+let print_store_indirect register_name_1 register_name_2 = Printf.printf "store_indirect %s, %s\n" register_name_1 register_name_2
+
+let print_int_const register_name int_const_value = Printf.printf "int_const %s, %d\n" register_name int_const_value
+
+let print_string_const register_name string_const_value = Printf.printf "string_const %s, %s\n" register_name string_const_value
+
+let print_add_int register_1 register_2 register_3 = Printf.printf "add_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_add_offset register_1 register_2 register_3 = Printf.printf "add_offset %s, %s, %s\n" register_1 register_2 register_3
+
+let print_sub_int register_1 register_2 register_3 = Printf.printf "sub_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_sub_offset register_1 register_2 register_3 = Printf.printf "sub_offset %s, %s, %s\n" register_1 register_2 register_3
+
+let print_mul_int register_1 register_2 register_3 = Printf.printf "mul_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_div_int register_1 register_2 register_3 = Printf.printf "div_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_cmp_eq_int register_1 register_2 register_3 = Printf.printf "cmp_eq_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_cmp_ne_int register_1 register_2 register_3 = Printf.printf "cmp_ne_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_cmp_gt_int register_1 register_2 register_3 = Printf.printf "cmp_gt_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_cmp_ge_int register_1 register_2 register_3 = Printf.printf "cmp_ge_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_cmp_lt_int register_1 register_2 register_3 = Printf.printf "cmp_lt_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_cmp_le_int register_1 register_2 register_3 = Printf.printf "cmp_le_int %s, %s, %s\n" register_1 register_2 register_3
+
+let print_and register_1 register_2 register_3 = Printf.printf "and %s, %s, %s\n" register_1 register_2 register_3
+
+let print_or register_1 register_2 register_3 = Printf.printf "or %s, %s, %s\n" register_1 register_2 register_3
+
+let print_not register_1 register_2 = Printf.printf "not %s, %s\n" register_1 register_2
+
+let print_move register_1 register_2 = Printf.printf "move %s, %s\n" register_1 register_2
+
+let print_call label_name = Printf.printf "call %s\n" label_name 
+
+let call_builtin builtin_funciton_name = Printf.printf "call_builtin %s\n"
+
+let print_branch_on_true register_name label_name= Printf.printf "branch_on_true %s, %s\n" register_name label_name
+
+let print_branch_on_false register_name label_name= Printf.printf "branch_on_false %s, %s\n" register_name label_name
+
+let print_branch_on_unc label_name = Printf.printf "branch_uncond %s\n" label_name
+
+let print_label_by_number label_number= Printf.printf "label_%d:\n" label_number
+
+let print_label_by_function_name function_name = Printf.printf "%s:\n" function_name 
+
+let get_label_name label_num = "label_"^(string_of_int label_num)
+
+let print_return () = Printf.printf "return\n"
+
+let print_halt () = Printf.printf "halt\n"
+
+let print_debug_reg register_name = Printf.printf "debug_reg %s\n" register_name
+
+let print_debug_slot slot_num = Printf.printf "debug_slot %d\n" slot_num
+
+let print_debug_stack () = Printf.printf "debug_stack\n"
+
+
+let print_read_int () = Printf.printf "call_builtin read_int\n"
+
+let print_read_bool () =Printf.printf "call_builtin read_bool\n"
+
+let print_print_int () = Printf.printf "call_builtin print_int\n"
+
+let print_print_bool () = Printf.printf "call_builtin print_bool\n"
+
+let print_print_string () = Printf.printf "call_builtin print_string\n"
+
+
+(*instruction following the call instruction.
+The following are all built-in functions: read_int, read_bool, print_int, print_bool, print_string. *)
+
+(*
+push_stack_frame framesize
+pop_stack_frame framesize
+# C analogues:
+load rI, slotnum # rI = x
+store slotnum, rI # x = rI
+load_address rI, slotnum # rI = &x
+load_indirect rI, rJ # rI = *rJ
+store_indirect rI, rJ # *rI = rJ
+int_const rI, intconst
+string_const rI, stringconst
+add_int rI, rJ, rK # rI = rJ + rK
+add_offset rI, rJ, rK # rI = rJ + rK
+
+sub_int rI, rJ, rK # rI = rJ - rK
+sub_offset rI, rJ, rK # rI = rJ - rK
+mul_int rI, rJ, rK # rI = rJ * rK
+div_int rI, rJ, rK # rI = rJ / rK
+
+
+cmp_eq_int rI, rJ, rK # rI = rJ == rK
+cmp_ne_int rI, rJ, rK
+cmp_gt_int rI, rJ, rK # etc.
+cmp_ge_int rI, rJ, rK
+cmp_lt_int rI, rJ, rK
+cmp_le_int rI, rJ, rK
+and rI, rJ, rK # rI = rJ && rK
+or rI, rJ, rK # rI = rJ || rK
+not rI, rJ # rI = !rJ
+move rI, rJ # rI = rJ
+
+
+branch_on_true rI, label # if (rI) goto label
+branch_on_false rI, label # if (!rI) goto label
+branch_uncond label # goto label
+call label
+call_builtin builtin_function_name
+return
+halt
+debug_reg rI
+debug_slot slotnum
+debug_stack
+
+
+
+
+
+
+*)
+
+
+let codegen_binop register_1 register_2 register_3 singleBinop = match singleBinop with
+	| Op_add -> print_add_int register_1 register_2 register_3
+	| Op_sub -> print_sub_int register_1 register_2 register_3
+	| Op_mul -> print_mul_int register_1 register_2 register_3
+	| Op_div -> print_div_int register_1 register_2 register_3
+	| Op_eq ->  (top_level_expr_type := Bool;  print_cmp_eq_int register_1 register_2 register_3) 
+	| Op_lt ->  (top_level_expr_type := Bool; print_cmp_lt_int register_1 register_2 register_3 )
+	| Op_gt ->  (top_level_expr_type := Bool; print_cmp_gt_int register_1 register_2 register_3 )
+	| Op_neq -> (top_level_expr_type := Bool; print_cmp_ne_int register_1 register_2 register_3 )
+	| Op_lte -> (top_level_expr_type := Bool; print_cmp_le_int register_1 register_2 register_3 )
+	| Op_gte -> (top_level_expr_type := Bool; print_cmp_ge_int register_1 register_2 register_3 )
+	| Op_and -> print_and register_1 register_2 register_3 
+	| Op_or ->  print_or register_1 register_2 register_3 
+
+let printBinop single_binop = match single_binop with
+	| Op_add -> " + "
+	| Op_sub -> " - "
+	| Op_mul -> " * "
+	| Op_div -> " / " 
+	| Op_eq -> " = "
+	| Op_lt -> " < "
+	| Op_gt -> " > "
+	| Op_neq -> " != "
+	| Op_lte -> " <= "
+	| Op_gte -> " >= "
+	| Op_and -> " and "
+	| Op_or -> " or "
+
+let codegen_unop register_1 register_2 single_unop = match single_unop with
+	| Op_minus -> (let temp_cur_register_count = (!cur_register_count) + 1 in (*use s new register to store -1 , but dont update the global register count*)
+		print_int_const (get_register_string temp_cur_register_count) (-1);
+		print_mul_int register_1 register_2 (get_register_string temp_cur_register_count)  )(*anwer will be stored in register_1, temp_register used to store -1*)
+	| Op_not -> (if !cur_expr_type = Bool then print_not register_1 register_1 else (raise (Failure  "Op_not type error\n")))
+
+(*
+let start_code_gen one_funcdefs = match one_funcdefs with
+	|((func_name,funcDecParamList),typedefStruct_list,stmt_list) -> (Printf.printf "proc_%s:" func_name)
+
+let gen_label gen_label_flag label_num = if gen_label_flag then Printf.printf "label_%d"
+*)
+(*
+let codegen_list_stmts stmts gen_label_flag label_num = 
+*)
+(*
+let dummyIfBlock if_dec after_label = let local_label_count = !cur_label_count in match if_dec with
+	|IfDec(expr,thenStmtlist,elseStmtList) -> (cur_label_count := !cur_register_count+1;
+		Printf.printf "if t/f:";
+		Printf.printf "if false GOTO label_%d" after_label;
+		(* call gen stmt_list set a label process elseStmtList part*)
+		Printf.printf  "rest statement")
+		(* call gen stmt_list to do thenStmtList part*)
+*)
+
+(*
+let dummyWhileBlock while_dec after_label= let local_label_count = !cur_label_count in match while_dec with
+	|WhileDec (expr,stmt_list) -> (cur_label_count := !cur_label_count+1;
+		Printf.printf "label_%d" !cur_label_count;
+		Printf.printf "isf t/f: ";
+		Printf.printf "if false GOTO label_%d" after_label;
+		Printf.printf "label_%d" !cur_label_count;
+		(*call gen stmt_list stmt_list*)
+		(*dummyWhileBlock stmt_list local_label_count*)
+		Printf.printf "GOTO label_%d" !cur_label_count)
+*)
+
+let rec getStackNum hash_table key_name = match (Hashtbl.find hash_table key_name) with
+  | S_Bool(_ , stackNum) -> stackNum
+  | S_Int(_ , stackNum) -> stackNum
+  (*| S_Struct(_ , stackNum) -> stackNum*)
+  | S_Ref_Int(_ , stackNum) -> stackNum
+  | S_Ref_Bool(_ , stackNum) -> stackNum
+  | _ -> (raise (Failure  "get stack num error\n"))
+
+ let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
+	| LId(ident) -> getStackNum hash_table ident
+  | LField(lvalue_type,ident) -> let temp_hash_symbol_table =  get_hash_table_symbol (Hashtbl.find hash_table ident) in 
+  	get_lvalue_stack_num temp_hash_symbol_table lvalue_type
+  | _ -> (raise (Failure "error on get stack num lvalue type \n"))
+
+
+(*true => ref, false => val *)
+let get_bool_ref_val_symbol_hash_table hash_table key_name = match (Hashtbl.find hash_table key_name) with
+  | S_Bool(_ , _) -> false
+  | S_Int(_ , _) -> false
+  | S_Hash(_,_) -> false
+  | S_Intext_Hash(_) -> false
+  | S_Ref_Hash(_,_) -> true
+  | S_Ref_Int(_ , _) -> true
+  | S_Ref_Bool(_ , _) -> true (*only return Bool or Int, typedef of {} type will cause error*)
+  | S_Ref_Intext_Hash(_) -> true
+  | _ -> (raise (Failure  "type error for is ref \n") )
+
+
+let rec get_lvalue_ref_or_not hash_table key_name = match key_name with
+	| LId(ident) -> get_bool_ref_val_symbol_hash_table hash_table ident
+  | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
+  	get_lvalue_ref_or_not temp_hash_symbol_table lvalue_type
+  | _ -> (raise (Failure "error on checking lvalue type \n"))
+
+
+
+(*type checked before executing this line*)
+let rec codegen_arithmatic expr = let local_register_count = !cur_register_count in match expr with
+	| Ebool(false) -> (incr cur_register_count;
+		print_int_const (get_register_string (local_register_count)) 0;
+		local_register_count)
+	| Ebool(true) -> (incr cur_register_count;
+		print_int_const (get_register_string (local_register_count)) 1;
+		local_register_count)
+	| Eint(int_val) -> (incr cur_register_count;
+		print_int_const (get_register_string (local_register_count)) int_val;
+		local_register_count)
+	| Ebinop(expr_one,binop,expr_two) -> let left = codegen_arithmatic expr_one in
+		let right = codegen_arithmatic expr_two in
+			(decr cur_register_count; (*decrease register used*)
+			codegen_binop (get_register_string local_register_count) (get_register_string left) (get_register_string right) binop;
+			local_register_count)
+	| Eunop(Op_minus,expr) -> (print_int_const (get_register_string local_register_count) (-1);
+		incr cur_register_count;
+		print_mul_int (get_register_string local_register_count) (get_register_string local_register_count) (get_register_string(codegen_arithmatic expr));
+		local_register_count) (*codegen_Arithmatic expr alone in here cause warnning, becuase it return a single int nad is not used*)
+	| Eunop(Op_not,expr) ->let _ = codegen_arithmatic expr in (print_not (get_register_string (local_register_count)) (get_register_string (local_register_count));local_register_count) 
+	| Ebracket(expr) -> codegen_arithmatic expr
+	| Elval(lvalue) ->(incr cur_register_count;let temp_stack_num = get_lvalue_stack_num (!cur_func_symbol_hash_table) lvalue  in
+		let temp_is_lvalue_ref = get_lvalue_ref_or_not (!cur_func_symbol_hash_table) lvalue in
+			(if temp_is_lvalue_ref 
+			then 
+				(print_load (get_register_string local_register_count) temp_stack_num ;
+					print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) ;
+					local_register_count)
+			else
+				 (print_load (get_register_string local_register_count) temp_stack_num;
+					local_register_count))) (* lvalue could be nested for a.x.c =>  *)
+	| _ -> (raise (Failure  "error at code gen "))
+
+
+	(*type checked before executing this line*)
+let rec codegen_arithmatic_ref expr = let local_register_count = !cur_register_count in match expr with
+	| Ebool(false) -> (incr cur_register_count;
+		print_int_const (get_register_string (local_register_count)) 0;
+		local_register_count)
+	| Ebool(true) -> (incr cur_register_count;
+		print_int_const (get_register_string (local_register_count)) 1;
+		local_register_count)
+	| Eint(int_val) -> (incr cur_register_count;
+		print_int_const (get_register_string (local_register_count)) int_val;
+		local_register_count)
+	| Ebinop(expr_one,binop,expr_two) -> let left = codegen_arithmatic expr_one in
+		let right = codegen_arithmatic expr_two in
+			(decr cur_register_count; (*decrease register used*)
+			codegen_binop (get_register_string local_register_count) (get_register_string left) (get_register_string right) binop;
+			local_register_count)
+	| Eunop(Op_minus,expr) -> (print_int_const (get_register_string local_register_count) (-1);
+		print_mul_int (get_register_string local_register_count) (get_register_string local_register_count) (get_register_string(codegen_arithmatic expr));
+		local_register_count) (*codegen_Arithmatic expr alone in here cause warnning, becuase it return a single int nad is not used*)
+	| Eunop(Op_not,expr) ->let _ = codegen_arithmatic expr in (print_not (get_register_string (local_register_count)) (get_register_string (local_register_count));local_register_count) 
+	| Ebracket(expr) -> codegen_arithmatic expr
+	| Elval(lvalue) ->(incr cur_register_count;let temp_stack_num = get_lvalue_stack_num (!cur_func_symbol_hash_table) lvalue  in
+		let temp_is_lvalue_ref = get_lvalue_ref_or_not (!cur_func_symbol_hash_table) lvalue in
+			(if temp_is_lvalue_ref 
+			then 
+				(print_load (get_register_string local_register_count) temp_stack_num ;
+					local_register_count)
+			else
+				 (print_load_address (get_register_string local_register_count) temp_stack_num;
+					local_register_count))) (* lvalue could be nested for a.x.c =>  *)
+	| _ -> (raise (Failure  "error at code gen "))
+
+
+
+
+
+
+
+
+	(*| Eident(ident) -> (incr cur_register_count;
+		try let temp_stack_num = Hashtbl.find cur_func_symbol_hash_table ident in
+		print_load temp_stack_num (get_register_string local_register_count) with Not_found -> (Printf.printf "%s is not in the hash table " ident;exit 0)
+		local_register_count)*)
+(*
+let codegen_stmts funcdef = match funcdef with
+	| (funcDec,typeDef_list,stmt_list) -> (List.map (fun x -> match x with
+		| Write expr -> codegen_arithmatic expr) stmt_list;
+		Printf.printf "end\n") *)
+
+
+(*dont know why following function does not work when called from other method*)
+============================================
+src/bean_codegen.mli
+19:14:54_Sunday_22_May_2016
+============================================
+(** 
+ *
+ * Description : This program is for the project of COMP90045 
+ * at the University of Melbourne, it is a compiler program for the bean language
+ *
+ * The is the codegen file contains the methods to print out all the
+ * Oz instructions 
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+(* generate register name string => "rX" *)
+val get_register_string : Bean_ast.stackNum -> Bean_ast.ident
+(* print push stack frame instruction *)
+val print_push_stack_frame : Bean_ast.stackNum -> unit
+(* print pop stack frame instruction *)
+val print_pop_stack_frame : Bean_ast.stackNum -> unit
+(* print load from stack instruction *)
+val print_load : Bean_ast.ident -> Bean_ast.stackNum -> unit
+(* print store to stack instruction *)
+val print_store : Bean_ast.stackNum -> Bean_ast.ident -> unit
+(* print load address from stack instruction *)
+val print_load_address : Bean_ast.ident -> Bean_ast.stackNum -> unit
+(* print de-reference the address and update its value instruction *)
+val print_load_indirect : Bean_ast.ident -> Bean_ast.ident -> unit
+(* print update the value of the address stored in the stack instruction *)
+val print_store_indirect : Bean_ast.ident -> Bean_ast.ident -> unit
+(* print load int constant into register instruction *)
+val print_int_const : Bean_ast.ident -> Bean_ast.stackNum -> unit
+(* print load string constant into register instruction *)
+val print_string_const : Bean_ast.ident -> Bean_ast.ident -> unit
+(* print add int instruction *)
+val print_add_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print add address offset instruction *)
+val print_add_offset : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print sub int instruction *)
+val print_sub_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print sub address offset instruction *)
+val print_sub_offset : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print mul int instruction *)
+val print_mul_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print div int instruction *)
+val print_div_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print cmp equality int instruction *)
+val print_cmp_eq_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print cmp not equality int instruction *)
+val print_cmp_ne_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print cmp greater int instruction *)
+val print_cmp_gt_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print cmp greater and equal int instruction *)
+val print_cmp_ge_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print cmp less than instruction *)
+val print_cmp_lt_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print cmp less than and equal instruction *)
+val print_cmp_le_int : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print and logic operator instruction *)
+val print_and : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print or logic operator instruction *)
+val print_or : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> unit
+(* print not negation operator instruction *)
+val print_not : Bean_ast.ident -> Bean_ast.ident -> unit
+(* print move => swap int instruction *)
+val print_move : Bean_ast.ident -> Bean_ast.ident -> unit
+(* print call label instruction *)
+val print_call : Bean_ast.ident -> unit
+(* print call builtin function instruction *)
+val call_builtin : 'a -> Bean_ast.ident -> unit
+(* print branch true instruction *)
+val print_branch_on_true : Bean_ast.ident -> Bean_ast.ident -> unit
+(* print branch false instruction *)
+val print_branch_on_false : Bean_ast.ident -> Bean_ast.ident -> unit
+(* print branch unconditoin instruction *)
+val print_branch_on_unc : Bean_ast.ident -> unit
+(* print label_X  *)
+val print_label_by_number : Bean_ast.stackNum -> unit
+(* print function name as label  *)
+val print_label_by_function_name : Bean_ast.ident -> unit
+(* print return a label name  *)
+val get_label_name : Bean_ast.stackNum -> Bean_ast.ident
+(* print return instruction *)
+val print_return : unit -> unit
+(* print halt instruction *)
+val print_halt : unit -> unit
+(* print debug_reg instruction *)
+val print_debug_reg : Bean_ast.ident -> unit
+(* print debug_slot instruction *)
+val print_debug_slot : Bean_ast.stackNum -> unit
+(* print debug_stack instruction *)
+val print_debug_stack : unit -> unit
+(* print read_int instruction *)
+val print_read_int : unit -> unit
+(* print read_bool instruction *)
+val print_read_bool : unit -> unit
+(* print print int instruction *)
+val print_print_int : unit -> unit
+(* print print bool instruction *)
+val print_print_bool : unit -> unit
+(* print print string instruction *)
+val print_print_string : unit -> unit
+(* print corresponding binop Oz instruction *)
+val codegen_binop : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.ident -> Bean_ast.binop -> unit
+(* print binop for debug instruction *)
+val printBinop : Bean_ast.binop -> Bean_ast.ident
+(* print generate unop Oz instruction *)
+val codegen_unop : Bean_ast.ident -> Bean_ast.ident -> Bean_ast.unop -> unit
+(* get current variable's stack num instruction *)
+val getStackNum : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> Bean_ast.stackNum
+(* get lvalue's stack num instruction *)
+val get_lvalue_stack_num : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> Bean_ast.stackNum
+(* is_Ref? *)
+val get_bool_ref_val_symbol_hash_table : ('a, Bean_ast.symbolTableType) Hashtbl.t -> 'a -> bool
+(* is_Ref? *)
+val get_lvalue_ref_or_not : (Bean_ast.ident, Bean_ast.symbolTableType) Hashtbl.t -> Bean_ast.lvalue -> bool
+(* generate arithmatic opeartion's Oz code *)
+val codegen_arithmatic : Bean_ast.expr -> Bean_ast.stackNum
+(* generate Ref arithmatic operation's Oz Code*)
+val codegen_arithmatic_ref : Bean_ast.expr -> Bean_ast.stackNum
+
+============================================
+src/bean.ml
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the file contains our main method to run the whole program
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ * Note that this file is provided as the skeleton code in this subject
+ *)
+
+open Bean_codegen
+open Bean_lex
+open Lexing
+open Bean_symbol
+open Bean_analyze
+module P = Bean_parse
+
+(* Argument parsing code *)
+let infile_name = ref None
+
+type compiler_mode = PrettyPrint | Compile
+let mode = ref Compile
+
+(* --------------------------------------------- *)
+(*  Specification for command-line options       *)
+(* --------------------------------------------- *)
+let (speclist:(Arg.key * Arg.spec * Arg.doc) list) =
+  ["-p",
+     Arg.Unit(fun () -> mode := PrettyPrint),
+     " Run the compiler in pretty-printer mode"
+  ]
+  
+let printError msg lexbuf =
+    let position = lexeme_start_p lexbuf in
+    Printf.eprintf "%s on line %d, column %d.\n" msg position.pos_lnum (position.pos_cnum - position.pos_bol + 1)
+
+let main () =
+    (* Parse the command-line arguments *)
+    Arg.parse speclist
+        (begin fun fname -> infile_name := Some fname end)
+        "bean [-p] [bean source]" ;
+        (* Open the input file *)
+        let infile = match !infile_name with
+        | None -> stdin
+        | Some fname -> open_in fname  in
+        (* Initialize lexing buffer *)
+        let lexbuf = Lexing.from_channel infile in
+        try
+            (* Call the parser *)
+            let prog = Bean_parse.start_state Bean_lex.token lexbuf in
+            match !mode with
+            | PrettyPrint ->Printf.printf "pretty print disable\n"
+            (*start_test_analyzer prog*)
+                (*codegen_stmts (List.hd prog.funcdefs)*)
+              (*Bean_pprint.print_program Format.std_formatter prog *)
+
+            | Compile -> start_test_analyzer prog
+        with
+            (* Handle suitable message for parsing and lexing error *)
+            | Parsing.Parse_error -> printError "Syntax error" lexbuf
+            | LexFail -> printError "Invalid character" lexbuf
+
+let _ = main ()
+============================================
+src/bean_pprint.mli
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+val print_program : Format.formatter -> Bean_ast.t -> unit
+============================================
+src/bean_analyze.ml
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the ast file contains the methods for code semantic analysing
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+open Bean_ast
+open Bean_symbol
+open Bean_codegen
+
+let register_count = ref (-1)
+let cur_param_ref = ref false
+
+
+
+let rec get_cur_LId lvalue = match lvalue with
+	| LId(ident) -> ident
+  | LField(lvalue,ident) -> ident
+  | _ -> (raise (Failure "Error at get_cur_LId"))
+
+let get_rest_lvalue lvalue= match lvalue with
+  | LField(lvalue,ident) -> lvalue
+  | _ -> (raise (Failure "get_rest_lvalue"))
+
+
+
+let get_symbol_hash_table_primitive_type hash_table key_name = match (Hashtbl.find hash_table key_name) with
+  | S_Bool(bean_type , _) -> bean_type
+  | S_Int(bean_type , _) -> bean_type
+  (*| S_Struct(bean_type , _) -> bean_type*)
+  | S_Ref_Int(bean_type , _) -> bean_type
+  | S_Ref_Bool(bean_type , _) -> bean_type (*only return Bool or Int, typedef of {} type will cause error*)
+  | S_Hash(bean_type,_) -> bean_type
+  | S_Ref_Hash(bean_type,_)->bean_type
+  | _ -> (raise (Failure "get primitive type error\n"))
+
+let get_symbol_hash_table_primitive_type_stack_num symbol_type = match symbol_type with
+  | S_Bool(_ , stackNum) -> stackNum
+  | S_Int(_ , stackNum) -> stackNum
+  (*| S_Struct(bean_type , _) -> bean_type*)
+  | S_Ref_Int(_ , stackNum) -> stackNum
+  | S_Ref_Bool(_ ,stackNum) -> stackNum (*only return Bool or Int, typedef of {} type will cause error*)
+  | _ -> (raise (Failure "get primitive type error\n"))
+
+
+
+let expr_type_match_with_cur_expr_type bean_type = (if ((!cur_expr_type) = BeanTypeNone) then cur_expr_type := bean_type;
+	if (bean_type = (!cur_expr_type)) then true else false)
+
+let rec get_lvalue_type hash_table lvalue = match lvalue with
+	| LId(ident) -> get_symbol_hash_table_primitive_type hash_table ident
+  | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
+  	(get_lvalue_type temp_hash_symbol_table lvalue_type)
+  | _ -> (raise (Failure"error on checking lvalue type \n"))
+
+
+
+
+(*for write*)
+let rec check_expr_type hash_table expr = match expr with
+	| Ebool(bool_val) -> expr_type_match_with_cur_expr_type Bool
+  | Eint(int_val) -> expr_type_match_with_cur_expr_type Int
+  | Elval(lvalue) -> expr_type_match_with_cur_expr_type (get_lvalue_type hash_table lvalue)
+  | Ebinop(expr_1,binop,expr_2) ->(let _ = check_expr_type hash_table expr_1 in check_expr_type hash_table expr_2)
+  | Eunop(unop,expr_1) -> check_expr_type hash_table expr_1
+  | Eident(ident) -> expr_type_match_with_cur_expr_type (IdentType(ident)) (* "string " *)
+  (*| Eident(ident) -> try let temp_type_result = Hashtbl.find hash_table ident in
+  	 	expr_type_match_with_cur_expr_type (get_symbol_hash_table_primitive_type(temp_type_result))
+  	 with Not_found -> (Printf.printf "checking Eident error when checking expr type\n";exit 0)*)   (*assume ident is in frist level , not with dot*)
+  | Ebracket(expr) ->check_expr_type hash_table expr
+
+let rec getStackNum hash_table key_name = match (Hashtbl.find hash_table key_name) with
+  | S_Bool(_ , stackNum) -> stackNum
+  | S_Int(_ , stackNum) -> stackNum
+  (*| S_Struct(_ , stackNum) -> stackNum*)
+  | S_Ref_Int(_ , stackNum) -> stackNum
+  | S_Ref_Bool(_ , stackNum) -> stackNum
+  | _ -> (raise (Failure "get stack num error\n"))
+
+
+
+(*true => ref, false => val *)
+let get_bool_ref_val_symbol_hash_table hash_table key_name = match (Hashtbl.find hash_table key_name) with
+  | S_Bool(_ , _) -> false
+  | S_Int(_ , _) -> false
+  | S_Hash(_,_) -> false
+  | S_Intext_Hash(_) -> false
+  | S_Ref_Hash(_,_) -> true
+  | S_Ref_Int(_ , _) -> true
+  | S_Ref_Bool(_ , _) -> true (*only return Bool or Int, typedef of {} type will cause error*)
+  | S_Ref_Intext_Hash(_) -> true
+  | _ -> (raise (Failure "type error for is ref \n"))
+
+(*true => ref, false => val *)
+let get_bool_ref_val_symbol_type symbol_type = match symbol_type with
+  | S_Bool(_ , _) -> false
+  | S_Int(_ , _) -> false
+  | S_Hash(_,_) -> false
+  | S_Intext_Hash(_) -> false
+  | S_Ref_Hash(_,_) -> true
+  | S_Ref_Int(_ , _) -> true
+  | S_Ref_Bool(_ , _) -> true (*only return Bool or Int, typedef of {} type will cause error*)
+  | S_Ref_Intext_Hash(_) -> true
+
+  (* add intext S_Intext_Hash of (string , symbolTableType) Hashtbl.t , S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t *)
+  | _ -> (raise (Failure  "check val ref type error\n"))
+
+let rec get_lvalue_ref_or_not hash_table key_name = match key_name with
+	| LId(ident) -> get_bool_ref_val_symbol_hash_table hash_table ident
+  | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
+  	get_lvalue_ref_or_not temp_hash_symbol_table lvalue_type
+  | _ -> (raise (Failure "error on checking lvalue type \n"))
+
+
+
+
+let rec get_lvalue_symbol_type hash_table lvalue = match lvalue with
+	| LId(ident) -> Hashtbl.find hash_table ident
+  | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
+  	get_lvalue_symbol_type temp_hash_symbol_table lvalue_type
+  | _ -> (raise (Failure "error on checking lvalue type \n"))
+
+let rec add_in_Lid_to_Last l_field add_on_string = match l_field with 
+  | LId(ident) -> LField(LId(add_on_string),ident)
+  | LField(lvalue_type,ident) -> LField( (add_in_Lid_to_Last lvalue_type add_on_string),ident)
+  | _ -> (raise (Failure "error add_in_Lid_to_Last \n"))
+
+(*
+ let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
+	| LId(ident) -> getStackNum(Hashtbl.find hash_table ident)
+  | LField(lvalue_type,ident) -> let temp_hash_symbol_table = Hashtbl.find hash_table ident in 
+  	get_lvalue_stack_num temp_hash_symbol_table lvalue_type
+  | _ -> (Printf.printf"error on get stack num lvalue type \n"; exit 0)
+*)
+
+
+let rec parse_print_store symbol_struct = match symbol_struct with
+  | S_Bool(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Int(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Hash(bean_type,inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | S_Ref_Hash(bean_type,inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | S_Ref_Int(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Ref_Bool(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
+  | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
+  | _ -> (raise (Failure  "error parse_print_store \n"))
+
+let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
+	| LId(ident) -> getStackNum hash_table ident
+  | LField(lvalue_type,ident) -> let temp_hash_symbol_table =  get_hash_table_symbol (Hashtbl.find hash_table ident) in 
+  	get_lvalue_stack_num temp_hash_symbol_table lvalue_type
+  | _ -> (raise (Failure "error on get stack num lvalue type \n"))
+
+(*
+let rec do_print_rassign is_ref lvalue hash_table expr = match (get_lvalue_symbol_type lvalue) with
+  | S_Ref_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> 
+    ) inner_hash_table )
+  | S_Hash(inner_hash_table)
+  | S_Bool(bean_type,stackNum)
+  | S_Int(bean_type,stackNum)
+  | S_Ref_Int(bean_type,stackNum)
+  | S_Ref_Bool(bean_type,stackNum)
+  | S_Intext_Hash(inner_hash_table)
+  | S_Ref_Intext_Hash(inner_hash_table)
+  | -> (Printf.printf "error do_print_rassign\n";exit 0)
+*)
+
+(*must be lvalue*)
+(*
+let codegen_load_lvalue_typedef is_ref hash_table symbol_struct = match symbol_struct with
+    | S_Ref_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Intext_Hash(inner_hash_table) ->(Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Ref_Intext_Hash(inner_hash_table) ->(Hashtbl.iter (fun key value -> codegen_expr_typedef is_ref inner_hash_table value ) inner_hash_table )
+    | S_Bool(bean_type,stackNum) -> codegen_arithmatic expr
+    | S_Int(bean_type,stackNum) -> codegen_arithmatic expr
+    | S_Ref_Int(bean_type,stackNum) -> codegen_arithmatic expr
+    | S_Ref_Bool(bean_type,stackNum) -> codegen_arithmatic expr
+    | -> (Printf.printf "error do_print_rassign\n";exit 0)
+
+
+  | _ -> (Printf.printf "type mis match from codegen_expr_typedef\n";exit 0) 
+*)
+
+let rec codegen_store_rvalue lvalue_symbol_struct expr_symbol_struct is_ref_expr = match lvalue_symbol_struct with
+  | S_Ref_Hash(bean_type,inner_hash_table) -> (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Hash(bean_type,inner_hash_table) ->  (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Intext_Hash(inner_hash_table) ->  (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Ref_Intext_Hash(inner_hash_table) -> (Hashtbl.iter (fun key value -> 
+    (let expr_value = Hashtbl.find (get_hash_table_symbol expr_symbol_struct) key in codegen_store_rvalue value expr_value is_ref_expr ) ) inner_hash_table )
+  | S_Bool(bean_type,stackNum) ->( match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_load_indirect "r0" "r0" ;
+        print_store stackNum "r0" )
+    | false -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;
+        print_store stackNum "r0" ))
+  | S_Int(bean_type,stackNum) ->( match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ;(* right is pointer *)
+        print_load_indirect "r0" "r0" ;
+        print_store stackNum "r0" )
+    | false -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" expr_stack_num ; (*right is not pointer , both not pointer*)
+        print_store stackNum "r0" ))
+  | S_Ref_Int(bean_type,stackNum) -> (match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" stackNum ;
+        print_load "r1" expr_stack_num;
+        print_load_indirect "r1" "r1" ;(*both pointer*)
+        print_store_indirect "r0" "r1" )
+    | false -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" stackNum;(*left is poiner *)
+        print_load "r1" expr_stack_num ;
+        print_store_indirect "r0" "r1" ))
+  | S_Ref_Bool(bean_type,stackNum) -> (match is_ref_expr with
+    | true -> let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" stackNum ;
+        print_load "r1" expr_stack_num;
+        print_load_indirect "r1" "r1" ;(*both pointer*)
+        print_store_indirect "r0" "r1" )
+    | false ->let expr_stack_num = get_symbol_hash_table_primitive_type_stack_num expr_symbol_struct in 
+      (print_load "r0" stackNum;(*left is poiner *)
+        print_load "r1" expr_stack_num ;
+        print_store_indirect "r0" "r1" ))
+  | _ -> (raise (Failure "error do_print_rassign\n"))
+
+
+
+(*key should be found in the hashtable other wise it is a type error *)
+let rec process_rvalue is_ref lvalue hash_table rvalue = match rvalue with(*{a:int}, {b:int} not the same *)
+  | Rexpr( Elval(lvalue_inner) ) ->(codegen_store_rvalue (get_lvalue_symbol_type (!cur_func_symbol_hash_table) lvalue) (get_lvalue_symbol_type (!cur_func_symbol_hash_table) lvalue_inner ) (get_lvalue_ref_or_not (!cur_func_symbol_hash_table)  lvalue_inner))
+  | Rexpr(expr) -> let temp_var_stack_num = (get_lvalue_stack_num hash_table lvalue) in
+     (cur_func_symbol_hash_table := hash_table ;
+      cur_register_count := 0 ;
+      let result_register = codegen_arithmatic expr in (if is_ref
+        then (print_load (get_register_string (result_register+1)) temp_var_stack_num; (*assign new value to ref var*)
+          print_store_indirect (get_register_string (result_register+1)) (get_register_string result_register)) (*r1 = r0 *)
+        else print_store temp_var_stack_num (get_register_string result_register) )) (*answer is in r0 *)
+  
+  | Rassign (inner_var, inner_rvalue) -> let new_lvalue = add_in_Lid_to_Last lvalue inner_var in
+        (process_rvalue is_ref new_lvalue hash_table inner_rvalue)
+  (*| Rassign (inner_var, Rexpr(expr)) -> let new_lvalue = add_in_Lid_to_Last lvalue inner_var in
+      let temp_var_stack_num = (get_lvalue_stack_num hash_table new_lvalue) in
+        (process_rvalue is_ref new_lvalue hash_table (Rexpr(expr));(* a := {b=12+x,c=321}*)
+          if is_ref(*load address to register*)
+          then 
+            (print_load "r1" temp_var_stack_num; (*assign new value to ref var*)
+            print_store_indirect "r1" "r0") (*r1 = r0 *)
+          else print_store 0 "r0")
+  | Rassign (inner_var,Rstmts (rvalue_list)) -> process_rvalue is_ref (add_in_Lid_to_Last inner_var)  (Rstmts (rvalue_list))*)
+  | Rstmts (rvalue_list) -> List.iter (process_rvalue is_ref lvalue hash_table ) rvalue_list (* a := {a=123,b=321}, if can't find in the hasb table mean error*)
+  (* a := {b= ? ,c= ?}*)
+  | _ -> (raise (Failure "rvalue processing error \n"))
+
+
+let rec codgen_all_param_fields param_symbol_structure hash_table = let local_register_count = !cur_register_count in match param_symbol_structure with
+  | S_Ref_Hash (bean_type,inner_hash_table) ->( Hashtbl.iter (fun kye value -> codgen_all_param_fields value inner_hash_table) inner_hash_table)
+  | S_Hash (bean_type,inner_hash_table) -> Hashtbl.iter (fun kye value -> codgen_all_param_fields value inner_hash_table) inner_hash_table
+  | S_Bool (bean_type, stackNum) -> (incr cur_register_count;print_store (stackNum) (get_register_string (local_register_count)))
+  | S_Int (bean_type,stackNum) -> (incr cur_register_count;print_store (stackNum) (get_register_string (local_register_count)))
+  | S_Ref_Int (bean_type,stackNum) -> (incr cur_register_count;print_store (stackNum) (get_register_string (local_register_count)))
+  | S_Ref_Bool (bean_type ,stackNum) -> (incr cur_register_count;print_store (stackNum) (get_register_string (local_register_count)))
+  | S_Intext_Hash (inner_hash_table) -> Hashtbl.iter (fun kye value -> codgen_all_param_fields value inner_hash_table) inner_hash_table
+  | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun kye value -> codgen_all_param_fields value inner_hash_table) inner_hash_table
+  | _ -> (raise (Failure "Error on codgen_all_param_fields\n"))
+
+let rec codegen_var_init hash_table one_struct = match one_struct with
+	| SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
+			List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
+		Not_found -> (raise (Failure "codegen_var_init finding symbol table failed at ListTypeTerm\n")))
+	| SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name) 
+	| _ -> (raise (Failure "Error on initializing local var codegen_var_init\n"))
+
+let rec codegen_var_init_incr_ver hash_table one_struct =(match one_struct with
+	| SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
+			List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
+		Not_found -> (raise (Failure "codegen_var_init finding symbol table failed at ListTypeTerm\n")))
+	| SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name)
+	| _ -> (raise (Failure "Error on initializing local var codegen_var_init\n")))
+
+let rec codegen_param_init hash_table one_param = match one_param with
+  | (Val , ListTypeTerm(typedefStruct_list) , param_name) ->(try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table param_name) in
+      List.iter (codegen_var_init_incr_ver temp_hash_symbol_table) typedefStruct_list with
+    Not_found -> (raise (Failure "find hash failed codegen_param_init\n")))
+	| (Ref , ListTypeTerm(typedefStruct_list) , param_name) ->(try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table param_name) in
+			List.iter (codegen_var_init_incr_ver temp_hash_symbol_table) typedefStruct_list with
+		Not_found -> (raise (Failure "find hash failed codegen_param_init\n")))
+	| (_ , _ , param_name) -> codgen_all_param_fields (Hashtbl.find (!cur_func_symbol_hash_table) param_name) (!cur_func_symbol_hash_table)
+
+
+  
+	(*| _ -> (Printf.printf "Code Gend Error in codegen_param_init \n";exit 0)*)
+(*
+let rec tranverse_hash_table_get_data hash_table stack_num = Hashtbl.iter (fun _ value-> match value with
+	| S_Ref_Hash of (bean_type,inner_hash_table)
+  | S_Hash of (bean_type,inner_hash_table)(*self def type*)
+  | S_Bool of (bean_type * stackNum) (*Int => stack num*)
+  | S_Int of (bean_type * stackNum)
+  | S_Ref_Int of (bean_type * stackNum)
+  | S_Ref_Bool of (bean_type * stackNum)(*if beantype is a ident, need to search through typedef hash table*)
+  | S_Intext_Hash (inner_hash_table)
+  | S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t
+	| (Printf.printf "Error on tranverse hash table with stack num\n";exit 0)) hash_table
+*)
+
+(*if same all the keys are same ? *)
+
+let check_ref_val_type_equal first second = match first with 
+  | S_Ref_Hash (IdentType(typedef_name),inner_hash_table) -> (match second with
+    |S_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false 
+    |S_Ref_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false 
+    | _ -> false)
+    
+  | S_Hash (IdentType(typedef_name),inner_hash_table) -> (match second with
+  	|S_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false 
+    |S_Ref_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false
+    | _ -> false)
+ 
+  | S_Bool (_,_) -> (match second with
+  	| S_Bool (_,_) -> true
+  	| S_Ref_Bool (_,_) -> true
+  	| _ -> false)
+  | S_Int (_,_) -> (match second with
+  	| S_Int (_,_) -> true
+  	| S_Ref_Int (_,_) -> true
+  	| _ -> false)
+  | S_Ref_Int (_,_) ->  (match second with
+  	| S_Int (_,_) -> true
+  	| S_Ref_Int (_,_) -> true
+  	| _ -> false)
+  | S_Ref_Bool (_,_) -> (match second with
+  	| S_Bool (_,_) -> true
+  	| S_Ref_Bool (_,_) -> true
+  	| _ -> false)
+
+  | S_Intext_Hash (inner_hash_table) -> (match second with
+  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+  		then true
+  		else false 
+  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+  		then true
+  		else false 
+  	| _ -> false)
+  | S_Ref_Intext_Hash (inner_hash_table) ->( match second with
+  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+  		then true
+  		else false 
+  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+  		then true
+  		else false 
+  	| _ -> false)
+  | _ -> (raise (Failure  "error check_ref_val_type_equal unwanted type\n" ))
+
+let rec convert_one_expr_param_to_symbol_type one_expr = match one_expr with 
+  | Ebool(_) -> S_Bool(Bool,-1) (*-1 means nothing ,just need this struct to compare with clee*)
+  | Eint(_) -> S_Int(Int,-1) 
+  | Elval(lvalue) -> get_lvalue_symbol_type (!cur_func_symbol_hash_table) lvalue
+  | Ebinop (expr_1,binop,expr_2) -> (let _ = convert_one_expr_param_to_symbol_type expr_1 in convert_one_expr_param_to_symbol_type expr_2)
+  | Eunop (unop,expr) -> convert_one_expr_param_to_symbol_type expr
+  | Ebracket(expr)-> convert_one_expr_param_to_symbol_type expr
+  | _ -> (raise (Failure "convert_one_expr_param_to_symbol_type type error\n"))
+  (*| Eident(string_val)*) (*this is for " awefawef  " => type *)
+
+let rec gen_symbol_type_to_register symbol_type is_ref_caller is_ref_callee   =
+	let local_register_count = !cur_register_count in (match (is_ref_caller,is_ref_callee) with
+	| (true,false) -> (match symbol_type with 		
+		| S_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
+		| S_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
+		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table
+		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
+		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *)) (*only return Bool or Int, typedef of {} type will cause error*)
+		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
+	| (false,true) -> (match symbol_type with 		(* caller not ref, callee ref*)
+		| S_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
+		| S_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
+		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
+		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *)) (*only return Bool or Int, typedef of {} type will cause error*)
+		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
+	| (true,true) -> (match symbol_type with (* caller ref, callee ref *)
+		| S_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *))
+		| S_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *))
+		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *))
+		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *)) (*only return Bool or Int, typedef of {} type will cause error*)
+		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
+	| (false,false) -> (match symbol_type with (*caller val, callee val*)
+		| S_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *))
+		| S_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *))
+		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *))
+		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+			print_load (get_register_string local_register_count) stack_num; (* r = s *)) (*only return Bool or Int, typedef of {} type will cause error*)
+		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n"))))
+
+
+(*one_expr_param is from caller, one_param is from callee*)
+let process_calling_method_param caller_hash_table callee_hash_table one_expr_param one_param =(match one_param with
+	| (Val,_,one_callee_param_name) -> (cur_expr_type := BeanTypeNone;
+		(*make sure has same type*)
+		if (check_expr_type caller_hash_table one_expr_param)&&(check_ref_val_type_equal (Hashtbl.find callee_hash_table one_callee_param_name) (convert_one_expr_param_to_symbol_type one_expr_param))
+		then match one_expr_param with
+			| Ebool(bool_val) -> (codegen_arithmatic one_expr_param)
+		  | Eint(int_val) -> (codegen_arithmatic one_expr_param)
+		  | Elval(lvalue) -> if !cur_expr_type = Int || !cur_expr_type = Bool 
+		  	then  codegen_arithmatic one_expr_param
+		  	else  (Hashtbl.iter (fun key value -> gen_symbol_type_to_register value (get_lvalue_ref_or_not caller_hash_table lvalue) false ) (get_hash_table_symbol (get_lvalue_symbol_type caller_hash_table lvalue));
+		  		!cur_register_count) (*must return a num...*)
+		  | Ebinop (expr_1,binop,expr_2) -> (codegen_arithmatic one_expr_param)(* codege_ari incr cur_register inside *)
+		  | Eunop (unop,expr) -> (codegen_arithmatic expr)
+		  | Ebracket(expr)-> (codegen_arithmatic expr)
+		  | _ -> (raise (Failure "process_calling_method_param error => then match one_expr_param with\n"))
+		else (raise (Failure "caller and callee param type mismatch\n")))
+		(*callee param is val*)
+	| (Ref,_,one_callee_param_name) ->  (cur_expr_type := BeanTypeNone;
+		(*make sure has same type*)
+		if (check_expr_type caller_hash_table one_expr_param) && (check_ref_val_type_equal (Hashtbl.find callee_hash_table one_callee_param_name) (convert_one_expr_param_to_symbol_type one_expr_param))
+		then match one_expr_param with
+		(* ref does not allow primitive value pass in 
+			| Ebool(bool_var) -> (codegen_arithmatic one_expr_param)
+		  | Eint(int_val) -> (codegen_arithmatic one_expr_param ) *)
+		  | Elval(lvalue) -> if !cur_expr_type = Int || !cur_expr_type = Bool 
+		  	then  codegen_arithmatic_ref one_expr_param
+		  	else  (Hashtbl.iter (fun key value -> gen_symbol_type_to_register value (get_lvalue_ref_or_not caller_hash_table lvalue) true ) (get_hash_table_symbol (get_lvalue_symbol_type caller_hash_table lvalue));
+		  		!cur_register_count) (* passed in is a struct / typedef *)
+		  (*| Ebinop (expr_1,binop,expr_2) -> (convert_one_expr_param_to_symbol_type expr_1; convert_one_expr_param_to_symbol_type expr_2) same reason primitive value cant be ref
+		  | Eunop (unop,expr) -> convert_one_expr_param_to_symbol_type expr
+		  | Ebracket(expr)-> convert_one_expr_param_to_symbol_type expr*)
+		  | _ -> (raise (Failure "process_calling_method_param error => then match one_expr_param with\n"))
+		else (raise (Failure"caller and callee param type mismatch\n"))))(*callee param is  ref *)
+	(*| _ -> (Printf.printf "process_calling_method_param error";exit 0)*)
+
+let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := hash_table; match one_stmt with
+	| Assign(lvalue, rvalue) -> (cur_register_count := 0;process_rvalue (get_lvalue_ref_or_not hash_table lvalue) lvalue hash_table rvalue) (*set cur_expr_type to lvalue type, then in process_rvalue will check type*)
+  | Read(lvalue) ->let temp_lvalue_type = get_lvalue_type hash_table lvalue in 
+  	let temp_lvalue_stack_num = (get_lvalue_stack_num hash_table lvalue) in (*ref ?*)
+	  	if(temp_lvalue_type = Int)
+	  	then 
+	  		if (get_lvalue_ref_or_not hash_table lvalue)(* is ref *)
+	  		then (print_read_int();
+	  					print_load "r1" temp_lvalue_stack_num;
+	  					print_store_indirect "r1" "r0" )
+	  		else (print_read_int();
+	  					print_store temp_lvalue_stack_num "r0")
+	  	else 
+	  		if (get_lvalue_ref_or_not hash_table lvalue)(* is ref *)
+	  		then (print_read_bool(); (*result is in r0 *)
+	  					print_load "r1" temp_lvalue_stack_num;
+	  					print_store_indirect "r1" "r0" )
+	  		else (print_read_bool();
+	  					print_store temp_lvalue_stack_num "r0")
+  | Write(expr) ->(top_level_expr_type:= BeanTypeNone;cur_expr_type := BeanTypeNone; cur_register_count := 0;
+    let _ = check_expr_type hash_table expr in
+    if true
+  	then 
+  		if(!cur_expr_type = Int) (*write int, result of arithematic is in r0*)
+  		then 
+  			(let _ =codegen_arithmatic expr in
+  				(if !top_level_expr_type = Bool then print_print_bool () else print_print_int()))
+  		else 
+  			  match !cur_expr_type with (*write string*)
+  				| IdentType(string_temp) -> (print_string_const (get_register_string 0) string_temp;
+  					print_print_string())
+          | Bool -> (let _ =codegen_arithmatic expr in
+          print_print_bool())
+  				| _ -> (raise (Failure  "type error when writing a string\n"))
+		else (raise (Failure "write check type failed \n")))
+  | Method(method_name, expr_params_list) ->(cur_register_count := 0;
+  	let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find symbol_table_hash method_name) in (*callee hashtable*)
+  		let ((callee_func_name,temp_param_list),_,_)  = Hashtbl.find func_param_order_hash_table method_name in(*(valRef*typedefStruct*string) list*) 
+		  	(if (List.length expr_params_list) = (List.length temp_param_list)
+		  	then (List.iter2 (fun first second -> (let _ = process_calling_method_param hash_table temp_hash_symbol_table first second in Printf.printf "")) expr_params_list temp_param_list )
+		  	else (raise (Failure "short for params for calling %s\n")));
+      print_call method_name;)
+  | WhileDec(expr, stmt_list) -> (let while_label = (!cur_label_count) in 
+	  	let while_out_label = (!cur_label_count) + 1 in 
+		  	(print_label_by_number while_label;
+          cur_label_count := (!cur_label_count) + 2;
+		  		let result_register = codegen_arithmatic expr in (*compare condition *)
+			  	(print_branch_on_false (get_register_string result_register) (get_label_name while_out_label); (*branch is different to call .*)
+			  	List.iter (codegen_one_stmt hash_table) stmt_list; (**)
+			  	print_branch_on_unc (get_label_name while_label);
+			  	print_label_by_number while_out_label)))
+	(*will reserve else label as well, eventhough it might have no else part*)
+  | IfDec(expr,then_stmt_list,else_stmt_list) ->(let if_else_label = (!cur_label_count) in
+  	let if_out_label= (!cur_label_count)+1 in ( cur_label_count:=(!cur_label_count)+2;
+  		if(List.length (else_stmt_list))!= 0 (*if have else and condition is flase then go to else*)
+  		then (cur_register_count := 0;
+  			let result_register = codegen_arithmatic expr in
+  			(print_branch_on_false (get_register_string result_register) (get_label_name if_else_label);
+	  			List.iter (codegen_one_stmt hash_table) then_stmt_list ;
+	  			print_branch_on_unc (get_label_name if_out_label);
+	  			print_label_by_number if_else_label;
+	  			List.iter (codegen_one_stmt hash_table) else_stmt_list;(*if false go to else label, if true say in and jump uncondition to out label*)
+	  			print_label_by_number if_out_label))
+  		else (cur_register_count := 0;
+        let result_register = codegen_arithmatic expr in 
+          (print_branch_on_false (get_register_string result_register) (get_label_name if_out_label);(*if not else and false go to out label*)
+  			   List.iter (codegen_one_stmt hash_table) then_stmt_list;
+  			   print_label_by_number if_out_label))))(* if not else directly go *) 
+  | _ -> (raise (Failure "start_translate_by_function_stmt_list error \n") ))
+
+(*
+
+let check_if_ref func_name key = (*see is var ref or not*)
+
+let check_one_stmt_type stmt_data type_data = (*write, read, assign, *)
+*)
+
+
+let start_translate_by_function_declaration func_name one_functionDeclaration = match one_functionDeclaration with
+	|(func_name,funcDecParamList) -> (cur_register_count := 0;
+		print_label_by_function_name func_name; (*start each label body*)
+		(try let function_symbol_table_hash = get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name) in
+			(print_push_stack_frame (Hashtbl.find func_stack_num_hash func_name);
+				List.iter (fun x -> (
+					codegen_param_init function_symbol_table_hash x)) funcDecParamList;
+				cur_register_count := 0)
+		with Not_found -> (raise (Failure "%s symbol_table_hash not found\n"))))
+
+let rec start_translate_by_function_variable_declaration func_name typedefStruct_list = let var_init_symbol_table = get_hash_table_symbol( Hashtbl.find symbol_table_hash func_name )in
+	(cur_register_count := 0;
+		print_int_const (get_register_string !cur_register_count) 0; (*initialize everything to 0*)
+		List.iter (codegen_var_init var_init_symbol_table)  typedefStruct_list)
+
+let start_translate_by_function_stmt_list func_name stmt_list = let temp_hash_symbol_table = get_hash_table_symbol ( Hashtbl.find symbol_table_hash func_name) in
+	( cur_expr_type := BeanTypeNone;
+		cur_func_symbol_hash_table := temp_hash_symbol_table;
+		List.iter (codegen_one_stmt temp_hash_symbol_table) stmt_list)
+
+
+let start_translate_by_function one_funcdef = match one_funcdef with
+	|((func_name,func_param_list),typedefStruct_list,stmt_list) ->(cur_func_symbol_hash_table := get_hash_table_symbol( Hashtbl.find symbol_table_hash func_name );
+    start_translate_by_function_declaration func_name (func_name,func_param_list);
+		start_translate_by_function_variable_declaration func_name typedefStruct_list;
+		start_translate_by_function_stmt_list func_name stmt_list;
+    print_pop_stack_frame (Hashtbl.find func_stack_num_hash func_name); (*pop stack at the end of function body*)
+		print_return ())
+
+(*syntax ?*)
+let rec find_funcdef funcdefs func_name = try match (List.hd funcdefs) with
+		| ((fun_name,_),_,_) -> if fun_name = func_name then List.hd funcdefs  else find_funcdef (List.tl funcdefs) func_name
+	with Failure e-> (raise (Failure "no main function\n")) 
+
+let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
+		build_symbol_table_hash_all (prog.funcdefs);
+(*		(*build_func_method_param_order_hash_table (prog.funcdefs);*)
+
+		Printf.printf "----- Start Printing typdef_table_hash -----\n";
+		print_out_one_typedef_table typdef_table_hash;
+		Printf.printf "----- End Printing typdef_table_hash -----\n";
+
+		Printf.printf "----- Start Printing symbol_table_hash -----\n";
+		print_out_one_symbol_table symbol_table_hash;
+		Printf.printf "----- End Printing symbol_table_hash -----\n";
+
+		Printf.printf "----- Start Printing func_param_symbol_table_hash -----\n";
+		(*print_out_one_symbol_table func_param_symbol_table_hash;*)
+		Printf.printf "----- End Printing func_param_symbol_table_hash -----\n";
+
+		Printf.printf "----- Start Printing func_stack_num_hash -----\n";
+		print_func_stack_num_hash func_stack_num_hash;
+		Printf.printf "----- End Printing func_stack_num_hash -----\n";
+
+		Printf.printf "----- Start Generating Oz Code -----\n";*)
+		print_call "main";
+		print_halt ();
+(*!= compare address ...*)
+		let main_def = find_funcdef (prog.funcdefs) ("main") in
+			(start_translate_by_function main_def;
+
+		  List.iter (fun x ->( match x with 
+        |((func_name,_),_,_) -> if not (func_name = "main") then start_translate_by_function x  )) prog.funcdefs))
+
+let start_analyzer prog = (build_typedef_table_hash (prog.typedefs);
+		build_symbol_table_hash_all (prog.funcdefs))
+		(*print_out_one_typedef_table typdef_table_hash;*)
+		(*print_out_one_symbol_table symbol_table_hash);*)
+		(*translate main first *)
+
+============================================
+src/bean_parse.mly
+19:14:54_Sunday_22_May_2016
+============================================
+/*
+ * The is the file contains our yacc or context free grammar to build the syntax
+ * tree in order to check input file meets the syntax of the bean language.
+ *
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *
+*/
+
+%{
+open Bean_ast
+%}
+
+/* Constants */
+%token <bool> BOOL_VAL
+%token <int> INT_VAL
+%token <string> STRING_VAL
+/* Keywords */
+%token WRITE READ
+%token ASSIGN
+%token WHILE DO OD
+%token IF THEN ELSE FI
+%token BOOL INT
+%token PROC
+%token END
+%token VAL
+%token REF
+%token TYPEDEF
+/* Operators */
+%token EQ NEQ LT LTE GT GTE
+%token PLUS MINUS MUL DIV
+%token UMINUS
+%token AND OR NOT
+%token EQ_COL
+/* Punctuation */
+%token COLON
+%token SEMICOLON
+%token DOT
+%token COMMA
+%token LEFT_PAREN RIGHT_PAREN
+%token LEFT_BRACE RIGHT_BRACE
+/* Miscellaneous */
+%token EOF
+%token <string> IDENTIFIER
+
+/* Precedence */
+%left OR
+%left AND
+%nonassoc NOT
+%nonassoc EQ NEQ LT LTE GT GTE
+%left PLUS MINUS
+%left MUL DIV
+%right EQ_COL
+%nonassoc UMINUS
+
+%type <Bean_ast.program> start_state
+
+%start start_state
+%%
+
+start_state:
+| type_definition procedure_definition {{typedefs = List.rev $1;funcdefs = List.rev $2}}
+
+/* Zero or more type definitions */
+type_definition:
+| type_definition TYPEDEF type_spec IDENTIFIER {($3,$4)::$1}
+| {[]}
+
+type_spec:
+| primitive_type {$1}
+| IDENTIFIER {SingleTypeTerm((IdentType $1))}
+| LEFT_BRACE field_definition RIGHT_BRACE {ListTypeTerm(List.rev $2)}
+
+primitive_type:
+| BOOL {SingleTypeTerm(Bool)}
+| INT {SingleTypeTerm(Int)}
+
+/* One or more field definitions */
+field_definition:
+| field_definition COMMA IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($3,$5)::$1}
+| IDENTIFIER COLON type_spec {SingleTypeTermWithIdent($1,$3)::[]}
+
+/* One or more procedures */
+procedure_definition:
+| procedure_definition PROC procedure_header variable_definition stmt_list END {($3,List.rev $4,List.rev $5)::$1}
+| PROC procedure_header variable_definition stmt_list END {($2,List.rev $3,List.rev $4)::[]}
+
+procedure_header:
+| IDENTIFIER LEFT_PAREN params RIGHT_PAREN {($1,List.rev $3)}
+
+/* Zero or more parameters */
+params:
+| param {$1}
+| {[]}
+
+param:
+| param COMMA pass_type type_spec IDENTIFIER {($3,$4,$5)::$1}
+| pass_type type_spec IDENTIFIER {($1,$2,$3)::[]}
+
+/* Pass by value or reference */
+pass_type:
+| VAL {Val}
+| REF {Ref}
+
+/* Zero or more local variables */
+variable_definition:
+| variable_definition type_spec IDENTIFIER SEMICOLON { SingleTypeTermWithIdent($3,$2)::$1 }
+| {[]}
+
+/* One or more statements */
+stmt_list:
+| stmt_list stmt {$2::$1}
+| stmt {$1::[]}
+
+stmt:
+| atomic_stmt SEMICOLON {$1}
+| compound_stmt {$1}
+
+atomic_stmt:
+| lvalue EQ_COL rvalue {Assign($1,$3)}
+| READ lvalue {Read($2)}
+| WRITE expr {Write($2)}
+| IDENTIFIER LEFT_PAREN expr_list RIGHT_PAREN {Method($1,List.rev $3)}
+
+compound_stmt:
+| IF expr THEN stmt_list else_block FI {IfDec($2,List.rev $4,$5)}
+| WHILE expr DO stmt_list OD {WhileDec($2,List.rev $4)}
+
+lvalue:
+| IDENTIFIER {LId($1)}
+| IDENTIFIER DOT lvalue{LField($3,$1)}
+
+rvalue:
+| expr { Rexpr($1) }
+| LEFT_BRACE field_inits RIGHT_BRACE {Rstmts(List.rev $2)}
+/* TODO: Removed REmpty rule, deal with in AST */
+
+field_inits:
+| field_init {$1}
+| {[]}
+
+field_init:
+| field_init COMMA IDENTIFIER EQ rvalue {Rassign($3,$5)::$1}
+| IDENTIFIER EQ rvalue {Rassign($1,$3)::[]}
+
+expr:
+| lvalue { Elval($1) }
+| const { $1 }
+| LEFT_PAREN expr RIGHT_PAREN {Ebracket($2)}
+| expr PLUS expr {Ebinop($1,Op_add,$3)}
+| expr MINUS expr {Ebinop($1,Op_sub,$3)}
+| expr MUL expr {Ebinop($1,Op_mul,$3)}
+| expr DIV expr {Ebinop($1,Op_div,$3)}
+| expr EQ expr {Ebinop($1,Op_eq,$3)}
+| expr NEQ expr {Ebinop($1,Op_neq,$3)}
+| expr LT expr {Ebinop($1,Op_lt,$3)}
+| expr GT expr {Ebinop($1,Op_gt,$3)}
+| expr LTE expr {Ebinop($1,Op_lte,$3)}
+| expr GTE expr {Ebinop($1,Op_gte,$3)}
+| expr AND expr {Ebinop($1,Op_and,$3)}
+| expr OR expr {Ebinop($1,Op_or,$3)}
+| NOT expr {Eunop(Op_not,$2)}
+| MINUS expr %prec UMINUS {Eunop(Op_minus,$2)} /* Precedence for unary minus */
+
+expr_list:
+| exprs {$1}
+| {[]}
+
+exprs:
+| exprs COMMA expr {$3::$1}
+| expr {$1::[]}
+
+else_block:
+| ELSE stmt_list {List.rev $2}
+| {[]}
+
+const:
+| BOOL_VAL {Ebool($1)}
+| INT_VAL {Eint($1)}
+| STRING_VAL {Eident($1)}
+============================================
+src/bean_ast.mli
+19:14:54_Sunday_22_May_2016
+============================================
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
+
+(* Specification of an AST for bean *)
+type ident = string
+ 
+(* Keep aliases intact for pretty printing. *)
+type beantype =
+  | Bool
+  | Int
+  | IdentType of string 
+  | BeanTypeNone
+
+(* store type and var declaration*)
+type typedefStruct =
+  |SingleTypeTerm of beantype
+  |SingleTypeTermWithIdent of (ident * typedefStruct)
+  |ListTypeTerm of typedefStruct list
+  |TypedefEnd
+type typedef = typedefStruct list
+
+(* lvalue type *)
+type lvalue =
+  | LId of ident
+  | LField of (lvalue * ident) (* recursively lvalue e.g. var.var1.var2*)
+  | LvalueNone
+
+(* binop represent binary operator e.g. +, *, etc *)
+type binop =
+  | Op_add | Op_sub | Op_mul | Op_div
+  | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
+  | Op_and | Op_or
+
+(* unop => unary operator *)
+type unop =
+  | Op_minus | Op_not
+
+(* expression type *)
+type expr =
+  | Ebool of bool
+  | Eint of int
+  | Elval of lvalue
+  | Ebinop of (expr * binop * expr)
+  | Eunop of (unop * expr)
+  | Eident of string
+  | Ebracket of expr
+
+(* store different form of rvalue *)
+type rvalue =
+  | Rexpr of expr
+  | RField of (rvalue * expr)
+  | Rassign of (string * rvalue)
+  | Rstmts of rvalue list 
+  | Rempty
+
+(* represent the data return from yacc for lis of arguments *)
+type paramList = expr list
+
+(* represent different method procedures  *)
+type stmt = 
+  | Assign of (lvalue * rvalue)
+  | AssignRvalueList of (lvalue * rvalue list)
+  | Read of lvalue
+  | Write of expr
+  | StmtNone
+  | Method of (string * paramList)
+  | VarDec of (beantype * string)
+  | WhileDec of (expr * stmt list)
+  | IfDec of (expr * stmt list * stmt list)
+
+
+type decl = (ident * beantype)
+
+(* represent parameter indicator either ref or val *)
+type valRef = 
+|Val
+|Ref
+
+
+type stackNum = int
+
+type typedefTableType = 
+  |Typedef_Struct_Sinlge_Type of beantype
+  |Typedef_Struct of ((string , typedefTableType) Hashtbl.t)
+  |Typedef_None
+
+type symbolTableType =
+  | S_Func of (string , symbolTableType) Hashtbl.t
+  | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)(* stored nest type of typedef*)
+  | S_Hash of (beantype * (string, symbolTableType) Hashtbl.t)(*self def type*)
+  | S_Bool of (beantype * stackNum) (*Int => stack num*)
+  | S_Int of (beantype * stackNum)
+  | S_Ref_Int of (beantype * stackNum)
+  | S_Ref_Bool of (beantype * stackNum)(*if beantype is a ident, need to search through typedef hash table*)
+  | S_Intext_Hash of (string , symbolTableType) Hashtbl.t
+  | S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t
+
+(* represent the parameters declaration for method header *)
+type funcDecParamList = (valRef*typedefStruct*string) list
+
+(* represent function name and its parameters *)
+type functionDeclaration = (string*funcDecParamList)
+
+(* the whole bean language tokens is stored in here*)
+type program = {
+  typedefs : (typedefStruct*ident) list;
+  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
+}
+
+(* type used by pretty print *)
+type t = program
+
+(* foresee  what is before this current expr, to decide printing parenthesis*)
+val highOrderBinoBefore : binop -> expr -> bool
+(* print bean type *)
+val printBeanType : Format.formatter -> beantype * ident -> unit
+(* print corresponding data in typedefStruct *)
+val printTypedefStruct : Format.formatter -> int * typedefStruct -> unit
+(* print typedef data *)
+val printSingleTypedef : Format.formatter -> typedefStruct * ident -> unit
+(* print typedef list *)
+val printTypedefList : Format.formatter -> (typedefStruct * ident) list -> unit
+(* print function indicator *)
+val printFuncIndicator : Format.formatter -> valRef -> unit
+(* print function parameters with its indicator and type *)
+val printFuncparams : Format.formatter -> valRef * typedefStruct * ident -> unit
+(* print function header *)
+val printFuncheader : Format.formatter -> ident * (valRef * typedefStruct * ident) list -> unit
+(* print function variable declaration  *)
+val printFuncVardef : Format.formatter -> typedefStruct list -> unit
+(* print lvalue *)
+val printLvalue : Format.formatter -> lvalue -> unit
+(* print binary operator *)
+val printBinop : Format.formatter -> binop -> unit
+(* print unary operator *)
+val printUnop : Format.formatter -> unop -> unit
+(* print expression *)
+val printExpr : Format.formatter -> bool * expr -> unit
+(* print rvalue *)
+val printRvalue : Format.formatter -> rvalue -> unit
+(* fill spaces to avoid nested vertical boxes newline issue *)
+val getIdent : int -> ident
+(* print statements end without @ *)
+val printEndStmt : Format.formatter -> bool -> ident -> unit
+(* print statements *)
+val printStmt : Format.formatter -> int * bool * stmt -> unit
+(* print function body *)
+val printFuncBody : Format.formatter -> stmt list -> unit
+(* print function definition *)
+val printSingleFuncdef : Format.formatter -> (ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list -> unit
+(* print list of function definitions *)
+val printFuncdefList : Format.formatter -> ((ident * (valRef * typedefStruct * ident) list) * typedefStruct list * stmt list) list -> unit
+(* to find next expr apart from Ebracket *)
+val loopToEndExpr : expr -> expr
+(* to see if next Ebracket *)
+val nextBracket : expr -> bool
