@@ -579,7 +579,7 @@ let rec find_funcdef funcdefs func_name = try match (List.hd funcdefs) with
 let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
 		build_symbol_table_hash_all (prog.funcdefs);
 		(*build_func_method_param_order_hash_table (prog.funcdefs);*)
-
+(*
 		Printf.printf "----- Start Printing typdef_table_hash -----\n";
 		print_out_one_typedef_table typdef_table_hash;
 		Printf.printf "----- End Printing typdef_table_hash -----\n";
@@ -596,7 +596,7 @@ let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
 		print_func_stack_num_hash func_stack_num_hash;
 		Printf.printf "----- End Printing func_stack_num_hash -----\n";
 
-		Printf.printf "----- Start Generating Oz Code -----\n";
+		Printf.printf "----- Start Generating Oz Code -----\n";*)
 		print_call "main";
 		print_halt ();
 (*!= compare address ...*)

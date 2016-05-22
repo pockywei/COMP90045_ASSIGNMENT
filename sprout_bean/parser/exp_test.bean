@@ -1,11 +1,11 @@
-# Phase 7 test case
-# Semantic error test
+# Phase 4 test case
+# Call by-value arguments and procedure calls
 
-proc p(ref int x)
-    write x;
+proc f(val int x, val bool y)
+    write x > 4 or y;
 end
 
 proc main()
-
-    p(42);    # Actual argument should be an lvalue
+    f(8, false);
+    write "\n";
 end
