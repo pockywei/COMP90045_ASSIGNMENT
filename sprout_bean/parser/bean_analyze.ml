@@ -97,7 +97,7 @@ let get_bool_ref_val_symbol_type symbol_type = match symbol_type with
   | S_Ref_Intext_Hash(_) -> true
 
   (* add intext S_Intext_Hash of (string , symbolTableType) Hashtbl.t , S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t *)
-  | _ -> (Printf.printf "check val ref type error\n"; exit 0)
+  | _ -> (raise (Failure  "check val ref type error\n"))
 
 let rec get_lvalue_ref_or_not hash_table key_name = match key_name with
 	| LId(ident) -> get_bool_ref_val_symbol_hash_table hash_table ident
@@ -137,7 +137,7 @@ let rec parse_print_store symbol_struct = match symbol_struct with
   | S_Ref_Int(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
   | S_Ref_Bool(bean_type , stackNum) -> print_store (stackNum) (get_register_string (!cur_register_count))
   | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> parse_print_store value) inner_hash_table
-  | _ -> (Printf.printf "error parse_print_store \n";exit 0)
+  | _ -> (raise (Failure  "error parse_print_store \n"))
 
 let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
 	| LId(ident) -> getStackNum hash_table ident
@@ -484,7 +484,7 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
 	  		else (print_read_bool();
 	  					print_store temp_lvalue_stack_num "r0")
   | Write(expr) ->(top_level_expr_type:= BeanTypeNone;cur_expr_type := BeanTypeNone; cur_register_count := 0;
-    check_expr_type hash_table expr;
+    let _ = check_expr_type hash_table expr in
     if true
   	then 
   		if(!cur_expr_type = Int) (*write int, result of arithematic is in r0*)
@@ -497,7 +497,7 @@ let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := has
   					print_print_string())
           | Bool -> (let _ =codegen_arithmatic expr in
           print_print_bool())
-  				| _ -> (Printf.printf "type error when writing a string\n";exit 0)
+  				| _ -> (raise (Failure  "type error when writing a string\n"))
 		else (raise (Failure "write check type failed \n")))
   | Method(method_name, expr_params_list) ->(cur_register_count := 0;
   	let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find symbol_table_hash method_name) in (*callee hashtable*)

@@ -114,6 +114,7 @@ let printBeanType fmt (btype,suffix) =  match btype with
 | Bool -> Format.fprintf fmt "bool%s" suffix 
 | Int ->  Format.fprintf fmt "int%s" suffix  
 | IdentType(ident) -> Format.fprintf fmt "%s%s" ident suffix
+| _ ->(raise (Failure "Error printBeanType"))
 
 let rec printTypedefStruct fmt (arrangeMode,typedefStructData) = match typedefStructData with
 | SingleTypeTerm (btype) -> 

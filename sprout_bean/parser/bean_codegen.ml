@@ -186,7 +186,7 @@ let codegen_unop register_1 register_2 single_unop = match single_unop with
 	| Op_minus -> (let temp_cur_register_count = (!cur_register_count) + 1 in (*use s new register to store -1 , but dont update the global register count*)
 		print_int_const (get_register_string temp_cur_register_count) (-1);
 		print_mul_int register_1 register_2 (get_register_string temp_cur_register_count)  )(*anwer will be stored in register_1, temp_register used to store -1*)
-	| Op_not -> (if !cur_expr_type = Bool then print_not register_1 register_1 else (Printf.printf "Op_not type error\n";exit 0))
+	| Op_not -> (if !cur_expr_type = Bool then print_not register_1 register_1 else (raise (Failure  "Op_not type error\n")))
 
 (*
 let start_code_gen one_funcdefs = match one_funcdefs with
@@ -225,13 +225,13 @@ let rec getStackNum hash_table key_name = match (Hashtbl.find hash_table key_nam
   (*| S_Struct(_ , stackNum) -> stackNum*)
   | S_Ref_Int(_ , stackNum) -> stackNum
   | S_Ref_Bool(_ , stackNum) -> stackNum
-  | _ -> (Printf.printf "get stack num error\n"; exit 0)
+  | _ -> (raise (Failure  "get stack num error\n"))
 
  let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
 	| LId(ident) -> getStackNum hash_table ident
   | LField(lvalue_type,ident) -> let temp_hash_symbol_table =  get_hash_table_symbol (Hashtbl.find hash_table ident) in 
   	get_lvalue_stack_num temp_hash_symbol_table lvalue_type
-  | _ -> (Printf.printf"error on get stack num lvalue type \n"; exit 0)
+  | _ -> (raise (Failure "error on get stack num lvalue type \n"))
 
 
 (*true => ref, false => val *)
@@ -244,14 +244,14 @@ let get_bool_ref_val_symbol_hash_table hash_table key_name = match (Hashtbl.find
   | S_Ref_Int(_ , _) -> true
   | S_Ref_Bool(_ , _) -> true (*only return Bool or Int, typedef of {} type will cause error*)
   | S_Ref_Intext_Hash(_) -> true
-  | _ -> (Printf.printf "type error for is ref \n";exit 0)
+  | _ -> (raise (Failure  "type error for is ref \n") )
 
 
 let rec get_lvalue_ref_or_not hash_table key_name = match key_name with
 	| LId(ident) -> get_bool_ref_val_symbol_hash_table hash_table ident
   | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
   	get_lvalue_ref_or_not temp_hash_symbol_table lvalue_type
-  | _ -> (Printf.printf"error on checking lvalue type \n"; exit 0)
+  | _ -> (raise (Failure "error on checking lvalue type \n"))
 
 
 
@@ -287,7 +287,7 @@ let rec codegen_arithmatic expr = let local_register_count = !cur_register_count
 			else
 				 (print_load (get_register_string local_register_count) temp_stack_num;
 					local_register_count))) (* lvalue could be nested for a.x.c =>  *)
-	| _ -> (Printf.printf "error at code gen ";exit 0)
+	| _ -> (raise (Failure  "error at code gen "))
 
 
 	(*type checked before executing this line*)
@@ -320,7 +320,7 @@ let rec codegen_arithmatic_ref expr = let local_register_count = !cur_register_c
 			else
 				 (print_load_address (get_register_string local_register_count) temp_stack_num;
 					local_register_count))) (* lvalue could be nested for a.x.c =>  *)
-	| _ -> (Printf.printf "error at code gen ";exit 0)
+	| _ -> (raise (Failure  "error at code gen "))
 
 
 

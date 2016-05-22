@@ -49,7 +49,7 @@ let rec build_one_typedef_table_hash_ hash_table typedefStruct_list = (List.iter
 	| SingleTypeTermWithIdent(ident,SingleTypeTerm(bean_type)) -> (Hashtbl.add hash_table ident (Typedef_Struct_Sinlge_Type(bean_type)))
 	| SingleTypeTermWithIdent(ident,ListTypeTerm(typedefStruct_list_inner)) ->(Hashtbl.add hash_table ident (Typedef_Struct(Hashtbl.create hash_table_size));
 		build_one_typedef_table_hash_ (get_hash_table_typedef (Hashtbl.find hash_table ident)) typedefStruct_list_inner)
-	| _ ->(Printf.printf "unexpect typedefStruct "; exit 0)
+	| _ ->(raise (Failure  "unexpect typedefStruct "))
 	) typedefStruct_list)
 
 let build_one_typedef_table_hash one_typdef = match one_typdef with
@@ -58,7 +58,7 @@ let build_one_typedef_table_hash one_typdef = match one_typdef with
 	| (ListTypeTerm(typedefStruct_list),ident) -> (Hashtbl.add typdef_table_hash ident (Typedef_Struct(Hashtbl.create hash_table_size));
 		build_one_typedef_table_hash_ (get_hash_table_typedef (Hashtbl.find typdef_table_hash ident)) typedefStruct_list)
 	| (SingleTypeTerm(IdentType type_name),ident) ->(try Hashtbl.add typdef_table_hash ident (Hashtbl.find typdef_table_hash type_name) with Not_found -> (Printf.printf "Typedef order error ,adding type => %s ,finding type => %s\n" ident type_name; exit 0) )
-	| _ ->(Printf.printf "build_one_typedef_table_hash error ";exit 0)
+	| _ ->(raise (Failure  "build_one_typedef_table_hash error "))
 
 let build_typedef_table_hash typdefs = List.iter (build_one_typedef_table_hash) typdefs
 
@@ -73,7 +73,7 @@ let rec build_symbol_table_self_type_ref hash_table typedef_hash_table_temp = Ha
 			stack_count:= !stack_count - 1;
 			Hashtbl.add hash_table key (S_Ref_Hash(IdentType(key),Hashtbl.create hash_table_size));
 			build_symbol_table_self_type_ref (get_hash_table_symbol (Hashtbl.find hash_table key)) inner_typdef_hash_table )
-		| _ -> (Printf.printf "symbol table self type error \n" ; exit 0)
+		| _ -> (raise (Failure  "symbol table self type error \n"))
 	)) typedef_hash_table_temp
 
 let rec build_symbol_table_self_type hash_table typedef_hash_table_temp = Hashtbl.iter (fun key value ->( 
@@ -85,7 +85,7 @@ let rec build_symbol_table_self_type hash_table typedef_hash_table_temp = Hashtb
 			stack_count:= !stack_count - 1;
 			Hashtbl.add hash_table key (S_Hash(IdentType(key),Hashtbl.create hash_table_size));
 			build_symbol_table_self_type (get_hash_table_symbol (Hashtbl.find hash_table key)) inner_typdef_hash_table )
-		| _ -> (Printf.printf "symbol table self type error \n" ; exit 0)
+		| _ -> (raise (Failure  "symbol table self type error \n"))
 	)) typedef_hash_table_temp
 (*Hashtbl.add hash_table (key_prefix^"."^key) *)
 
@@ -104,10 +104,10 @@ let rec build_symbol_table_typedefStruct_list  hashtable typedefStruct_list = Li
 						stack_count:= !stack_count - 1;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
 						Hashtbl.add hashtable var_name (S_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
 						build_symbol_table_self_type (get_hash_table_symbol(Hashtbl.find hashtable var_name)) typdef_hash_table_inner ) (* according to type name get the corresponding hash table *)
-					|_ -> (Printf.printf "build symbol table failed ";exit 0))
+					|_ -> (raise (Failure  "build symbol table failed ")))
 		| SingleTypeTermWithIdent(var_name, ListTypeTerm(typedefStruct_list_inner)) ->(Hashtbl.add hashtable var_name (S_Intext_Hash(Hashtbl.create hash_table_size));(*if got one ref mean whole ref*)
 			build_symbol_table_typedefStruct_list (get_hash_table_symbol (Hashtbl.find hashtable var_name)) typedefStruct_list_inner )
-		| _ -> (Printf.printf "build symbol table failed outer";exit 0))) typedefStruct_list
+		| _ -> (raise (Failure  "build symbol table failed outer")))) typedefStruct_list
 
 
 let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.iter (fun x -> ( 
@@ -122,7 +122,7 @@ let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.
 					|Typedef_Struct (typdef_hash_table_inner) -> (decr stack_count;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
 						Hashtbl.add hash_table param_name (S_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
 						build_symbol_table_self_type (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typdef_hash_table_inner ) (* according to type name get the corresponding hash table *)
-					|_ -> (Printf.printf "build symbol table failed \n";exit 0))
+					|_ -> (raise (Failure  "build symbol table failed \n")))
 		| (Val , ListTypeTerm(typedefStruct_list) , param_name) -> (decr stack_count;Hashtbl.add hash_table param_name (S_Intext_Hash(Hashtbl.create hash_table_size));
 			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typedefStruct_list)  (* {a:int } a *)
 		| (Ref , SingleTypeTerm(Bool) , param_name) ->  Hashtbl.add hash_table param_name (S_Ref_Bool(Bool,!stack_count));
@@ -134,10 +134,10 @@ let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.
 					|Typedef_Struct (typdef_hash_table_inner) -> (decr stack_count;(*dec stack num beacuse x.a , x => is actually not in the stack, only its filed is in the stack*)
 						Hashtbl.add hash_table param_name (S_Ref_Hash(IdentType(type_name),Hashtbl.create hash_table_size));
 						build_symbol_table_self_type_ref (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typdef_hash_table_inner )
-					|_ -> (Printf.printf "build symbol table failed ";exit 0))
+					|_ -> (raise (Failure  "build symbol table failed ")))
 		|	(Ref , ListTypeTerm(typedefStruct_list) , param_name) -> (decr stack_count;Hashtbl.add hash_table param_name (S_Ref_Intext_Hash(Hashtbl.create hash_table_size));
 			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typedefStruct_list )  (* {a:int } a *)
-		| _ -> (Printf.printf "funcDecParam error. \n"; exit 0 ))) funcDecParamList
+		| _ -> (raise (Failure  "funcDecParam error. \n") ))) funcDecParamList
 
 
 
