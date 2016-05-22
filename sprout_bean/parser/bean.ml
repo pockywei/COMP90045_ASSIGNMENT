@@ -55,10 +55,6 @@ let main () =
             let prog = Bean_parse.start_state Bean_lex.token lexbuf in
             match !mode with
             | PrettyPrint ->Printf.printf "pretty print disable\n"
-            (*start_test_analyzer prog*)
-                (*codegen_stmts (List.hd prog.funcdefs)*)
-              (*Bean_pprint.print_program Format.std_formatter prog *)
-
             | Compile -> start_test_analyzer prog
         with
             (* Handle suitable message for parsing and lexing error *)

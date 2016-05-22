@@ -16,30 +16,18 @@ open Bean_ast
 (*for case like write x > 4+1;, to know that i should print bool*)
 let top_level_expr_type = ref BeanTypeNone 
 let cur_expr_type = ref BeanTypeNone
-
-
 let cur_register_count = ref (-1)
 let cur_label_count = ref 0
-
 let hash_table_size = 20
-
 let stack_count = ref (-1)
-
 (*cur method*)
 let symbol_table_hash = Hashtbl.create hash_table_size
-
 (*typedefs*)
 let typdef_table_hash = Hashtbl.create hash_table_size
-
 let func_stack_num_hash = Hashtbl.create hash_table_size (* local variables *)
-
 let func_param_symbol_table_hash = Hashtbl.create hash_table_size (* params  *)
-
 let cur_func_symbol_hash_table = ref (Hashtbl.create hash_table_size)
-
 let func_param_order_hash_table = Hashtbl.create hash_table_size
-
-
 (*record number of stack needed*)
 let symbol_table_stackNum_hash = Hashtbl.create hash_table_size
 
@@ -54,8 +42,6 @@ let get_hash_table_symbol symbolTableType = match symbolTableType with
   	| S_Ref_Intext_Hash(hash_table) -> hash_table
   	| S_Func(hash_table) -> hash_table
 	| _ -> (Printf.printf "get symbol hash failed "; exit 0)
-
-
 
 let rec build_one_typedef_table_hash_ hash_table typedefStruct_list = (List.iter (fun x -> 
 	match x with
@@ -75,8 +61,6 @@ let build_one_typedef_table_hash one_typdef = match one_typdef with
 	| _ ->(raise (Failure  "build_one_typedef_table_hash error "))
 
 let build_typedef_table_hash typdefs = List.iter (build_one_typedef_table_hash) typdefs
-
-
 
 let rec build_symbol_table_self_type_ref hash_table typedef_hash_table_temp = Hashtbl.iter (fun key value ->( 
 	stack_count:= !stack_count + 1;
@@ -101,10 +85,10 @@ let rec build_symbol_table_self_type hash_table typedef_hash_table_temp = Hashtb
 			build_symbol_table_self_type (get_hash_table_symbol (Hashtbl.find hash_table key)) inner_typdef_hash_table )
 		| _ -> (raise (Failure  "symbol table self type error \n"))
 	)) typedef_hash_table_temp
+
 (*Hashtbl.add hash_table (key_prefix^"."^key) *)
-
-
 (*key can be used to represent name*)
+
 let rec build_symbol_table_typedefStruct_list  hashtable typedefStruct_list = List.iter (fun x -> (
 	incr stack_count;
 	match x with
@@ -153,12 +137,9 @@ let build_symbol_table_hash_funcDecParamList hash_table funcDecParamList = List.
 			build_symbol_table_typedefStruct_list (get_hash_table_symbol(Hashtbl.find hash_table param_name)) typedefStruct_list )  (* {a:int } a *)
 		| _ -> (raise (Failure  "funcDecParam error. \n") ))) funcDecParamList
 
-
-
-
 (*initial function name and its corresponding type is in type S_Hash*)
-
 (*check duplicate function name in here ?*)
+
 let build_symbol_table_hash_all funcDefs= List.iter (fun x ->(
 	stack_count := -1;
 	match x with
@@ -174,10 +155,6 @@ let print_func_stack_num_hash func_stack_num_hash = (Printf.printf "----- Start 
 		Hashtbl.iter (fun key value -> Printf.printf "Function name => %s, Function Max Stack Num => %d\n" key value ) func_stack_num_hash;
 		Printf.printf "----- End Printing func_stack_num_hash -----\n" )
 
-(*				| S_Struct(bean_type,stack_num)-> Printf.printf " type => ident , stack number => %d  \n" stack_num  (*struct name, *)
-				| S_Ref_Struct(bean_type,stack_num)-> Printf.printf " Ref type => ident , stack number => %d  \n" stack_num  (*struct name, *)
-
-			REAMOVED *)
 let rec print_out_one_symbol_table one_symbol_table = (Printf.printf "----- Start Printing Sub Symbol Table -----\n";
 	Hashtbl.iter (fun key value ->( 
 		Printf.printf "Name  => %s ," key;
@@ -200,7 +177,6 @@ let rec print_out_one_symbol_table one_symbol_table = (Printf.printf "----- Star
 	)) one_symbol_table;
 	Printf.printf "----- End Printing Sub Symbol Table -----\n")
 
-
 let rec print_out_one_typedef_table one_typedef_table = (Printf.printf "----- Start Printing Sub Typedef -----\n";
 	Hashtbl.iter (fun key value ->
 		match value with
@@ -214,8 +190,3 @@ let rec print_out_one_typedef_table one_typedef_table = (Printf.printf "----- St
 			|Typedef_None -> Printf.printf "Error ! \n"
 		) one_typedef_table;
 	Printf.printf "----- End Printing Sub Typedef -----\n")
-
-
-
-
-(* let build_symbol_table_hash *)

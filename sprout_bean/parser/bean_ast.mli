@@ -14,98 +14,116 @@
 
 
 (* Specification of an AST for bean *)
+
 type ident = string
  
 (* Keep aliases intact for pretty printing. *)
+
 type beantype =
-  | Bool
-  | Int
-  | IdentType of string 
-  | BeanTypeNone
+    | Bool
+    | Int
+    | IdentType of string 
+    | BeanTypeNone
 
 (* store type and var declaration*)
+
 type typedefStruct =
-  |SingleTypeTerm of beantype
-  |SingleTypeTermWithIdent of (ident * typedefStruct)
-  |ListTypeTerm of typedefStruct list
-  |TypedefEnd
+    |SingleTypeTerm of beantype
+    |SingleTypeTermWithIdent of (ident * typedefStruct)
+    |ListTypeTerm of typedefStruct list
+    |TypedefEnd
 type typedef = typedefStruct list
 
 (* lvalue type *)
+
 type lvalue =
-  | LId of ident
-  | LField of (lvalue * ident) (* recursively lvalue e.g. var.var1.var2*)
-  | LvalueNone
+    | LId of ident
+    | LField of (lvalue * ident) (* recursively lvalue e.g. var.var1.var2*)
+    | LvalueNone
 
 (* binop represent binary operator e.g. +, *, etc *)
+
 type binop =
-  | Op_add | Op_sub | Op_mul | Op_div
-  | Op_eq | Op_lt | Op_gt | Op_neq | Op_lte | Op_gte
-  | Op_and | Op_or
+    | Op_add 
+    | Op_sub 
+    | Op_mul 
+    | Op_div
+    | Op_eq 
+    | Op_lt 
+    | Op_gt 
+    | Op_neq 
+    | Op_lte 
+    | Op_gte
+    | Op_and 
+    | Op_or
 
 (* unop => unary operator *)
+
 type unop =
-  | Op_minus | Op_not
+    | Op_minus | Op_not
 
 (* expression type *)
 type expr =
-  | Ebool of bool
-  | Eint of int
-  | Elval of lvalue
-  | Ebinop of (expr * binop * expr)
-  | Eunop of (unop * expr)
-  | Eident of string
-  | Ebracket of expr
+    | Ebool of bool
+    | Eint of int
+    | Elval of lvalue
+    | Ebinop of (expr * binop * expr)
+    | Eunop of (unop * expr)
+    | Eident of string
+    | Ebracket of expr
 
 (* store different form of rvalue *)
+
 type rvalue =
-  | Rexpr of expr
-  | RField of (rvalue * expr)
-  | Rassign of (string * rvalue)
-  | Rstmts of rvalue list 
-  | Rempty
+    | Rexpr of expr
+    | RField of (rvalue * expr)
+    | Rassign of (string * rvalue)
+    | Rstmts of rvalue list 
+    | Rempty
 
 (* represent the data return from yacc for lis of arguments *)
+
 type paramList = expr list
 
 (* represent different method procedures  *)
+
 type stmt = 
-  | Assign of (lvalue * rvalue)
-  | AssignRvalueList of (lvalue * rvalue list)
-  | Read of lvalue
-  | Write of expr
-  | StmtNone
-  | Method of (string * paramList)
-  | VarDec of (beantype * string)
-  | WhileDec of (expr * stmt list)
-  | IfDec of (expr * stmt list * stmt list)
+    | Assign of (lvalue * rvalue)
+    | AssignRvalueList of (lvalue * rvalue list)
+    | Read of lvalue
+    | Write of expr
+    | StmtNone
+    | Method of (string * paramList)
+    | VarDec of (beantype * string)
+    | WhileDec of (expr * stmt list)
+    | IfDec of (expr * stmt list * stmt list)
 
 
 type decl = (ident * beantype)
 
 (* represent parameter indicator either ref or val *)
-type valRef = 
-|Val
-|Ref
 
+type valRef = 
+    |Val
+    |Ref
 
 type stackNum = int
 
 type typedefTableType = 
-  |Typedef_Struct_Sinlge_Type of beantype
-  |Typedef_Struct of ((string , typedefTableType) Hashtbl.t)
-  |Typedef_None
+    |Typedef_Struct_Sinlge_Type of beantype
+    |Typedef_Struct of ((string , typedefTableType) Hashtbl.t)
+    |Typedef_None
 
 type symbolTableType =
-  | S_Func of (string , symbolTableType) Hashtbl.t
-  | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)(* stored nest type of typedef*)
-  | S_Hash of (beantype * (string, symbolTableType) Hashtbl.t)(*self def type*)
-  | S_Bool of (beantype * stackNum) (*Int => stack num*)
-  | S_Int of (beantype * stackNum)
-  | S_Ref_Int of (beantype * stackNum)
-  | S_Ref_Bool of (beantype * stackNum)(*if beantype is a ident, need to search through typedef hash table*)
-  | S_Intext_Hash of (string , symbolTableType) Hashtbl.t
-  | S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t
+    | S_Func of (string , symbolTableType) Hashtbl.t
+    | S_Ref_Hash of (beantype * (string , symbolTableType) Hashtbl.t)(* stored nest type of typedef*)
+    | S_Hash of (beantype * (string, symbolTableType) Hashtbl.t)(*self def type*)
+    | S_Bool of (beantype * stackNum) (*Int => stack num*)
+    | S_Int of (beantype * stackNum)
+    | S_Ref_Int of (beantype * stackNum)
+    | S_Ref_Bool of (beantype * stackNum)(*if beantype is a ident, need to search through typedef hash table*)
+    | S_Intext_Hash of (string , symbolTableType) Hashtbl.t
+    | S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t
 
 (* represent the parameters declaration for method header *)
 type funcDecParamList = (valRef*typedefStruct*string) list
@@ -115,8 +133,8 @@ type functionDeclaration = (string*funcDecParamList)
 
 (* the whole bean language tokens is stored in here*)
 type program = {
-  typedefs : (typedefStruct*ident) list;
-  funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
+    typedefs : (typedefStruct*ident) list;
+    funcdefs : (functionDeclaration*typedefStruct list*stmt list) list
 }
 
 (* type used by pretty print *)
