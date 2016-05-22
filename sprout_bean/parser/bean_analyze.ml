@@ -1,3 +1,17 @@
+(** The is the ast file contains the methods for code semantic analysing
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
+
 open Bean_ast
 open Bean_symbol
 open Bean_codegen
@@ -302,24 +316,31 @@ let rec tranverse_hash_table_get_data hash_table stack_num = Hashtbl.iter (fun _
 	| (Printf.printf "Error on tranverse hash table with stack num\n";exit 0)) hash_table
 *)
 
+(*if same all the keys are same ? *)
 
 let check_ref_val_type_equal first second = match first with 
-  | S_Ref_Hash (bean_type,inner_hash_table) -> (match second with
-  	|S_Hash (bean_type_1,inner_hash_table_1) -> if bean_type = bean_type_1
-  		then true
-  		else false 
-  	|S_Ref_Hash (bean_type_1,inner_hash_table_1) -> if bean_type = bean_type_1
-  		then true
-  		else false 
-  	| _ -> false)
-  | S_Hash (bean_type,inner_hash_table) -> (match second with
-  	|S_Hash (bean_type_1,inner_hash_table_1) -> if bean_type = bean_type_1
-  		then true
-  		else false 
-  	|S_Ref_Hash (bean_type_1,inner_hash_table_1) -> if bean_type = bean_type_1
-  		then true
-  		else false 
-  	| _ -> false)
+  | S_Ref_Hash (IdentType(typedef_name),inner_hash_table) -> (match second with
+    |S_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false 
+    |S_Ref_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false 
+    | _ -> false)
+    
+  | S_Hash (IdentType(typedef_name),inner_hash_table) -> (match second with
+  	|S_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false 
+    |S_Ref_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+      if type_def_result_1 = type_def_result_2 
+      then true
+      else false
+    | _ -> false)
+ 
   | S_Bool (_,_) -> (match second with
   	| S_Bool (_,_) -> true
   	| S_Ref_Bool (_,_) -> true
@@ -336,19 +357,20 @@ let check_ref_val_type_equal first second = match first with
   	| S_Bool (_,_) -> true
   	| S_Ref_Bool (_,_) -> true
   	| _ -> false)
+
   | S_Intext_Hash (inner_hash_table) -> (match second with
-  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1
+  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
   		then true
   		else false 
-  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1
+  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
   		then true
   		else false 
   	| _ -> false)
   | S_Ref_Intext_Hash (inner_hash_table) ->( match second with
-  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1
+  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
   		then true
   		else false 
-  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1
+  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
   		then true
   		else false 
   	| _ -> false)
@@ -578,8 +600,8 @@ let rec find_funcdef funcdefs func_name = try match (List.hd funcdefs) with
 
 let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
 		build_symbol_table_hash_all (prog.funcdefs);
-		(*build_func_method_param_order_hash_table (prog.funcdefs);*)
-(*
+(*		(*build_func_method_param_order_hash_table (prog.funcdefs);*)
+
 		Printf.printf "----- Start Printing typdef_table_hash -----\n";
 		print_out_one_typedef_table typdef_table_hash;
 		Printf.printf "----- End Printing typdef_table_hash -----\n";

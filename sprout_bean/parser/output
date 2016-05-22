@@ -1,7 +1,7 @@
 call main
 halt
 main:
-push_stack_frame 10
+push_stack_frame 6
 int_const r0, 0
 store 0, r0
 store 1, r0
@@ -9,46 +9,59 @@ store 2, r0
 store 3, r0
 store 4, r0
 store 5, r0
-store 6, r0
-store 7, r0
-store 8, r0
-store 9, r0
-int_const r0, 72116
-store 8, r0
-load r0, 8
+int_const r0, 1
 store 0, r0
-load r0, 9
-store 1, r0
-int_const r0, 1234
-store 3, r0
-int_const r0, -1
-int_const r1, 100
-mul_int r0, r0, r1
-store 2, r0
 load r0, 0
-store 4, r0
+store 2, r0
 load r0, 1
-store 5, r0
+store 3, r0
 load r0, 2
-store 6, r0
-load r0, 3
-store 7, r0
-load r0, 6
-int_const r1, 0
-cmp_gt_int r0, r0, r1
-load r1, 6
-int_const r2, -500
-cmp_gt_int r1, r1, r2
-load r2, 5
-and r1, r1, r2
-or r0, r0, r1
-branch_on_false r0, label_0
-string_const r0, "transaction accepted\n"
-call_builtin print_string
-branch_uncond label_1
+load r1, 3
+call bro
+load_address r0, 0
+load_address r1, 1
+call bro_a
+load r0, 1
+call_builtin print_int
 label_0:
-string_const r0, "transaction declined\n"
+load r1, 4
+branch_on_false r1, label_1
+string_const r0, "You will never see me\n"
 call_builtin print_string
+branch_uncond label_0
 label_1:
-pop_stack_frame 10
+int_const r0, 1
+int_const r1, 10
+int_const r2, 5
+load r3, 5
+div_int r2, r2, r3
+cmp_gt_int r1, r1, r2
+or r0, r0, r1
+branch_on_false r0, label_3
+string_const r0, "all operands will be evaluated fully"
+call_builtin print_string
+label_3:
+pop_stack_frame 6
+return
+bro:
+push_stack_frame 2
+store 0, r0
+store 1, r1
+int_const r0, 0
+load r0, 1
+call_builtin print_int
+pop_stack_frame 2
+return
+bro_a:
+push_stack_frame 3
+store 0, r0
+store 1, r1
+int_const r0, 0
+store 2, r0
+int_const r0, 1
+store 2, r0
+load r0, 1
+load r1, 2
+store_indirect r0, r1
+pop_stack_frame 3
 return

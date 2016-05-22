@@ -1,6 +1,20 @@
-open Bean_ast
+(** The is the ast file contains our data type to store all the tokens
+ * Program Description : This program is for the project of COMP90045 
+ * at the University of Melbourne,
+ * it is a compiler program for the bean language
+ *
+ * Team Member : 
+ * Angus Huang 640386
+ * Bingfeng Liu 639187
+ * Chesdametrey Seng 748852
+ * Chenhao Wei 803931
+ *
+ * Project Created Date : 18.03.2016
+ *)
 
-let top_level_expr_type = ref BeanTypeNone (*for case like write x > 4+1;, to know that i should print bool*)
+open Bean_ast
+(*for case like write x > 4+1;, to know that i should print bool*)
+let top_level_expr_type = ref BeanTypeNone 
 let cur_expr_type = ref BeanTypeNone
 
 
