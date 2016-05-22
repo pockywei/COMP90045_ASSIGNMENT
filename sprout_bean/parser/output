@@ -1,74 +1,54 @@
 call main
 halt
 main:
-push_stack_frame 3
+push_stack_frame 10
 int_const r0, 0
 store 0, r0
 store 1, r0
 store 2, r0
-int_const r0, 1
+store 3, r0
+store 4, r0
+store 5, r0
+store 6, r0
+store 7, r0
+store 8, r0
+store 9, r0
+int_const r0, 72116
+store 8, r0
+load r0, 8
+store 0, r0
+load r0, 9
+store 1, r0
+int_const r0, 1234
+store 3, r0
+int_const r0, -1
+int_const r1, 100
+mul_int r0, r0, r1
 store 2, r0
+load r0, 0
+store 4, r0
+load r0, 1
+store 5, r0
+load r0, 2
+store 6, r0
+load r0, 3
+store 7, r0
+load r0, 6
+int_const r1, 0
+cmp_gt_int r0, r0, r1
+load r1, 6
+int_const r2, -500
+cmp_gt_int r1, r1, r2
+load r2, 5
+and r1, r1, r2
+or r0, r0, r1
+branch_on_false r0, label_0
+string_const r0, "transaction accepted\n"
+call_builtin print_string
+branch_uncond label_1
 label_0:
-load r1, 2
-int_const r2, 100
-cmp_le_int r1, r1, r2
-branch_on_false r1, label_1
-load r0, 0
-int_const r1, 1
-add_int r0, r0, r1
-store 0, r0
-load r0, 1
-int_const r1, 1
-add_int r0, r0, r1
-store 1, r0
-load r0, 0
-int_const r1, 3
-cmp_eq_int r0, r0, r1
-load r1, 1
-int_const r2, 5
-cmp_eq_int r1, r1, r2
-and r0, r0, r1
-branch_on_false r0, label_2
-int_const r0, 0
-store 0, r0
-int_const r0, 0
-store 1, r0
-string_const r0, " FizzBuzz\n"
+string_const r0, "transaction declined\n"
 call_builtin print_string
-branch_uncond label_3
-label_2:
-load r0, 0
-int_const r1, 3
-cmp_eq_int r0, r0, r1
-branch_on_false r0, label_4
-int_const r0, 0
-store 0, r0
-string_const r0, " Fizz\n"
-call_builtin print_string
-branch_uncond label_5
-label_4:
-load r0, 1
-int_const r1, 5
-cmp_eq_int r0, r0, r1
-branch_on_false r0, label_6
-int_const r0, 0
-store 1, r0
-string_const r0, " Buzz\n"
-call_builtin print_string
-branch_uncond label_7
-label_6:
-load r0, 2
-call_builtin print_int
-string_const r0, "\n"
-call_builtin print_string
-label_7:
-label_5:
-label_3:
-load r0, 2
-int_const r1, 1
-add_int r0, r0, r1
-store 2, r0
-branch_uncond label_0
 label_1:
-pop_stack_frame 3
+pop_stack_frame 10
 return
