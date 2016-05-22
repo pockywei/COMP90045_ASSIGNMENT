@@ -142,7 +142,6 @@ lvalue:
 rvalue:
 | expr { Rexpr($1) }
 | LEFT_BRACE field_inits RIGHT_BRACE {Rstmts(List.rev $2)}
-/* TODO: Removed REmpty rule, deal with in AST */
 
 field_inits:
 | field_init {$1}

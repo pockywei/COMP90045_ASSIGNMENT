@@ -31,7 +31,6 @@ let get_rest_lvalue lvalue= match lvalue with
 let get_symbol_hash_table_primitive_type hash_table key_name = match (Hashtbl.find hash_table key_name) with
     | S_Bool(bean_type , _) -> bean_type
     | S_Int(bean_type , _) -> bean_type
-    (*| S_Struct(bean_type , _) -> bean_type*)
     | S_Ref_Int(bean_type , _) -> bean_type
     | S_Ref_Bool(bean_type , _) -> bean_type (*only return Bool or Int, typedef of {} type will cause error*)
     | S_Hash(bean_type,_) -> bean_type
@@ -41,7 +40,6 @@ let get_symbol_hash_table_primitive_type hash_table key_name = match (Hashtbl.fi
 let get_symbol_hash_table_primitive_type_stack_num symbol_type = match symbol_type with
     | S_Bool(_ , stackNum) -> stackNum
     | S_Int(_ , stackNum) -> stackNum
-    (*| S_Struct(bean_type , _) -> bean_type*)
     | S_Ref_Int(_ , stackNum) -> stackNum
     | S_Ref_Bool(_ ,stackNum) -> stackNum (*only return Bool or Int, typedef of {} type will cause error*)
     | _ -> (raise (Failure "get primitive type error\n"))
@@ -68,12 +66,9 @@ let rec check_expr_type hash_table expr = match expr with
 let rec getStackNum hash_table key_name = match (Hashtbl.find hash_table key_name) with
     | S_Bool(_ , stackNum) -> stackNum
     | S_Int(_ , stackNum) -> stackNum
-    (*| S_Struct(_ , stackNum) -> stackNum*)
     | S_Ref_Int(_ , stackNum) -> stackNum
     | S_Ref_Bool(_ , stackNum) -> stackNum
     | _ -> (raise (Failure "get stack num error\n"))
-
-
 
 (*true => ref, false => val *)
 let get_bool_ref_val_symbol_hash_table hash_table key_name = match (Hashtbl.find hash_table key_name) with
@@ -97,7 +92,6 @@ let get_bool_ref_val_symbol_type symbol_type = match symbol_type with
     | S_Ref_Int(_ , _) -> true
     | S_Ref_Bool(_ , _) -> true (*only return Bool or Int, typedef of {} type will cause error*)
     | S_Ref_Intext_Hash(_) -> true
-    (* add intext S_Intext_Hash of (string , symbolTableType) Hashtbl.t , S_Ref_Intext_Hash of (string , symbolTableType) Hashtbl.t *)
     | _ -> (raise (Failure  "check val ref type error\n"))
 
 let rec get_lvalue_ref_or_not hash_table key_name = match key_name with
@@ -181,8 +175,6 @@ let rec codegen_store_rvalue lvalue_symbol_struct expr_symbol_struct is_ref_expr
               print_store_indirect "r0" "r1" ))
   | _ -> (raise (Failure "error do_print_rassign\n"))
 
-
-
 (*key should be found in the hashtable other wise it is a type error *)
 let rec process_rvalue is_ref lvalue hash_table rvalue = match rvalue with(*{a:int}, {b:int} not the same *)
   | Rexpr( Elval(lvalue_inner) ) ->(codegen_store_rvalue (get_lvalue_symbol_type (!cur_func_symbol_hash_table) lvalue) (get_lvalue_symbol_type (!cur_func_symbol_hash_table) lvalue_inner ) (get_lvalue_ref_or_not (!cur_func_symbol_hash_table)  lvalue_inner))
@@ -199,7 +191,6 @@ let rec process_rvalue is_ref lvalue hash_table rvalue = match rvalue with(*{a:i
   | Rstmts (rvalue_list) -> List.iter (process_rvalue is_ref lvalue hash_table ) rvalue_list (* a := {a=123,b=321}, if can't find in the hasb table mean error*)
   (* a := {b= ? ,c= ?}*)
   | _ -> (raise (Failure "rvalue processing error \n"))
-
 
 let rec codgen_all_param_fields param_symbol_structure hash_table = let local_register_count = !cur_register_count in match param_symbol_structure with
   | S_Ref_Hash (bean_type,inner_hash_table) ->( Hashtbl.iter (fun kye value -> codgen_all_param_fields value inner_hash_table) inner_hash_table)
@@ -303,7 +294,6 @@ let rec convert_one_expr_param_to_symbol_type one_expr = match one_expr with
   | Eunop (unop,expr) -> convert_one_expr_param_to_symbol_type expr
   | Ebracket(expr)-> convert_one_expr_param_to_symbol_type expr
   | _ -> (raise (Failure "convert_one_expr_param_to_symbol_type type error\n"))
-  (*| Eident(string_val)*) (*this is for " awefawef  " => type *)
 
 let rec gen_symbol_type_to_register symbol_type is_ref_caller is_ref_callee   =
     let local_register_count = !cur_register_count in (match (is_ref_caller,is_ref_callee) with
@@ -391,19 +381,13 @@ let process_calling_method_param caller_hash_table callee_hash_table one_expr_pa
         (*make sure has same type*)
         if (check_expr_type caller_hash_table one_expr_param) && (check_ref_val_type_equal (Hashtbl.find callee_hash_table one_callee_param_name) (convert_one_expr_param_to_symbol_type one_expr_param))
         then match one_expr_param with
-        (* ref does not allow primitive value pass in 
-            | Ebool(bool_var) -> (codegen_arithmatic one_expr_param)
-          | Eint(int_val) -> (codegen_arithmatic one_expr_param ) *)
+        (* ref does not allow primitive value pass in *)
           | Elval(lvalue) -> if !cur_expr_type = Int || !cur_expr_type = Bool 
             then  codegen_arithmatic_ref one_expr_param
             else  (Hashtbl.iter (fun key value -> gen_symbol_type_to_register value (get_lvalue_ref_or_not caller_hash_table lvalue) true ) (get_hash_table_symbol (get_lvalue_symbol_type caller_hash_table lvalue));
                 !cur_register_count) (* passed in is a struct / typedef *)
-          (*| Ebinop (expr_1,binop,expr_2) -> (convert_one_expr_param_to_symbol_type expr_1; convert_one_expr_param_to_symbol_type expr_2) same reason primitive value cant be ref
-          | Eunop (unop,expr) -> convert_one_expr_param_to_symbol_type expr
-          | Ebracket(expr)-> convert_one_expr_param_to_symbol_type expr*)
           | _ -> (raise (Failure "process_calling_method_param error => then match one_expr_param with\n"))
         else (raise (Failure"caller and callee param type mismatch\n"))))(*callee param is  ref *)
-    (*| _ -> (Printf.printf "process_calling_method_param error";exit 0)*)
 
 let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := hash_table; match one_stmt with
     | Assign(lvalue, rvalue) -> (cur_register_count := 0;process_rvalue (get_lvalue_ref_or_not hash_table lvalue) lvalue hash_table rvalue) (*set cur_expr_type to lvalue type, then in process_rvalue will check type*)

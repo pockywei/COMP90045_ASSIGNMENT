@@ -140,7 +140,6 @@ let codegen_unop register_1 register_2 single_unop = match single_unop with
 let rec getStackNum hash_table key_name = match (Hashtbl.find hash_table key_name) with
     | S_Bool(_ , stackNum) -> stackNum
     | S_Int(_ , stackNum) -> stackNum
-    (*| S_Struct(_ , stackNum) -> stackNum*)
     | S_Ref_Int(_ , stackNum) -> stackNum
     | S_Ref_Bool(_ , stackNum) -> stackNum
     | _ -> (raise (Failure  "get stack num error\n"))
