@@ -18,10 +18,10 @@ open Bean_ast
 open Format
 
 let print_program fmt prog = (
-	(*set max indent, other wise the indentation might be limited*)
-	Format.set_max_indent 100; 
-	(*start print typedef part*)
-	printTypedefList fmt prog.typedefs;
-	(*start print method declaration part*)
-	printFuncdefList fmt prog.funcdefs
+    (*set max indent, other wise the indentation might be limited*)
+    Format.set_max_indent 100; 
+    (*start print typedef part*)
+    printTypedefList fmt prog.typedefs;
+    (*start print method declaration part*)
+    printFuncdefList fmt prog.funcdefs
 )

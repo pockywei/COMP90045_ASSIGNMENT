@@ -47,17 +47,17 @@ let get_symbol_hash_table_primitive_type_stack_num symbol_type = match symbol_ty
     | _ -> (raise (Failure "get primitive type error\n"))
 
 let expr_type_match_with_cur_expr_type bean_type = (if ((!cur_expr_type) = BeanTypeNone) then cur_expr_type := bean_type;
-	if (bean_type = (!cur_expr_type)) then true else false)
+    if (bean_type = (!cur_expr_type)) then true else false)
 
 let rec get_lvalue_type hash_table lvalue = match lvalue with
-  	| LId(ident) -> get_symbol_hash_table_primitive_type hash_table ident
+    | LId(ident) -> get_symbol_hash_table_primitive_type hash_table ident
     | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
-    	(get_lvalue_type temp_hash_symbol_table lvalue_type)
+        (get_lvalue_type temp_hash_symbol_table lvalue_type)
     | _ -> (raise (Failure"error on checking lvalue type \n"))
 
 (*for write*)
 let rec check_expr_type hash_table expr = match expr with
-  	| Ebool(bool_val) -> expr_type_match_with_cur_expr_type Bool
+    | Ebool(bool_val) -> expr_type_match_with_cur_expr_type Bool
     | Eint(int_val) -> expr_type_match_with_cur_expr_type Int
     | Elval(lvalue) -> expr_type_match_with_cur_expr_type (get_lvalue_type hash_table lvalue)
     | Ebinop(expr_1,binop,expr_2) ->(let _ = check_expr_type hash_table expr_1 in check_expr_type hash_table expr_2)
@@ -101,15 +101,15 @@ let get_bool_ref_val_symbol_type symbol_type = match symbol_type with
     | _ -> (raise (Failure  "check val ref type error\n"))
 
 let rec get_lvalue_ref_or_not hash_table key_name = match key_name with
-  	| LId(ident) -> get_bool_ref_val_symbol_hash_table hash_table ident
+    | LId(ident) -> get_bool_ref_val_symbol_hash_table hash_table ident
     | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
-    	get_lvalue_ref_or_not temp_hash_symbol_table lvalue_type
+        get_lvalue_ref_or_not temp_hash_symbol_table lvalue_type
     | _ -> (raise (Failure "error on checking lvalue type \n"))
 
 let rec get_lvalue_symbol_type hash_table lvalue = match lvalue with
-  	| LId(ident) -> Hashtbl.find hash_table ident
+    | LId(ident) -> Hashtbl.find hash_table ident
     | LField(lvalue_type,ident) -> let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table ident) in 
-    	get_lvalue_symbol_type temp_hash_symbol_table lvalue_type
+        get_lvalue_symbol_type temp_hash_symbol_table lvalue_type
     | _ -> (raise (Failure "error on checking lvalue type \n"))
 
 let rec add_in_Lid_to_Last l_field add_on_string = match l_field with 
@@ -129,9 +129,9 @@ let rec parse_print_store symbol_struct = match symbol_struct with
     | _ -> (raise (Failure  "error parse_print_store \n"))
 
 let rec get_lvalue_stack_num hash_table lvalue = match lvalue with
-  	| LId(ident) -> getStackNum hash_table ident
+    | LId(ident) -> getStackNum hash_table ident
     | LField(lvalue_type,ident) -> let temp_hash_symbol_table =  get_hash_table_symbol (Hashtbl.find hash_table ident) in 
-    	get_lvalue_stack_num temp_hash_symbol_table lvalue_type
+        get_lvalue_stack_num temp_hash_symbol_table lvalue_type
     | _ -> (raise (Failure "error on get stack num lvalue type \n"))
 
 let rec codegen_store_rvalue lvalue_symbol_struct expr_symbol_struct is_ref_expr = match lvalue_symbol_struct with
@@ -213,27 +213,27 @@ let rec codgen_all_param_fields param_symbol_structure hash_table = let local_re
   | _ -> (raise (Failure "Error on codgen_all_param_fields\n"))
 
 let rec codegen_var_init hash_table one_struct = match one_struct with
-	| SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
-			List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
-		Not_found -> (raise (Failure "codegen_var_init finding symbol table failed at ListTypeTerm\n")))
-	| SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name) 
-	| _ -> (raise (Failure "Error on initializing local var codegen_var_init\n"))
+    | SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
+            List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
+        Not_found -> (raise (Failure "codegen_var_init finding symbol table failed at ListTypeTerm\n")))
+    | SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name) 
+    | _ -> (raise (Failure "Error on initializing local var codegen_var_init\n"))
 
 let rec codegen_var_init_incr_ver hash_table one_struct =(match one_struct with
-	| SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
-			List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
-		Not_found -> (raise (Failure "codegen_var_init finding symbol table failed at ListTypeTerm\n")))
-	| SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name)
-	| _ -> (raise (Failure "Error on initializing local var codegen_var_init\n")))
+    | SingleTypeTermWithIdent(var_name,ListTypeTerm(typedefStruct_list)) -> (try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table var_name) in
+            List.iter (codegen_var_init temp_hash_symbol_table) typedefStruct_list with
+        Not_found -> (raise (Failure "codegen_var_init finding symbol table failed at ListTypeTerm\n")))
+    | SingleTypeTermWithIdent(var_name,_) -> parse_print_store (Hashtbl.find hash_table var_name)
+    | _ -> (raise (Failure "Error on initializing local var codegen_var_init\n")))
 
 let rec codegen_param_init hash_table one_param = match one_param with
   | (Val , ListTypeTerm(typedefStruct_list) , param_name) ->(try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table param_name) in
       List.iter (codegen_var_init_incr_ver temp_hash_symbol_table) typedefStruct_list with
     Not_found -> (raise (Failure "find hash failed codegen_param_init\n")))
-	| (Ref , ListTypeTerm(typedefStruct_list) , param_name) ->(try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table param_name) in
-			List.iter (codegen_var_init_incr_ver temp_hash_symbol_table) typedefStruct_list with
-		Not_found -> (raise (Failure "find hash failed codegen_param_init\n")))
-	| (_ , _ , param_name) -> codgen_all_param_fields (Hashtbl.find (!cur_func_symbol_hash_table) param_name) (!cur_func_symbol_hash_table)
+    | (Ref , ListTypeTerm(typedefStruct_list) , param_name) ->(try let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find hash_table param_name) in
+            List.iter (codegen_var_init_incr_ver temp_hash_symbol_table) typedefStruct_list with
+        Not_found -> (raise (Failure "find hash failed codegen_param_init\n")))
+    | (_ , _ , param_name) -> codgen_all_param_fields (Hashtbl.find (!cur_func_symbol_hash_table) param_name) (!cur_func_symbol_hash_table)
 
 (*if same all the keys are same ? *)
 
@@ -250,7 +250,7 @@ let check_ref_val_type_equal first second = match first with
     | _ -> false)
     
   | S_Hash (IdentType(typedef_name),inner_hash_table) -> (match second with
-  	|S_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
+    |S_Hash (IdentType(typedef_name_1),inner_hash_table_1) -> let type_def_result_1 = Hashtbl.find  typdef_table_hash typedef_name in let type_def_result_2 = Hashtbl.find  typdef_table_hash typedef_name_1 in 
       if type_def_result_1 = type_def_result_2 
       then true
       else false 
@@ -261,38 +261,38 @@ let check_ref_val_type_equal first second = match first with
     | _ -> false)
  
   | S_Bool (_,_) -> (match second with
-  	| S_Bool (_,_) -> true
-  	| S_Ref_Bool (_,_) -> true
-  	| _ -> false)
+    | S_Bool (_,_) -> true
+    | S_Ref_Bool (_,_) -> true
+    | _ -> false)
   | S_Int (_,_) -> (match second with
-  	| S_Int (_,_) -> true
-  	| S_Ref_Int (_,_) -> true
-  	| _ -> false)
+    | S_Int (_,_) -> true
+    | S_Ref_Int (_,_) -> true
+    | _ -> false)
   | S_Ref_Int (_,_) ->  (match second with
-  	| S_Int (_,_) -> true
-  	| S_Ref_Int (_,_) -> true
-  	| _ -> false)
+    | S_Int (_,_) -> true
+    | S_Ref_Int (_,_) -> true
+    | _ -> false)
   | S_Ref_Bool (_,_) -> (match second with
-  	| S_Bool (_,_) -> true
-  	| S_Ref_Bool (_,_) -> true
-  	| _ -> false)
+    | S_Bool (_,_) -> true
+    | S_Ref_Bool (_,_) -> true
+    | _ -> false)
 
   | S_Intext_Hash (inner_hash_table) -> (match second with
-  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
-  		then true
-  		else false 
-  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
-  		then true
-  		else false 
-  	| _ -> false)
+    | S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+        then true
+        else false 
+    | S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+        then true
+        else false 
+    | _ -> false)
   | S_Ref_Intext_Hash (inner_hash_table) ->( match second with
-  	| S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
-  		then true
-  		else false 
-  	| S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
-  		then true
-  		else false 
-  	| _ -> false)
+    | S_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+        then true
+        else false 
+    | S_Ref_Intext_Hash (inner_hash_table_1) -> if inner_hash_table = inner_hash_table_1 || inner_hash_table = inner_hash_table_1
+        then true
+        else false 
+    | _ -> false)
   | _ -> (raise (Failure  "error check_ref_val_type_equal unwanted type\n" ))
 
 let rec convert_one_expr_param_to_symbol_type one_expr = match one_expr with 
@@ -306,173 +306,173 @@ let rec convert_one_expr_param_to_symbol_type one_expr = match one_expr with
   (*| Eident(string_val)*) (*this is for " awefawef  " => type *)
 
 let rec gen_symbol_type_to_register symbol_type is_ref_caller is_ref_callee   =
-	let local_register_count = !cur_register_count in (match (is_ref_caller,is_ref_callee) with
-	| (true,false) -> (match symbol_type with 		
-		| S_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
-			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
-		| S_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
-			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
-		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table
-		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
-			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
-		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
-			print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *)) (*only return Bool or Int, typedef of {} type will cause error*)
-		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
-	| (false,true) -> (match symbol_type with 		(* caller not ref, callee ref*)
-		| S_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
-		| S_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
-		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
-		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load_address (get_register_string local_register_count) stack_num; (* r = &s *)) (*only return Bool or Int, typedef of {} type will cause error*)
-		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
-	| (true,true) -> (match symbol_type with (* caller ref, callee ref *)
-		| S_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *))
-		| S_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *))
-		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *))
-		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *)) (*only return Bool or Int, typedef of {} type will cause error*)
-		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
-	| (false,false) -> (match symbol_type with (*caller val, callee val*)
-		| S_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *))
-		| S_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *))
-		| S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *))
-		| S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
-			print_load (get_register_string local_register_count) stack_num; (* r = s *)) (*only return Bool or Int, typedef of {} type will cause error*)
-		| S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
-		| _ -> (raise (Failure "error on gen_symbol_type_to_register\n"))))
+    let local_register_count = !cur_register_count in (match (is_ref_caller,is_ref_callee) with
+    | (true,false) -> (match symbol_type with       
+        | S_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+            print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
+        | S_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+            print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
+        | S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table
+        | S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+            print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *))
+        | S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s , s is addr *)
+            print_load_indirect (get_register_string local_register_count) (get_register_string local_register_count) (* dereference r *)) (*only return Bool or Int, typedef of {} type will cause error*)
+        | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
+    | (false,true) -> (match symbol_type with       (* caller not ref, callee ref*)
+        | S_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
+        | S_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
+        | S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load_address (get_register_string local_register_count) stack_num; (* r = &s *))
+        | S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load_address (get_register_string local_register_count) stack_num; (* r = &s *)) (*only return Bool or Int, typedef of {} type will cause error*)
+        | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
+    | (true,true) -> (match symbol_type with (* caller ref, callee ref *)
+        | S_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *))
+        | S_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *))
+        | S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *))
+        | S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *)) (*only return Bool or Int, typedef of {} type will cause error*)
+        | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | _ -> (raise (Failure "error on gen_symbol_type_to_register\n")))
+    | (false,false) -> (match symbol_type with (*caller val, callee val*)
+        | S_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *))
+        | S_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *))
+        | S_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Ref_Hash(_,inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | S_Ref_Int(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *))
+        | S_Ref_Bool(_ , stack_num) -> (incr cur_register_count;
+            print_load (get_register_string local_register_count) stack_num; (* r = s *)) (*only return Bool or Int, typedef of {} type will cause error*)
+        | S_Ref_Intext_Hash(inner_hash_table) -> Hashtbl.iter (fun key value -> gen_symbol_type_to_register value  is_ref_caller is_ref_callee ) inner_hash_table 
+        | _ -> (raise (Failure "error on gen_symbol_type_to_register\n"))))
 
 
 (*one_expr_param is from caller, one_param is from callee*)
 let process_calling_method_param caller_hash_table callee_hash_table one_expr_param one_param =(match one_param with
-	| (Val,_,one_callee_param_name) -> (cur_expr_type := BeanTypeNone;
-		(*make sure has same type*)
-		if (check_expr_type caller_hash_table one_expr_param)&&(check_ref_val_type_equal (Hashtbl.find callee_hash_table one_callee_param_name) (convert_one_expr_param_to_symbol_type one_expr_param))
-		then match one_expr_param with
-			| Ebool(bool_val) -> (codegen_arithmatic one_expr_param)
-		  | Eint(int_val) -> (codegen_arithmatic one_expr_param)
-		  | Elval(lvalue) -> if !cur_expr_type = Int || !cur_expr_type = Bool 
-		  	then  codegen_arithmatic one_expr_param
-		  	else  (Hashtbl.iter (fun key value -> gen_symbol_type_to_register value (get_lvalue_ref_or_not caller_hash_table lvalue) false ) (get_hash_table_symbol (get_lvalue_symbol_type caller_hash_table lvalue));
-		  		!cur_register_count) (*must return a num...*)
-		  | Ebinop (expr_1,binop,expr_2) -> (codegen_arithmatic one_expr_param)(* codege_ari incr cur_register inside *)
-		  | Eunop (unop,expr) -> (codegen_arithmatic expr)
-		  | Ebracket(expr)-> (codegen_arithmatic expr)
-		  | _ -> (raise (Failure "process_calling_method_param error => then match one_expr_param with\n"))
-		else (raise (Failure "caller and callee param type mismatch\n")))
-		(*callee param is val*)
-	| (Ref,_,one_callee_param_name) ->  (cur_expr_type := BeanTypeNone;
-		(*make sure has same type*)
-		if (check_expr_type caller_hash_table one_expr_param) && (check_ref_val_type_equal (Hashtbl.find callee_hash_table one_callee_param_name) (convert_one_expr_param_to_symbol_type one_expr_param))
-		then match one_expr_param with
-		(* ref does not allow primitive value pass in 
-			| Ebool(bool_var) -> (codegen_arithmatic one_expr_param)
-		  | Eint(int_val) -> (codegen_arithmatic one_expr_param ) *)
-		  | Elval(lvalue) -> if !cur_expr_type = Int || !cur_expr_type = Bool 
-		  	then  codegen_arithmatic_ref one_expr_param
-		  	else  (Hashtbl.iter (fun key value -> gen_symbol_type_to_register value (get_lvalue_ref_or_not caller_hash_table lvalue) true ) (get_hash_table_symbol (get_lvalue_symbol_type caller_hash_table lvalue));
-		  		!cur_register_count) (* passed in is a struct / typedef *)
-		  (*| Ebinop (expr_1,binop,expr_2) -> (convert_one_expr_param_to_symbol_type expr_1; convert_one_expr_param_to_symbol_type expr_2) same reason primitive value cant be ref
-		  | Eunop (unop,expr) -> convert_one_expr_param_to_symbol_type expr
-		  | Ebracket(expr)-> convert_one_expr_param_to_symbol_type expr*)
-		  | _ -> (raise (Failure "process_calling_method_param error => then match one_expr_param with\n"))
-		else (raise (Failure"caller and callee param type mismatch\n"))))(*callee param is  ref *)
-	(*| _ -> (Printf.printf "process_calling_method_param error";exit 0)*)
+    | (Val,_,one_callee_param_name) -> (cur_expr_type := BeanTypeNone;
+        (*make sure has same type*)
+        if (check_expr_type caller_hash_table one_expr_param)&&(check_ref_val_type_equal (Hashtbl.find callee_hash_table one_callee_param_name) (convert_one_expr_param_to_symbol_type one_expr_param))
+        then match one_expr_param with
+            | Ebool(bool_val) -> (codegen_arithmatic one_expr_param)
+          | Eint(int_val) -> (codegen_arithmatic one_expr_param)
+          | Elval(lvalue) -> if !cur_expr_type = Int || !cur_expr_type = Bool 
+            then  codegen_arithmatic one_expr_param
+            else  (Hashtbl.iter (fun key value -> gen_symbol_type_to_register value (get_lvalue_ref_or_not caller_hash_table lvalue) false ) (get_hash_table_symbol (get_lvalue_symbol_type caller_hash_table lvalue));
+                !cur_register_count) (*must return a num...*)
+          | Ebinop (expr_1,binop,expr_2) -> (codegen_arithmatic one_expr_param)(* codege_ari incr cur_register inside *)
+          | Eunop (unop,expr) -> (codegen_arithmatic expr)
+          | Ebracket(expr)-> (codegen_arithmatic expr)
+          | _ -> (raise (Failure "process_calling_method_param error => then match one_expr_param with\n"))
+        else (raise (Failure "caller and callee param type mismatch\n")))
+        (*callee param is val*)
+    | (Ref,_,one_callee_param_name) ->  (cur_expr_type := BeanTypeNone;
+        (*make sure has same type*)
+        if (check_expr_type caller_hash_table one_expr_param) && (check_ref_val_type_equal (Hashtbl.find callee_hash_table one_callee_param_name) (convert_one_expr_param_to_symbol_type one_expr_param))
+        then match one_expr_param with
+        (* ref does not allow primitive value pass in 
+            | Ebool(bool_var) -> (codegen_arithmatic one_expr_param)
+          | Eint(int_val) -> (codegen_arithmatic one_expr_param ) *)
+          | Elval(lvalue) -> if !cur_expr_type = Int || !cur_expr_type = Bool 
+            then  codegen_arithmatic_ref one_expr_param
+            else  (Hashtbl.iter (fun key value -> gen_symbol_type_to_register value (get_lvalue_ref_or_not caller_hash_table lvalue) true ) (get_hash_table_symbol (get_lvalue_symbol_type caller_hash_table lvalue));
+                !cur_register_count) (* passed in is a struct / typedef *)
+          (*| Ebinop (expr_1,binop,expr_2) -> (convert_one_expr_param_to_symbol_type expr_1; convert_one_expr_param_to_symbol_type expr_2) same reason primitive value cant be ref
+          | Eunop (unop,expr) -> convert_one_expr_param_to_symbol_type expr
+          | Ebracket(expr)-> convert_one_expr_param_to_symbol_type expr*)
+          | _ -> (raise (Failure "process_calling_method_param error => then match one_expr_param with\n"))
+        else (raise (Failure"caller and callee param type mismatch\n"))))(*callee param is  ref *)
+    (*| _ -> (Printf.printf "process_calling_method_param error";exit 0)*)
 
 let rec codegen_one_stmt hash_table one_stmt =(cur_func_symbol_hash_table := hash_table; match one_stmt with
-	| Assign(lvalue, rvalue) -> (cur_register_count := 0;process_rvalue (get_lvalue_ref_or_not hash_table lvalue) lvalue hash_table rvalue) (*set cur_expr_type to lvalue type, then in process_rvalue will check type*)
+    | Assign(lvalue, rvalue) -> (cur_register_count := 0;process_rvalue (get_lvalue_ref_or_not hash_table lvalue) lvalue hash_table rvalue) (*set cur_expr_type to lvalue type, then in process_rvalue will check type*)
   | Read(lvalue) ->let temp_lvalue_type = get_lvalue_type hash_table lvalue in 
-  	let temp_lvalue_stack_num = (get_lvalue_stack_num hash_table lvalue) in (*ref ?*)
-	  	if(temp_lvalue_type = Int)
-	  	then 
-	  		if (get_lvalue_ref_or_not hash_table lvalue)(* is ref *)
-	  		then (print_read_int();
-	  					print_load "r1" temp_lvalue_stack_num;
-	  					print_store_indirect "r1" "r0" )
-	  		else (print_read_int();
-	  					print_store temp_lvalue_stack_num "r0")
-	  	else 
-	  		if (get_lvalue_ref_or_not hash_table lvalue)(* is ref *)
-	  		then (print_read_bool(); (*result is in r0 *)
-	  					print_load "r1" temp_lvalue_stack_num;
-	  					print_store_indirect "r1" "r0" )
-	  		else (print_read_bool();
-	  					print_store temp_lvalue_stack_num "r0")
+    let temp_lvalue_stack_num = (get_lvalue_stack_num hash_table lvalue) in (*ref ?*)
+        if(temp_lvalue_type = Int)
+        then 
+            if (get_lvalue_ref_or_not hash_table lvalue)(* is ref *)
+            then (print_read_int();
+                        print_load "r1" temp_lvalue_stack_num;
+                        print_store_indirect "r1" "r0" )
+            else (print_read_int();
+                        print_store temp_lvalue_stack_num "r0")
+        else 
+            if (get_lvalue_ref_or_not hash_table lvalue)(* is ref *)
+            then (print_read_bool(); (*result is in r0 *)
+                        print_load "r1" temp_lvalue_stack_num;
+                        print_store_indirect "r1" "r0" )
+            else (print_read_bool();
+                        print_store temp_lvalue_stack_num "r0")
   | Write(expr) ->(top_level_expr_type:= BeanTypeNone;cur_expr_type := BeanTypeNone; cur_register_count := 0;
     let _ = check_expr_type hash_table expr in
     if true
-  	then 
-  		if(!cur_expr_type = Int) (*write int, result of arithematic is in r0*)
-  		then 
-  			(let _ =codegen_arithmatic expr in
-  				(if !top_level_expr_type = Bool then print_print_bool () else print_print_int()))
-  		else 
-  			  match !cur_expr_type with (*write string*)
-  				| IdentType(string_temp) -> (print_string_const (get_register_string 0) string_temp;
-  					print_print_string())
+    then 
+        if(!cur_expr_type = Int) (*write int, result of arithematic is in r0*)
+        then 
+            (let _ =codegen_arithmatic expr in
+                (if !top_level_expr_type = Bool then print_print_bool () else print_print_int()))
+        else 
+              match !cur_expr_type with (*write string*)
+                | IdentType(string_temp) -> (print_string_const (get_register_string 0) string_temp;
+                    print_print_string())
           | Bool -> (let _ =codegen_arithmatic expr in
           print_print_bool())
-  				| _ -> (raise (Failure  "type error when writing a string\n"))
-		else (raise (Failure "write check type failed \n")))
+                | _ -> (raise (Failure  "type error when writing a string\n"))
+        else (raise (Failure "write check type failed \n")))
   | Method(method_name, expr_params_list) ->(cur_register_count := 0;
-  	let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find symbol_table_hash method_name) in (*callee hashtable*)
-  		let ((callee_func_name,temp_param_list),_,_)  = Hashtbl.find func_param_order_hash_table method_name in(*(valRef*typedefStruct*string) list*) 
-		  	(if (List.length expr_params_list) = (List.length temp_param_list)
-		  	then (List.iter2 (fun first second -> (let _ = process_calling_method_param hash_table temp_hash_symbol_table first second in Printf.printf "")) expr_params_list temp_param_list )
-		  	else (raise (Failure "short for params for calling %s\n")));
+    let temp_hash_symbol_table = get_hash_table_symbol (Hashtbl.find symbol_table_hash method_name) in (*callee hashtable*)
+        let ((callee_func_name,temp_param_list),_,_)  = Hashtbl.find func_param_order_hash_table method_name in(*(valRef*typedefStruct*string) list*) 
+            (if (List.length expr_params_list) = (List.length temp_param_list)
+            then (List.iter2 (fun first second -> (let _ = process_calling_method_param hash_table temp_hash_symbol_table first second in Printf.printf "")) expr_params_list temp_param_list )
+            else (raise (Failure "short for params for calling %s\n")));
       print_call method_name;)
   | WhileDec(expr, stmt_list) -> (let while_label = (!cur_label_count) in 
-	  	let while_out_label = (!cur_label_count) + 1 in 
-		  	(print_label_by_number while_label;
+        let while_out_label = (!cur_label_count) + 1 in 
+            (print_label_by_number while_label;
           cur_label_count := (!cur_label_count) + 2;
-		  		let result_register = codegen_arithmatic expr in (*compare condition *)
-			  	(print_branch_on_false (get_register_string result_register) (get_label_name while_out_label); (*branch is different to call .*)
-			  	List.iter (codegen_one_stmt hash_table) stmt_list; (**)
-			  	print_branch_on_unc (get_label_name while_label);
-			  	print_label_by_number while_out_label)))
-	(*will reserve else label as well, eventhough it might have no else part*)
+                let result_register = codegen_arithmatic expr in (*compare condition *)
+                (print_branch_on_false (get_register_string result_register) (get_label_name while_out_label); (*branch is different to call .*)
+                List.iter (codegen_one_stmt hash_table) stmt_list; (**)
+                print_branch_on_unc (get_label_name while_label);
+                print_label_by_number while_out_label)))
+    (*will reserve else label as well, eventhough it might have no else part*)
   | IfDec(expr,then_stmt_list,else_stmt_list) ->(let if_else_label = (!cur_label_count) in
-  	let if_out_label= (!cur_label_count)+1 in ( cur_label_count:=(!cur_label_count)+2;
-  		if(List.length (else_stmt_list))!= 0 (*if have else and condition is flase then go to else*)
-  		then (cur_register_count := 0;
-  			let result_register = codegen_arithmatic expr in
-  			(print_branch_on_false (get_register_string result_register) (get_label_name if_else_label);
-	  			List.iter (codegen_one_stmt hash_table) then_stmt_list ;
-	  			print_branch_on_unc (get_label_name if_out_label);
-	  			print_label_by_number if_else_label;
-	  			List.iter (codegen_one_stmt hash_table) else_stmt_list;(*if false go to else label, if true say in and jump uncondition to out label*)
-	  			print_label_by_number if_out_label))
-  		else (cur_register_count := 0;
+    let if_out_label= (!cur_label_count)+1 in ( cur_label_count:=(!cur_label_count)+2;
+        if(List.length (else_stmt_list))!= 0 (*if have else and condition is flase then go to else*)
+        then (cur_register_count := 0;
+            let result_register = codegen_arithmatic expr in
+            (print_branch_on_false (get_register_string result_register) (get_label_name if_else_label);
+                List.iter (codegen_one_stmt hash_table) then_stmt_list ;
+                print_branch_on_unc (get_label_name if_out_label);
+                print_label_by_number if_else_label;
+                List.iter (codegen_one_stmt hash_table) else_stmt_list;(*if false go to else label, if true say in and jump uncondition to out label*)
+                print_label_by_number if_out_label))
+        else (cur_register_count := 0;
         let result_register = codegen_arithmatic expr in 
           (print_branch_on_false (get_register_string result_register) (get_label_name if_out_label);(*if not else and false go to out label*)
-  			   List.iter (codegen_one_stmt hash_table) then_stmt_list;
-  			   print_label_by_number if_out_label))))(* if not else directly go *) 
+               List.iter (codegen_one_stmt hash_table) then_stmt_list;
+               print_label_by_number if_out_label))))(* if not else directly go *) 
   | _ -> (raise (Failure "start_translate_by_function_stmt_list error \n") ))
 
 (*
@@ -482,52 +482,51 @@ let check_if_ref func_name key = (*see is var ref or not*)
 let check_one_stmt_type stmt_data type_data = (*write, read, assign, *)
 *)
 
-
 let start_translate_by_function_declaration func_name one_functionDeclaration = match one_functionDeclaration with
-	|(func_name,funcDecParamList) -> (cur_register_count := 0;
-		print_label_by_function_name func_name; (*start each label body*)
-		(try let function_symbol_table_hash = get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name) in
-			(print_push_stack_frame (Hashtbl.find func_stack_num_hash func_name);
-				List.iter (fun x -> (
-					codegen_param_init function_symbol_table_hash x)) funcDecParamList;
-				cur_register_count := 0)
-		with Not_found -> (raise (Failure "%s symbol_table_hash not found\n"))))
+    |(func_name,funcDecParamList) -> (cur_register_count := 0;
+        print_label_by_function_name func_name; (*start each label body*)
+        (try let function_symbol_table_hash = get_hash_table_symbol(Hashtbl.find symbol_table_hash func_name) in
+            (print_push_stack_frame (Hashtbl.find func_stack_num_hash func_name);
+                List.iter (fun x -> (
+                    codegen_param_init function_symbol_table_hash x)) funcDecParamList;
+                cur_register_count := 0)
+        with Not_found -> (raise (Failure "%s symbol_table_hash not found\n"))))
 
 let rec start_translate_by_function_variable_declaration func_name typedefStruct_list = let var_init_symbol_table = get_hash_table_symbol( Hashtbl.find symbol_table_hash func_name )in
-	(cur_register_count := 0;
-		print_int_const (get_register_string !cur_register_count) 0; (*initialize everything to 0*)
-		List.iter (codegen_var_init var_init_symbol_table)  typedefStruct_list)
+    (cur_register_count := 0;
+        print_int_const (get_register_string !cur_register_count) 0; (*initialize everything to 0*)
+        List.iter (codegen_var_init var_init_symbol_table)  typedefStruct_list)
 
 let start_translate_by_function_stmt_list func_name stmt_list = let temp_hash_symbol_table = get_hash_table_symbol ( Hashtbl.find symbol_table_hash func_name) in
-	( cur_expr_type := BeanTypeNone;
-		cur_func_symbol_hash_table := temp_hash_symbol_table;
-		List.iter (codegen_one_stmt temp_hash_symbol_table) stmt_list)
+    ( cur_expr_type := BeanTypeNone;
+        cur_func_symbol_hash_table := temp_hash_symbol_table;
+        List.iter (codegen_one_stmt temp_hash_symbol_table) stmt_list)
 
 
 let start_translate_by_function one_funcdef = match one_funcdef with
-	|((func_name,func_param_list),typedefStruct_list,stmt_list) ->(cur_func_symbol_hash_table := get_hash_table_symbol( Hashtbl.find symbol_table_hash func_name );
+    |((func_name,func_param_list),typedefStruct_list,stmt_list) ->(cur_func_symbol_hash_table := get_hash_table_symbol( Hashtbl.find symbol_table_hash func_name );
     start_translate_by_function_declaration func_name (func_name,func_param_list);
-		start_translate_by_function_variable_declaration func_name typedefStruct_list;
-		start_translate_by_function_stmt_list func_name stmt_list;
+        start_translate_by_function_variable_declaration func_name typedefStruct_list;
+        start_translate_by_function_stmt_list func_name stmt_list;
     print_pop_stack_frame (Hashtbl.find func_stack_num_hash func_name); (*pop stack at the end of function body*)
-		print_return ())
+        print_return ())
 
 (*syntax ?*)
 let rec find_funcdef funcdefs func_name = try match (List.hd funcdefs) with
-		| ((fun_name,_),_,_) -> if fun_name = func_name then List.hd funcdefs  else find_funcdef (List.tl funcdefs) func_name
-	with Failure e-> (raise (Failure "no main function\n")) 
+        | ((fun_name,_),_,_) -> if fun_name = func_name then List.hd funcdefs  else find_funcdef (List.tl funcdefs) func_name
+    with Failure e-> (raise (Failure "no main function\n")) 
 
 let start_test_analyzer prog = (build_typedef_table_hash (prog.typedefs);
-		build_symbol_table_hash_all (prog.funcdefs);
-		print_call "main";
-		print_halt ();
+        build_symbol_table_hash_all (prog.funcdefs);
+        print_call "main";
+        print_halt ();
 (*!= compare address ...*)
-		let main_def = find_funcdef (prog.funcdefs) ("main") in
-			(start_translate_by_function main_def;
+        let main_def = find_funcdef (prog.funcdefs) ("main") in
+            (start_translate_by_function main_def;
 
-		  List.iter (fun x ->( match x with 
+          List.iter (fun x ->( match x with 
         |((func_name,_),_,_) -> if not (func_name = "main") then start_translate_by_function x  )) prog.funcdefs))
 
 let start_analyzer prog = (build_typedef_table_hash (prog.typedefs);
-		build_symbol_table_hash_all (prog.funcdefs))
+        build_symbol_table_hash_all (prog.funcdefs))
 
